@@ -253,6 +253,38 @@ mark.lx{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad
 .tcards.three .tcard:nth-child(3) .tc-face{animation-delay:.3s}
 .strengths{display:flex;flex-direction:column;gap:8px;width:100%}
 @keyframes flipin{0%{transform:rotateY(90deg) scale(.9);opacity:0}100%{transform:none;opacity:1}}
+.onb{gap:18px;max-width:640px}
+.fld{display:flex;flex-direction:column;gap:6px;border:0;padding:0;margin:0;min-width:0}
+.fld legend{padding:0;margin-bottom:6px}
+.fld input,.fld select{font:inherit;font-size:1.05rem;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);width:100%}
+.fld input:focus-visible,.fld select:focus-visible{outline:3px solid var(--acc);outline-offset:1px}
+.avrow{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.avpick{display:flex;align-items:center;gap:14px;cursor:pointer}
+.avtxt{display:flex;flex-direction:column}.avtxt span{color:var(--muted);font-size:.9rem}
+.av{width:52px;height:52px;border-radius:50%;object-fit:cover;flex:0 0 auto;display:grid;place-items:center;background:var(--acc);color:var(--on-acc);font-family:var(--display);font-weight:900;font-size:1.4rem;border:2px solid var(--surface);box-shadow:0 0 0 2px var(--acc)}
+.av.lg{width:84px;height:84px;font-size:2.2rem}
+.tpicks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media(min-width:640px){.tpicks{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.tpk{appearance:none;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:2px;padding:14px;border-radius:14px;border:2px solid var(--line);background:var(--bg);color:var(--ink)}
+.tpk b{font-family:var(--display);font-weight:800;font-size:1.1rem}.tpk span{color:var(--muted);font-size:.9rem}
+.tpk[aria-pressed="true"]{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 16%,var(--bg));box-shadow:0 4px 0 var(--acc)}
+.tpk:disabled{opacity:.4;cursor:not-allowed}
+.lvls{display:flex;flex-direction:column;gap:14px}
+.lvopts{display:flex;flex-wrap:wrap;gap:8px}
+.lvo{appearance:none;cursor:pointer;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:8px 14px;font-weight:700}
+.lvo[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:var(--on-acc)}
+.dhead{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.dh{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.dh h2{font-size:clamp(1.6rem,6vw,2.2rem)}
+.dsub{color:var(--muted);font-size:.92rem}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media(min-width:760px){.tiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.tile2{appearance:none;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:6px;padding:16px;border-radius:18px;border:2px solid var(--line);background:var(--surface);color:var(--ink);box-shadow:0 5px 0 var(--acc);min-width:0;transition:transform .15s}
+.tile2:hover:not(:disabled){transform:translateY(-2px)}
+.tile2:disabled{cursor:default;box-shadow:none;opacity:.55}
+.tile2 .ti{width:44px;height:44px;color:var(--acc)}.tile2 .ti svg{width:100%;height:100%}
+.tile2 b{font-family:var(--display);font-weight:900;letter-spacing:.06em;font-size:1.05rem;font-variation-settings:"wdth" 112}
+.tile2 span:last-child{color:var(--muted);font-size:.88rem}
 .hidden{display:none}
 @media(max-width:779px){.tile{max-width:min(240px,64vw)}.tile .g{font-size:clamp(5rem,24vw,7rem)}.hide-sm{display:none}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -652,34 +684,107 @@ function hlx(word,x){
   return esc(word).replace(re,"<mark>$1</mark>");
 }
 
-/* ---------------- HOME ---------------- */
-function home(){
-  run++;if(hasTTS)try{speechSynthesis.cancel()}catch(e){}
-  document.body.className="";
+/* ---------------- PROFILE ---------------- */
+const LEVELNAMES=["Beginner","Lower intermediate","Intermediate","Upper intermediate","Advanced"];
+const NATIVE=["Arabic","Bengali","Chinese (Mandarin)","Dutch","English","French","German","Greek","Gujarati","Hindi","Indonesian","Italian","Japanese","Kannada","Korean","Malayalam","Marathi","Nepali","Persian","Polish","Portuguese","Punjabi","Russian","Spanish","Swahili","Tamil","Telugu","Thai","Turkish","Ukrainian","Urdu","Vietnamese","Other"];
+const getProfile=()=>{try{return JSON.parse(localStorage.getItem("sas-profile")||"null")}catch(e){return null}};
+const saveProfile=p=>{try{localStorage.setItem("sas-profile",JSON.stringify(p));return true}catch(e){return false}};
+let PROFILE=getProfile();
+function avatarHTML(p,cls){return p&&p.pic?`<img class="${cls}" src="${p.pic}" alt="">`:`<span class="${cls} ini" aria-hidden="true">${esc(((p&&p.name)||"?").trim().charAt(0).toUpperCase()||"?")}</span>`}
+function resizePic(file){return new Promise((res,rej)=>{const r=new FileReader();r.onerror=rej;r.onload=()=>{const im=new Image();im.onerror=rej;im.onload=()=>{
+  const z=192,c=document.createElement("canvas");c.width=c.height=z;const k=Math.max(z/im.width,z/im.height),w=im.width*k,h=im.height*k;
+  c.getContext("2d").drawImage(im,(z-w)/2,(z-h)/2,w,h);res(c.toDataURL("image/jpeg",.85))};im.src=r.result};r.readAsDataURL(file)})}
+
+function onboarding(){
+  run++;if(fxStop)fxStop();document.body.className="";
+  const pr=PROFILE||{name:"",native:"",pic:"",targets:[]};
+  let pic=pr.pic||"",sel=(pr.targets||[]).map(t=>({...t}));
   $("#app").innerHTML=`
-  <header style="display:flex;flex-direction:column;gap:10px">
-    <span class="label">Letters · Letter teams · Reading</span>
-    <h1>Symbols &amp; Sounds</h1>
-    <p class="lede">Tap on the letter to hear its sound and repeat in the microphone to test your pronunciation.</p>
-  </header>
-  <section style="display:flex;flex-direction:column;gap:10px">
-    <span class="label">Choose the language you're learning</span>
-    <div class="langs">${Object.entries(LANGS).map(([k,v])=>{const p=loadProg(k);
-      const where=!p?"Start at A":p.ph==="more"?`What's next · ${calcScore(p)} pts`:p.ph==="reading"?`Reading practice · ${calcScore(p)} pts`:p.ph==="teams"?`Letter teams: ${esc(v.teams[Math.min(p.tidx||0,v.teams.length-1)].l)} · ${calcScore(p)} pts`:`Resume at ${up(v.letters[Math.min(p.idx,v.letters.length-1)].l)} · ${calcScore(p)} pts`;
-      return `<button class="lang ${v.cls}" data-k="${k}"><span class="nm">${v.name.toUpperCase()}</span><span class="meta">${v.native} · ${v.letters.length} letters · ${v.teams.length} letter teams</span><span class="prog">${where}</span></button>`}).join("")}</div>
-  </section>`;
-  $(".langs").onclick=e=>{const b=e.target.closest("[data-k]");if(!b)return;
-    const k=b.dataset.k,p=loadProg(k)||{};
-    S={lang:k,ph:["teams","reading","more"].includes(p.ph)?p.ph:"letters",rb:rbFrom(p),qz:p.qz||{},idx:Math.min(p.idx||0,LANGS[k].letters.length-1),tidx:Math.min(p.tidx||0,LANGS[k].teams.length-1),score:calcScore(p),got:p.got||[],tgot:p.tgot||[],miss:p.miss||[],tmiss:p.tmiss||[]};
-    micReady?learn():micSetup()};
+  <header style="display:flex;flex-direction:column;gap:8px"><span class="label">${PROFILE?"Edit your profile":"Welcome"}</span><h1>Symbols &amp; Sounds</h1>
+    <p class="lede">Tell us a little about yourself, and we'll set up your languages.</p></header>
+  <form class="panel onb" id="onb" novalidate>
+    <div class="avrow">
+      <label class="avpick" for="picIn"><span id="avPrev">${avatarHTML({name:pr.name,pic},"av lg")}</span><span class="avtxt"><b>Profile picture</b><span>Optional · tap to upload</span></span></label>
+      <input type="file" id="picIn" accept="image/*" hidden>
+      <button type="button" class="btn ghost" id="picRm" ${pic?"":"hidden"}>Remove</button>
+    </div>
+    <label class="fld"><span class="label">Your name</span><input type="text" id="nm" autocomplete="given-name" maxlength="40" value="${esc(pr.name)}" placeholder="e.g. Kris"></label>
+    <label class="fld"><span class="label">Your native language</span><select id="nat"><option value="">Choose…</option>${NATIVE.map(n=>`<option${n===pr.native?" selected":""}>${n}</option>`).join("")}</select></label>
+    <fieldset class="fld"><legend class="label">Languages you'd like to learn · choose up to two</legend>
+      <div class="tpicks" id="tpicks">${Object.entries(LANGS).map(([k,v])=>`<button type="button" class="tpk ${v.cls}" data-k="${k}" aria-pressed="false"><b>${v.name}</b><span>${v.native}</span></button>`).join("")}</div>
+      <p class="label" id="tmsg"></p>
+    </fieldset>
+    <div id="lvls" class="lvls"></div>
+    <div class="fb" id="obErr" aria-live="polite"></div>
+    <div class="btns"><button type="submit" class="btn" id="obGo">Continue →</button>${PROFILE?`<button type="button" class="btn ghost" id="obCancel">Cancel</button>`:""}</div>
+  </form>`;
+  const nativeKey=()=>({English:"en",Spanish:"es",French:"fr",German:"de"})[$("#nat").value];
+  const draw=()=>{
+    const er=$("#obErr");if(er)er.textContent="";
+    const nk=nativeKey();sel=sel.filter(t=>t.k!==nk);
+    document.querySelectorAll(".tpk").forEach(b=>{const k=b.dataset.k,on=sel.some(t=>t.k===k);b.setAttribute("aria-pressed",on);b.disabled=k===nk||(!on&&sel.length>=2)});
+    $("#tmsg").textContent=nk?`${LANGS[nk].name} is your native language, so it isn't offered.`:sel.length>=2?"You've chosen two languages. Tap one again to swap it.":"";
+    $("#lvls").innerHTML=sel.map(t=>`<fieldset class="fld lvl ${LANGS[t.k].cls}"><legend class="label">Your level in ${LANGS[t.k].name}</legend><div class="lvopts">${LEVELNAMES.map(l=>`<button type="button" class="lvo" data-k="${t.k}" data-l="${l}" aria-pressed="${t.level===l}">${l}</button>`).join("")}</div></fieldset>`).join("");
+  };
+  draw();
+  $("#nat").onchange=draw;$("#nm").oninput=()=>{$("#obErr").textContent=""};
+  $("#tpicks").onclick=e=>{const b=e.target.closest(".tpk");if(!b||b.disabled)return;const k=b.dataset.k,i=sel.findIndex(t=>t.k===k);if(i>=0)sel.splice(i,1);else if(sel.length<2)sel.push({k,level:""});draw()};
+  $("#lvls").onclick=e=>{const b=e.target.closest(".lvo");if(!b)return;const t=sel.find(x=>x.k===b.dataset.k);if(t){t.level=b.dataset.l;draw()}};
+  $("#picIn").onchange=async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;try{pic=await resizePic(f);$("#avPrev").innerHTML=avatarHTML({pic},"av lg");$("#picRm").hidden=false}catch(x){$("#obErr").className="fb no";$("#obErr").textContent="That picture couldn't be opened. Try a JPG or PNG image."}};
+  $("#picRm").onclick=()=>{pic="";$("#picIn").value="";$("#avPrev").innerHTML=avatarHTML({name:$("#nm").value},"av lg");$("#picRm").hidden=true};
+  if($("#obCancel"))$("#obCancel").onclick=dashboard;
+  $("#onb").onsubmit=e=>{e.preventDefault();const err=t=>{$("#obErr").className="fb no";$("#obErr").textContent=t};
+    const name=$("#nm").value.trim(),native=$("#nat").value;
+    if(!name)return err("Enter your name.");
+    if(!native)return err("Choose your native language.");
+    if(!sel.length)return err("Choose at least one language to learn.");
+    const nolvl=sel.find(t=>!t.level);if(nolvl)return err(`Choose your level in ${LANGS[nolvl.k].name}.`);
+    const active=PROFILE&&sel.some(t=>t.k===PROFILE.active)?PROFILE.active:sel[0].k;
+    PROFILE={name,native,pic,targets:sel,active};
+    if(!saveProfile(PROFILE)&&pic){PROFILE.pic="";saveProfile(PROFILE)}
+    dashboard();
+  };
 }
+
+/* ---------------- HOME ---------------- */
+function openLang(k){
+  const p=loadProg(k)||{};
+  S={lang:k,ph:["teams","reading","more"].includes(p.ph)?p.ph:"letters",rb:rbFrom(p),qz:p.qz||{},idx:Math.min(p.idx||0,LANGS[k].letters.length-1),tidx:Math.min(p.tidx||0,LANGS[k].teams.length-1),score:calcScore(p),got:p.got||[],tgot:p.tgot||[],miss:p.miss||[],tmiss:p.tmiss||[]};
+}
+const ICONS={
+ alphabet:'<svg viewBox="0 0 48 48" aria-hidden="true"><text x="24" y="33" text-anchor="middle" font-family="Archivo,sans-serif" font-weight="900" font-size="24" fill="currentColor">Aa</text></svg>',
+ vocabulary:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" aria-hidden="true"><path d="M8 10h12a4 4 0 0 1 4 4v24a3 3 0 0 0-3-3H8zM40 10H28a4 4 0 0 0-4 4v24a3 3 0 0 1 3-3h13z"/></svg>',
+ grammar:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M10 14h28M10 24h20M10 34h24"/><circle cx="38" cy="34" r="3" fill="currentColor"/></svg>',
+ games:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="32" height="32" rx="7"/><circle cx="17" cy="17" r="2.5" fill="currentColor"/><circle cx="31" cy="31" r="2.5" fill="currentColor"/><circle cx="24" cy="24" r="2.5" fill="currentColor"/></svg>',
+ speaking:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><rect x="18" y="6" width="12" height="22" rx="6"/><path d="M11 22a13 13 0 0 0 26 0M24 35v7"/></svg>',
+ listening:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M9 30v-6a15 15 0 0 1 30 0v6"/><rect x="7" y="28" width="8" height="12" rx="3"/><rect x="33" y="28" width="8" height="12" rx="3"/></svg>'};
+function dashboard(){
+  PROFILE=getProfile()||PROFILE;if(!PROFILE)return onboarding();
+  run++;if(fxStop)fxStop();if(hasTTS)try{speechSynthesis.cancel()}catch(e){}
+  if(!PROFILE.targets.some(t=>t.k===PROFILE.active))PROFILE.active=PROFILE.targets[0].k;
+  const k=PROFILE.active,lg=LANGS[k],tg=PROFILE.targets.find(t=>t.k===k);openLang(k);
+  document.body.className=lg.cls;
+  const tiles=[["alphabet","Alphabet","Letters, sounds and reading",1],["vocabulary","Vocabulary","Words by topic",0],["grammar","Grammar","Tenses, moods and quizzes",1],["games","Games","Learn while you play",0],["speaking","Speaking","Say it and get feedback",0],["listening","Listening","Train your ear",0]];
+  $("#app").innerHTML=`
+  <header class="dhead">${avatarHTML(PROFILE,"av")}<div class="dh"><span class="label">Symbols &amp; Sounds</span><h2>Hi, ${esc(PROFILE.name)}</h2><span class="dsub">Native language: ${esc(PROFILE.native)}</span></div><button class="btn ghost" id="editP">Edit profile</button></header>
+  ${PROFILE.targets.length>1?`<div class="seg" id="lsw">${PROFILE.targets.map(t=>`<button data-k="${t.k}" aria-selected="${t.k===k}">${LANGS[t.k].name} <span>${esc(t.level)}</span></button>`).join("")}</div>`
+    :`<p class="label">Learning ${lg.name} · ${esc(tg.level)}</p>`}
+  <div class="tiles" id="tiles">${tiles.map(([id,t,d,on])=>`<button class="tile2" data-t="${id}" ${on?"":"disabled"}><span class="ti">${ICONS[id]}</span><b>${t.toUpperCase()}</b><span>${on?d:"Coming soon"}</span></button>`).join("")}</div>
+  ${strengths()}`;
+  $("#editP").onclick=onboarding;
+  if($("#lsw"))$("#lsw").onclick=e=>{const b=e.target.closest("[data-k]");if(b&&b.dataset.k!==PROFILE.active){PROFILE.active=b.dataset.k;saveProfile(PROFILE);dashboard()}};
+  $("#tiles").onclick=e=>{const b=e.target.closest(".tile2");if(!b||b.disabled)return;
+    if(b.dataset.t==="alphabet"){if(!["letters","teams","reading"].includes(S.ph))S.ph="letters";micReady?learn():micSetup()}
+    else if(b.dataset.t==="grammar")grammar()};
+}
+function home(){if(!getProfile())onboarding();else dashboard()}
 
 /* ---------------- MICROPHONE SETUP ---------------- */
 let micReady=false,meterStop=null;
 function framePolicyBlocksMic(){try{const p=document.permissionsPolicy||document.featurePolicy;return !!(p&&p.allowsFeature&&p.allowsFeature("microphone")===false)}catch(e){return false}}
 function micSetup(){
   run++;const lg=LG();document.body.className=lg.cls;
-  $("#app").innerHTML=`<div class="top"><div class="left"><button class="btn ghost" id="back">← Languages</button><h2>${lg.name}</h2></div></div>
+  $("#app").innerHTML=`<div class="top"><div class="left"><button class="btn ghost" id="back">← Home</button><h2>${lg.name}</h2></div></div>
   <section class="panel turn" style="max-width:640px;gap:16px">
     <span class="label">Step 1 of 2 · Microphone</span>
     <h2>Let the app hear you</h2>
@@ -741,7 +846,7 @@ function voiceCheck(){
     const b=$(".bench");b&&b.parentNode.insertBefore(n,b)},1200);
 }
 function topbar(extra){
-  return `<div class="top"><div class="left"><button class="btn ghost" id="back">← Languages</button><h2>${LG().name}</h2></div>
+  return `<div class="top"><div class="left"><button class="btn ghost" id="back">← Home</button><h2>${LG().name}</h2></div>
   <div class="btns" style="align-items:center">${extra||""}<button class="btn ghost" id="rulesBtn"><span class="hide-sm">Pronunciation&nbsp;</span>Rules</button><span class="score" id="score">${S.score} pts</span></div></div>`;
 }
 function wireTop(){ $("#back").onclick=home; $("#rulesBtn").onclick=rules; }
@@ -1570,14 +1675,14 @@ function grammar(openTitle){
     </div></details>`};
   const items=allItems(S.lang),doneN=items.filter(it=>qzBest(it[1])!=null).length,allDone=doneN===items.length,fb=qzBest(FINAL_ID);
   $("#app").innerHTML=`${topbar()}${phaseTabs()}
-  <section style="display:flex;flex-direction:column;gap:6px"><button class="btn ghost" id="toHub" style="align-self:flex-start">← What's next</button><span class="label">Master Grammar · ${lg.name}</span><h2>Tap a topic to open it</h2><p class="label">Quizzes done: ${doneN} of ${items.length}</p></section>
+  <section style="display:flex;flex-direction:column;gap:6px"><button class="btn ghost" id="toHub" style="align-self:flex-start">← Home</button><span class="label">Master Grammar · ${lg.name}</span><h2>Tap a topic to open it</h2><p class="label">Quizzes done: ${doneN} of ${items.length}</p></section>
   <div class="glist" id="glist">${G.groups.map((g,gi)=>`<section class="gg"><h3 class="label">${esc(g[0])}</h3>${g[1].map((it,ii)=>item(it,gi,ii)).join("")}</section>`).join("")}
   <section class="panel final ${allDone?"":"locked"}"><span class="label">Final quiz · intermediate · ${FINALQ[S.lang].length} questions</span>
     <h3>All grammar topics</h3>
     <p>${allDone?"Questions that mix every topic you've studied, at an intermediate level. 1 point for each correct answer.":`Unlocks when you've taken every topic quiz. ${items.length-doneN} to go.`}</p>
     ${allDone?`<div class="quizrow"><button class="btn" id="finalB">Start the final quiz</button><span class="label">${fb!=null?`Best score ${fb}/${FINALQ[S.lang].length}`:"Not taken yet"}</span></div>`:""}
   </section></div>`;
-  wireTop();wirePhaseTabs();$("#toHub").onclick=hub;
+  wireTop();wirePhaseTabs();$("#toHub").onclick=dashboard;
   const list=$("#glist");wireChips(list);
   if($("#finalB"))$("#finalB").onclick=()=>quiz(FINAL_ID,"All grammar topics",finalQs(),()=>grammar());
   list.addEventListener("toggle",e=>{const d=e.target;if(!d.classList||!d.classList.contains("gi"))return;
