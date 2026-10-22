@@ -1,5 +1,5 @@
 // Network first, so updates show at once; falls back to the last saved copy when offline.
-const CACHE="sas-v7";
+const CACHE="sas-v8";
 self.addEventListener("install",e=>self.skipWaiting());
 self.addEventListener("activate",e=>e.waitUntil(self.clients.claim()));
 self.addEventListener("fetch",e=>{
