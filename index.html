@@ -141,6 +141,7 @@ button:focus-visible{outline:3px solid var(--acc);outline-offset:3px}
 .wd .st{color:inherit;font-weight:800;box-shadow:inset 0 -3px 0 var(--acc)}
 .syl .dot{color:var(--muted);margin:0 1px}
 .passage{appearance:none;text-align:left;cursor:pointer;background:var(--soft);border:2px dashed var(--acc);border-radius:16px;padding:18px;font-family:var(--body);font-size:clamp(1.15rem,4.4vw,1.45rem);line-height:1.9;color:var(--ink);max-width:70ch}
+.passage.paused{border-style:dashed;border-color:var(--warn)}
 .passage.on{border-style:solid;animation:ring 1.4s ease-out infinite}
 .wd{border-radius:5px;padding:1px 2px;transition:background .2s,color .2s}
 .wd.next{background:color-mix(in srgb,var(--acc) 22%,transparent)}
@@ -983,7 +984,7 @@ function readingPage(){
   <div id="results"></div>`;
   wireTop();wirePhaseTabs();
   const spans=[...document.querySelectorAll("#passage .wd")];
-  let netErr=0,showStress=false,listening=false,stopped=false,acc="",sess="",interim="",rec=null,hardErr=null,deadline=0,autoT=null;
+  let paused=false,netErr=0,showStress=false,listening=false,stopped=false,acc="",sess="",interim="",rec=null,hardErr=null,deadline=0,autoT=null;
   const paintStress=()=>spans.forEach((s,k)=>{s.innerHTML=showStress?wordStressHTML(words[k].t):esc(words[k].t)});
   $("#stressT").onclick=()=>{showStress=!showStress;$("#stressT").setAttribute("aria-pressed",showStress);$("#stressT").textContent=showStress?"Hide stress":"Show stress";paintStress()};
   $("#hearAll").onclick=()=>{if(listening)return;run++;speak(R.text,tag,.85)};
@@ -1002,14 +1003,17 @@ function readingPage(){
       for(let k=0;k<e.results.length;k++){const t=e.results[k][0].transcript.trim();
         if(e.results[k].isFinal){if(parts.length&&t.startsWith(parts[parts.length-1]))parts[parts.length-1]=t;else parts.push(t)}else im+=" "+t}
       sess=parts.join(" ");interim=im;live()};
-    rec.onerror=e=>{if(HARD.includes(e.error))hardErr=e.error;if(e.error==="network"&&++netErr>=2)hardErr="network"};
-    rec.onend=()=>{acc+=" "+sess;sess="";interim="";
-      if(!stopped&&!hardErr&&Date.now()<deadline)setTimeout(()=>{if(!stopped)session();else finish()},120);else finish()};
+    rec.onerror=e=>{if(HARD.includes(e.error))hardErr=e.error;if(e.error==="network")hardErr="network"};
+    // No automatic restart: each restart makes Android play its listening beep.
+    rec.onend=()=>{acc+=" "+sess;sess="";interim="";rec=null;
+      if(stopped||hardErr){finish();return}
+      paused=true;listening=false;$("#passage").classList.remove("on");$("#passage").classList.add("paused");
+      $("#rstate").textContent="Paused. Tap the text to carry on from where you stopped, or tap Done reading.";live()};
     try{rec.start()}catch(e){hardErr="start";finish()}
   };
   let finished=false;
-  const finish=()=>{if(finished)return;finished=true;listening=false;clearTimeout(autoT);
-    $("#passage").classList.remove("on");$("#doneR").hidden=true;
+  const finish=()=>{if(finished)return;finished=true;listening=false;paused=false;clearTimeout(autoT);
+    $("#passage").classList.remove("on","paused");$("#doneR").hidden=true;
     if(hardErr==="network"){$("#rstate").textContent="The speech service couldn't be reached. Check your internet connection, then tap the text again.";spans.forEach(s=>s.className="wd");return}
     if(hardErr){mode="self";micNote="Chrome couldn't use the microphone. Allow it for this page and reload.";$("#rstate").textContent=micNote;return}
     const H=acc.split(/\s+/).map(rnorm).filter(Boolean);
@@ -1020,6 +1024,7 @@ function readingPage(){
   const begin=()=>{
     if(mode!=="voice"){$("#rstate").textContent="Turn on the microphone to have your reading checked: go back to Languages and pick this language again.";return}
     if(listening){stop();return}
+    if(paused){paused=false;listening=true;$("#passage").classList.remove("paused");$("#passage").classList.add("on");$("#rstate").textContent="Listening… carry on reading";session();return}
     run++;if(hasTTS)try{speechSynthesis.cancel()}catch(e){}
     netErr=0;listening=true;stopped=false;finished=false;acc="";sess="";interim="";hardErr=null;autoT=null;deadline=Date.now()+180000;
     $("#results").innerHTML="";spans.forEach(s=>s.className="wd");spans[0].classList.add("next");
@@ -1027,7 +1032,7 @@ function readingPage(){
     session();
   };
   $("#passage").onclick=begin;
-  $("#doneR").onclick=stop;
+  $("#doneR").onclick=()=>{stopped=true;if(paused||!rec)finish();else stop()};
 }
 
 function assess(T,H,words,rawHeard,spans){
