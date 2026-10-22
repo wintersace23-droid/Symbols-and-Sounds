@@ -1,0 +1,1095 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f1119">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Symbols &amp; Sounds</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Charis+SIL:wght@400;700&family=Figtree:wght@400;600;700&display=swap">
+<style>
+[hidden]{display:none!important}
+img{max-width:100%}
+/* Layout: a phonics bench. A single keycap-like letter sits on the left (top on phones); the sound, the two words, the variations and "your turn" stack beside it. A rail of the whole alphabet runs above, with a dot under every 6th letter marking a review stop. */
+:root{
+  --bg:#eff1f6; --surface:#ffffff; --ink:#161a2b; --muted:#585e76; --line:#d9dce8;
+  --en:#2c5ee8; --es:#cf3f22; --fr:#6a3dd0; --de:#0b7f61; --on-acc:#ffffff;
+  --good:#1d8150; --bad:#c23a32; --warn:#a35f00;
+  --display:"Archivo",ui-sans-serif,system-ui,sans-serif;
+  --body:"Figtree",ui-sans-serif,system-ui,sans-serif;
+  --ipa:"Charis SIL","Doulos SIL","Gentium Plus","Times New Roman",serif;
+  --acc:var(--en);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1119; --surface:#1a1d29; --ink:#eef0f8; --muted:#a2a8c0; --line:#2e3243;
+  --en:#7f9dff; --es:#ff8266; --fr:#ac90ff; --de:#3fd0a6; --on-acc:#0f1119;
+  --good:#4fd08e; --bad:#ff7a70; --warn:#ffb44a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1119; --surface:#1a1d29; --ink:#eef0f8; --muted:#a2a8c0; --line:#2e3243;
+  --en:#7f9dff; --es:#ff8266; --fr:#ac90ff; --de:#3fd0a6; --on-acc:#0f1119;
+  --good:#4fd08e; --bad:#ff7a70; --warn:#ffb44a; color-scheme:dark}
+.l-en{--acc:var(--en)} .l-es{--acc:var(--es)} .l-fr{--acc:var(--fr)} .l-de{--acc:var(--de)}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+#app{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:18px;--soft:color-mix(in srgb,var(--acc) 13%,var(--surface))}
+h1,h2,h3{font-family:var(--display);margin:0;line-height:1.05;text-wrap:balance}
+h1{font-size:clamp(2.2rem,7vw,3.6rem);font-weight:900;font-variation-settings:"wdth" 118;letter-spacing:-.02em}
+h2{font-size:1.4rem;font-weight:800;font-variation-settings:"wdth" 110}
+h3{font-size:1.05rem;font-weight:800}
+p{margin:0}
+.lede{color:var(--muted);max-width:60ch;font-size:1.08rem}
+.label{font-size:.72rem;text-transform:uppercase;letter-spacing:.13em;font-weight:700;color:var(--muted)}
+button{font:inherit;color:inherit;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+button:focus-visible{outline:3px solid var(--acc);outline-offset:3px}
+.btn{appearance:none;border:0;border-radius:12px;padding:12px 18px;font-weight:700;cursor:pointer;background:var(--acc);color:var(--on-acc);display:inline-flex;align-items:center;gap:8px;justify-content:center}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.good{background:var(--good);color:var(--on-acc)}
+.btn.bad{background:transparent;color:var(--bad);border:1.5px solid var(--bad)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btns{display:flex;flex-wrap:wrap;gap:10px}
+
+/* Home */
+.langs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media(min-width:820px){.langs{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.lang{appearance:none;cursor:pointer;text-align:left;border:2px solid var(--line);background:var(--surface);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:6px;min-width:0;box-shadow:0 6px 0 var(--acc);transition:transform .15s}
+.lang:hover{transform:translateY(-3px)}
+.lang .spec{font-family:var(--display);font-weight:900;font-variation-settings:"wdth" 125;font-size:clamp(3.6rem,14vw,5.4rem);line-height:1;color:var(--acc)}
+.lang .nm{font-family:var(--display);font-weight:800;font-size:1.25rem;font-variation-settings:"wdth" 110;letter-spacing:.02em}
+.lang .meta{color:var(--muted);font-size:.9rem}
+.lang .prog{font-size:.82rem;font-weight:700;color:var(--acc)}
+.howto{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.howto div{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;min-width:0}
+.howto b{display:block;font-family:var(--display);font-weight:800}
+.note{font-size:.92rem;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:10px 14px}
+
+/* Learn */
+.top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:space-between}
+.top .left{display:flex;align-items:center;gap:10px;min-width:0}
+.score{font-family:var(--display);font-weight:800;font-variant-numeric:tabular-nums;background:var(--acc);color:var(--on-acc);border-radius:999px;padding:6px 14px;font-size:1.05rem}
+.score.bump{animation:bump .5s}
+@keyframes bump{40%{transform:scale(1.18)}}
+.rail-wrap{overflow-x:auto;padding-bottom:6px}
+.rail{display:flex;gap:4px;min-width:max-content}
+.rail button{appearance:none;border:1.5px solid var(--line);background:var(--surface);border-radius:8px;width:34px;height:38px;cursor:pointer;font-family:var(--display);font-weight:800;position:relative;font-size:.95rem}
+.rail button.done{background:var(--soft);border-color:var(--acc)}
+.rail button.cur{background:var(--acc);color:var(--on-acc);border-color:var(--acc)}
+.rail button.cp::after{content:"";position:absolute;bottom:-7px;left:50%;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--muted)}
+.bench{display:grid;gap:18px}
+@media(min-width:780px){.bench{grid-template-columns:minmax(0,5fr) minmax(0,6fr);align-items:start}}
+.tilecol{display:flex;flex-direction:column;align-items:center;gap:10px}
+.tile{appearance:none;cursor:pointer;width:100%;max-width:360px;aspect-ratio:1/1;border-radius:28px;border:2px solid var(--line);background:var(--surface);box-shadow:0 10px 0 var(--acc);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;position:relative;transition:transform .12s, box-shadow .12s}
+.tile:active{transform:translateY(6px);box-shadow:0 4px 0 var(--acc)}
+.tile .g{font-family:var(--display);font-weight:900;font-variation-settings:"wdth" 125;line-height:.9;font-size:clamp(6rem,30vw,9.5rem);display:flex;align-items:baseline;gap:.08em}
+.tile .g small{font-size:.55em;color:var(--acc)}
+.tile .nm{font-size:1rem;color:var(--muted);font-weight:600}
+.tile.playing{animation:ring 1.2s ease-out infinite}
+@keyframes ring{0%{box-shadow:0 10px 0 var(--acc),0 0 0 0 color-mix(in srgb,var(--acc) 45%,transparent)}100%{box-shadow:0 10px 0 var(--acc),0 0 0 22px transparent}}
+.tapcap{font-weight:700;color:var(--acc);display:flex;gap:8px;align-items:center}
+.ipa{font-family:var(--ipa);font-size:1.15em}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.soundline{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.soundline .ipa{font-size:2rem;color:var(--acc);font-weight:700}
+.stage{min-height:112px;border-radius:14px;background:var(--soft);padding:16px;display:flex;flex-direction:column;justify-content:center;gap:2px}
+.stage .count{font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.stage .w{font-family:var(--display);font-weight:800;font-variation-settings:"wdth" 108;font-size:clamp(2rem,7vw,2.8rem);line-height:1.1;overflow-wrap:anywhere}
+.stage .w mark{background:none;color:var(--acc);text-decoration:underline;text-decoration-thickness:4px;text-underline-offset:6px}
+.stage .m{color:var(--muted)}
+.stage.empty{color:var(--muted)}
+.stage .w,.stage .m{animation:rise .35s ease-out}
+@keyframes rise{from{opacity:.2;transform:translateY(6px)}}
+.vars{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.vars li{border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:6px}
+.vars li:first-child{border-top:0;padding-top:0}
+.vars .hd{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.vars .hd .ipa{color:var(--acc);font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{appearance:none;border:1.5px solid var(--line);background:var(--bg);border-radius:999px;padding:6px 12px;cursor:pointer;display:inline-flex;gap:6px;align-items:baseline;max-width:100%;text-align:left}
+.chip b{font-weight:700}
+.chip span{color:var(--muted);font-size:.88rem}
+.chip:hover{border-color:var(--acc)}
+.turn{border:2px solid var(--acc)}
+.mic{width:76px;height:76px;border-radius:50%;border:0;background:var(--acc);color:var(--on-acc);cursor:pointer;display:grid;place-items:center;flex:0 0 auto}
+.mic.on{animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.08);box-shadow:0 0 0 10px color-mix(in srgb,var(--acc) 25%,transparent)}}
+.turnrow{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.turnrow>div{flex:1 1 200px;min-width:0}
+.fb{font-weight:700;min-height:1.5em}
+.fb.ok{color:var(--good)} .fb.no{color:var(--bad)}
+.dots{display:flex;gap:6px}
+.dots i{width:28px;height:8px;border-radius:4px;background:var(--line)}
+.dots i.ok{background:var(--good)} .dots i.no{background:var(--bad)} .dots i.now{background:var(--acc)}
+.rules{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+.rules .panel h3{font-size:1.05rem}
+.big{font-family:var(--display);font-weight:900;font-size:clamp(3rem,12vw,5rem);font-variant-numeric:tabular-nums;color:var(--acc);line-height:1}
+.seg{display:flex;flex-wrap:wrap;border:1.5px solid var(--line);border-radius:12px;padding:3px;gap:3px;background:var(--surface);align-self:flex-start;max-width:100%}
+.seg button{appearance:none;border:0;background:transparent;border-radius:9px;padding:8px 14px;font-weight:700;cursor:pointer;white-space:nowrap}
+.seg button span{font-weight:600;opacity:.7;font-variant-numeric:tabular-nums;margin-left:4px}
+.seg button[aria-selected="true"]{background:var(--acc);color:var(--on-acc)}
+.rail.teams button{width:auto;min-width:40px;padding:0 9px;font-size:.82rem;white-space:nowrap}
+.tile .g.team{font-size:clamp(2.6rem,11vw,4.6rem);line-height:1.05;text-align:center;justify-content:center;flex-wrap:wrap;padding:0 14px;font-variation-settings:"wdth" 112}
+@media(max-width:779px){.tile .g.team{font-size:clamp(2.2rem,11vw,3.4rem)}}
+.pts{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;max-width:65ch}
+.syl{font-weight:600;letter-spacing:.01em}
+.syl .st{color:var(--acc);font-weight:800}
+.wd .st{color:inherit;font-weight:800;box-shadow:inset 0 -3px 0 var(--acc)}
+.syl .dot{color:var(--muted);margin:0 1px}
+.passage{appearance:none;text-align:left;cursor:pointer;background:var(--soft);border:2px dashed var(--acc);border-radius:16px;padding:18px;font-family:var(--body);font-size:clamp(1.15rem,4.4vw,1.45rem);line-height:1.9;color:var(--ink);max-width:70ch}
+.passage.on{border-style:solid;animation:ring 1.4s ease-out infinite}
+.wd{border-radius:5px;padding:1px 2px;transition:background .2s,color .2s}
+.wd.next{background:color-mix(in srgb,var(--acc) 22%,transparent)}
+.wd.ok{color:var(--good);background:color-mix(in srgb,var(--good) 12%,transparent)}
+.wd.close{color:var(--warn);background:color-mix(in srgb,var(--warn) 14%,transparent);text-decoration:underline dotted}
+.wd.bad{color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,transparent);text-decoration:underline wavy;text-underline-offset:4px}
+.tally{display:flex;flex-wrap:wrap;gap:8px}
+.tally .t{font-weight:700;border-radius:999px;padding:4px 12px;border:1.5px solid currentColor;font-variant-numeric:tabular-nums}
+.t.ok{color:var(--good)} .t.close{color:var(--warn)} .t.bad{color:var(--bad)}
+.probs{list-style:none;margin:0;padding:0;display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.prob{border:1px solid var(--line);border-left:4px solid var(--bad);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.prob.close{border-left-color:var(--warn)}
+.prob .hd{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.pw{font-family:var(--display);font-size:1.5rem;font-weight:800;overflow-wrap:anywhere}
+mark.lx{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad);border-radius:3px}
+.hidden{display:none}
+@media(max-width:779px){.tile{max-width:min(240px,64vw)}.tile .g{font-size:clamp(5rem,24vw,7rem)}.hide-sm{display:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ---------------- DATA ---------------- */
+const pw=s=>{const [w,m]=s.split("=");return {w:w.trim(),m:(m||"").trim()}};
+function L(l,name,snd,w1,w2,o,al,say){return {l,name,snd,say,w:[pw(w1),pw(w2)],
+  o:o.map(s=>{const [d,ss,a,b]=s.split(";");return {d,s:ss,ex:[pw(a),pw(b)]}}),
+  al:al.split(",").map(x=>x.trim().toLowerCase())}}
+
+const LANGS={
+en:{name:"English",native:"English",tts:"en-GB",spec:"Th",cls:"l-en",
+ intro:"British English. 26 letters, but around 44 sounds, so many letters change with their neighbours.",
+ letters:[
+ L("a","ay","/æ/","apple","cat",["Long A with a silent e at the end;/eɪ/;cake;name","ai or ay;/eɪ/;rain;day","ar;/ɑː/;car;star","aw or au;/ɔː/;saw;August"],"a,ay,eh,hey,ae"),
+ L("b","bee","/b/","ball","bed",["Silent after m;silent;lamb;thumb","Silent before t;silent;debt;doubt"],"b,be,bee,bea,b."),
+ L("c","see","/k/","cat","cup",["Soft C before e, i or y;/s/;city;ice","ch;/tʃ/;chair;lunch","ck;/k/;duck;back"],"c,see,sea,si,cee,c."),
+ L("d","dee","/d/","dog","door",["-ed after p, k, s, sh or ch sounds like t;/t/;jumped;kissed"],"d,dee,the,d."),
+ L("e","ee","/e/","egg","bed",["Long E;/iː/;me;these","ee or ea;/iː/;tree;sea","Silent E at the end of a word;silent;cake;home"],"e,ee,he,e."),
+ L("f","ef","/f/","fish","fan",["ph and gh can also make this sound;/f/;phone;laugh"],"f,ef,eff,if,f."),
+ L("g","jee","/g/","goat","bag",["Soft G before e, i or y;/dʒ/;giraffe;gem","ng;/ŋ/;sing;long","gh is often silent;silent;night;light","gh can sound like f;/f/;laugh;enough"],"g,gee,jee,ji,g."),
+ L("h","aitch","/h/","hat","house",["Silent in a few words;silent;hour;honest","sh;/ʃ/;ship;fish","wh;/w/;what;when"],"h,aitch,age,each,edge,h."),
+ L("i","eye","/ɪ/","sit","pig",["Long I with a silent e;/aɪ/;bike;time","igh;/aɪ/;high;night","ir;/ɜː/;bird;girl"],"i,eye,aye,ai,hi,i."),
+ L("j","jay","/dʒ/","jam","jump",[],"j,jay,jae,j."),
+ L("k","kay","/k/","kite","king",["Silent before n;silent;knife;knee"],"k,kay,okay,ok,cay,kei,k."),
+ L("l","el","/l/","lion","leg",["Silent in -alk and -alf;silent;walk;half"],"l,el,elle,ell,hell,al,l."),
+ L("m","em","/m/","moon","map",[],"m,em,um,emm,am,m."),
+ L("n","en","/n/","nose","net",["Silent after m;silent;autumn;column"],"n,en,and,in,an,n."),
+ L("o","oh","/ɒ/","dog","hot",["Long O with a silent e;/əʊ/;home;nose","oo (long);/uː/;moon;food","oo (short);/ʊ/;book;look","ou or ow;/aʊ/;house;cow","oi or oy;/ɔɪ/;coin;boy"],"o,oh,owe,0,o."),
+ L("p","pee","/p/","pen","pig",["ph;/f/;phone;photo","Silent before s or n at the start;silent;psychology;pneumonia"],"p,pee,pea,pe,p."),
+ L("q","cue","/kw/","queen","quick",["-que at the end of a word;/k/;unique;antique"],"q,cue,queue,cute,kew,q."),
+ L("r","ar","/r/","red","rabbit",["Silent after a vowel in British English;silent;car;her","wr: the w is silent;/r/;write;wrong"],"r,are,ar,our,or,r."),
+ L("s","ess","/s/","sun","sock",["Between vowels and in many plurals;/z/;rose;dogs","sh;/ʃ/;ship;shoe","In -sure and -sion;/ʒ/;measure;vision"],"s,es,ess,yes,as,s."),
+ L("t","tee","/t/","top","tree",["th with breath only;/θ/;think;three","th with your voice on;/ð/;this;mother","-tion;/ʃən/;nation;station"],"t,tea,tee,ti,t."),
+ L("u","you","/ʌ/","sun","cup",["Long U with a silent e;/juː/;cube;music","Short oo sound;/ʊ/;put;push","ur;/ɜː/;turn;nurse"],"u,you,yu,yo,u."),
+ L("v","vee","/v/","van","voice",[],"v,vee,vi,v."),
+ L("w","double-you","/w/","water","window",["wr: the w is silent;silent;write;wrong","wh;/w/;what;why"],"w,double you,double u,doubleu,w."),
+ L("x","ex","/ks/","box","fox",["At the start of a word;/z/;xylophone;xenon","ex- before a vowel;/ɡz/;exam;exact"],"x,ex,eggs,axe,x."),
+ L("y","why","/j/","yes","yellow",["As a vowel at the end of short words;/aɪ/;my;fly","At the end of longer words;/i/;happy;baby"],"y,why,wye,wi,wai,y."),
+ L("z","zed","/z/","zoo","zebra",[],"z,zed,zee,said,zet,z.")
+ ],
+ rules:[
+ {t:"Silent E makes the vowel say its name",d:"A final e is not spoken, but it makes the vowel before it long.",ex:["hat","hate","kit","kite"]},
+ {t:"Soft C and soft G",d:"Before e, i or y, c usually sounds like s and g like j. Elsewhere they stay hard.",ex:["city","gem","cat","go"]},
+ {t:"Silent letters",d:"Some pairs hide a letter: kn, wr, mb, gh.",ex:["knee","write","lamb","night"]},
+ {t:"Two vowels together",d:"Often the first vowel says its name and the second is silent. There are many exceptions.",ex:["boat","rain","read","pie"]},
+ {t:"The three sounds of -ed",d:"/t/ after voiceless sounds, /d/ after voiced sounds, /ɪd/ after t or d.",ex:["jumped","played","wanted"]},
+ {t:"The three sounds of plural -s",d:"/s/ after voiceless sounds, /z/ after voiced sounds, /ɪz/ after s, z, sh, ch.",ex:["cats","dogs","buses"]},
+ {t:"Stress and the schwa",d:"Unstressed vowels often weaken to /ə/. Moving the stress can change the word.",ex:["about","banana","REcord","reCORD"]},
+ {t:"-tion and -sion",d:"-tion sounds like /ʃən/. -sion is /ʃən/ or /ʒən/.",ex:["nation","mission","vision"]}
+ ]},
+es:{name:"Spanish",native:"Español",tts:"es-ES",spec:"Ññ",cls:"l-es",
+ intro:"Castilian Spanish, with Latin American differences noted. 27 letters, and spelling is very regular.",
+ letters:[
+ L("a","a","/a/","agua=water","casa=house",[],"a,ah,ha,á","a"),
+ L("b","be","/b/","boca=mouth","barco=boat",["Softer between vowels, the lips don't fully close;[β];cabeza=head;lobo=wolf","Sounds exactly like V;/b/;vaca=cow;beso=kiss"],"b,be,bé,ve","be"),
+ L("c","ce","/k/","casa=house","cama=bed",["Before e or i in Spain;/θ/;cena=dinner;cine=cinema","Before e or i in Latin America;/s/;cielo=sky;cereza=cherry","ch;/tʃ/;chico=boy;leche=milk"],"c,ce,se,sé","ce"),
+ L("d","de","/d/","dedo=finger","dos=two",["Soft between vowels and at the end, like th in this;[ð];cada=each;Madrid"],"d,de,dé","de"),
+ L("e","e","/e/","elefante=elephant","mesa=table",[],"e,é,eh,he","e"),
+ L("f","efe","/f/","foca=seal","fuego=fire",[],"f,efe,efes","efe"),
+ L("g","ge","/ɡ/","gato=cat","gota=drop",["Before e or i, like J (a throat sound);/x/;gente=people;girasol=sunflower","gue, gui: hard g, silent u;/ɡ/;guerra=war;guitarra=guitar","güe, güi: the u is spoken;/ɡw/;pingüino=penguin;cigüeña=stork"],"g,ge,je,gé","ge"),
+ L("h","hache","silent","hola=hello","helado=ice cream",["ch together;/tʃ/;mucho=a lot;noche=night"],"h,hache,ache","hache"),
+ L("i","i","/i/","isla=island","libro=book",["Before another vowel it glides;/j/;bien=well;tierra=earth"],"i,y,hi,í","i"),
+ L("j","jota","/x/","jamón=ham","ojo=eye",[],"j,jota,hota","jota"),
+ L("k","ka","/k/","kilo","koala",[],"k,ka,ca,cá","ka"),
+ L("l","ele","/l/","luna=moon","león=lion",["ll sounds like the Spanish y;/ʝ/;llave=key;calle=street"],"l,ele,el","ele"),
+ L("m","eme","/m/","mano=hand","mamá=mum",[],"m,eme,em","eme"),
+ L("n","ene","/n/","nariz=nose","nube=cloud",["Before b, v or p it sounds like m;/m/;un vaso=a glass;enviar=to send"],"n,ene,en","ene"),
+ L("ñ","eñe","/ɲ/","niño=child","año=year",[],"ñ,eñe,enie,enye","eñe"),
+ L("o","o","/o/","oso=bear","ojo=eye",[],"o,oh,ó","o"),
+ L("p","pe","/p/","perro=dog","pato=duck",[],"p,pe,pé","pe"),
+ L("q","cu","/k/","queso=cheese","quince=fifteen",["Always written qu, and the u is silent;/k/;aquí=here;pequeño=small"],"q,cu,cú,ku","cu"),
+ L("r","erre","/ɾ/","pero=but","cara=face",["Strong trill at the start of a word;/r/;rosa=rose;rojo=red","rr always trills;/r/;perro=dog;carro=car"],"r,erre,ere,err","erre"),
+ L("s","ese","/s/","sol=sun","mesa=table",[],"s,ese,es,eso","ese"),
+ L("t","te","/t/","toro=bull","tomate=tomato",[],"t,te,té","te"),
+ L("u","u","/u/","uva=grape","luna=moon",["Silent in que, qui, gue, gui;silent;queso=cheese;guitarra=guitar","Before another vowel it glides;/w/;bueno=good;agua=water"],"u,uh,ú","u"),
+ L("v","uve","/b/","vaca=cow","vino=wine",["Softer between vowels;[β];uva=grape;nuevo=new"],"v,uve,ve,be","uve"),
+ L("w","uve doble","/w/","web","wifi",[],"w,uve doble,doble ve,doble u,doble uve","uve doble"),
+ L("x","equis","/ks/","taxi","examen=exam",["In some names, like J;/x/;México;Texas","At the start of a word;/s/;xilófono=xylophone;xenofobia=xenophobia"],"x,equis,ekis","equis"),
+ L("y","ye","/ʝ/","yo=I","playa=beach",["Alone or at the end of a word, like i;/i/;y=and;hoy=today"],"y,ye,i griega,lle","ye"),
+ L("z","zeta","/θ/","zapato=shoe","azul=blue",["In Latin America;/s/;zorro=fox;manzana=apple"],"z,zeta,seta,ceta","zeta")
+ ],
+ rules:[
+ {t:"Five pure vowels",d:"a, e, i, o, u always keep the same short, clear sound. They never glide or weaken.",ex:["casa=house","mesa=table","piso=floor","todo=all","luna=moon"]},
+ {t:"Where the stress goes",d:"Words ending in a vowel, n or s stress the second-to-last syllable. Others stress the last. A written accent overrides both.",ex:["casa=house","joven=young","hablar=to speak","canción=song","árbol=tree"]},
+ {t:"H is always silent",d:"Except in ch, the letter h is never pronounced.",ex:["hola=hello","ahora=now"]},
+ {t:"B and V sound the same",d:"Both are /b/ at the start, and soft [β] between vowels.",ex:["vaca=cow","boca=mouth","uva=grape"]},
+ {t:"ce, ci and z",d:"/θ/ (like th in think) in most of Spain, /s/ in Latin America and the Canaries.",ex:["cine=cinema","zapato=shoe"]},
+ {t:"ge, gi and j",d:"A rough throat sound /x/. Add a silent u (gue, gui) to keep the g hard.",ex:["gente=people","jirafa=giraffe","guerra=war"]},
+ {t:"R and RR",d:"A single r between vowels is a quick tap. rr, and r at the start of a word, is a rolled trill.",ex:["pero=but","perro=dog","rojo=red"]},
+ {t:"Diphthongs",d:"i and u next to a, e or o join with it into one syllable.",ex:["bueno=good","aire=air","ciudad=city"]}
+ ]},
+fr:{name:"French",native:"Français",tts:"fr-FR",spec:"Çç",cls:"l-fr",
+ intro:"Standard French. 26 letters plus accents. Many final letters are silent, and vowels combine into new sounds.",
+ letters:[
+ L("a","a","/a/","ami=friend","chat=cat",["ai;/ɛ/;maison=house;lait=milk","au or eau;/o/;chaud=hot;beau=beautiful","an or am (nasal);/ɑ̃/;enfant=child;chambre=bedroom"],"a,à,ah,ha"),
+ L("b","bé","/b/","bébé=baby","bateau=boat",[],"b,bé,be,bée"),
+ L("c","cé","/k/","café=coffee","cou=neck",["Before e, i or y;/s/;citron=lemon;ciel=sky","ç (with a cedilla);/s/;garçon=boy;français=French","ch;/ʃ/;chat=cat;chocolat=chocolate"],"c,cé,c'est,ces,ses,sais,s'est"),
+ L("d","dé","/d/","dame=lady","dos=back",["Silent at the end of a word;silent;grand=tall;pied=foot"],"d,dé,des,dès"),
+ L("e","e","/ə/","le=the","petit=small",["é;/e/;été=summer;café=coffee","è or ê;/ɛ/;mère=mother;fête=party","eu;/ø/;deux=two;bleu=blue","Silent at the end of a word;silent;table;porte=door","en (nasal);/ɑ̃/;enfant=child;temps=time"],"e,eux,euh,heu,œufs"),
+ L("f","effe","/f/","feu=fire","fille=girl",["ph;/f/;photo;pharmacie=pharmacy"],"f,effe,ef"),
+ L("g","gé","/ɡ/","gare=station","gâteau=cake",["Before e, i or y;/ʒ/;girafe=giraffe;rouge=red","gn;/ɲ/;montagne=mountain;champagne","gu before e or i: hard g, silent u;/ɡ/;guitare=guitar;langue=tongue"],"g,gé,j'ai,geai,jet"),
+ L("h","hache","silent","homme=man","hôtel=hotel",["ch;/ʃ/;chien=dog;cheval=horse","ph;/f/;photo;téléphone=phone"],"h,hache,ache"),
+ L("i","i","/i/","île=island","lit=bed",["in or im (nasal);/ɛ̃/;vin=wine;jardin=garden","ill;/ij/;fille=girl;famille=family"],"i,il,y,î,hi"),
+ L("j","ji","/ʒ/","jour=day","jardin=garden",[],"j,ji,gi,gîte"),
+ L("k","ka","/k/","kilo","kiosque=kiosk",[],"k,ka,cas,ca"),
+ L("l","elle","/l/","lune=moon","lait=milk",["il or ill after a vowel;/j/;travail=work;soleil=sun"],"l,elle,el,aile,elles"),
+ L("m","emme","/m/","mer=sea","maman=mum",["After a vowel, it makes the vowel nasal;/ɑ̃/ /ɔ̃/;temps=time;nom=name"],"m,emme,aime,ème"),
+ L("n","enne","/n/","nez=nose","neige=snow",["After a vowel, it makes the vowel nasal;/ɔ̃/ /ɛ̃/;bon=good;pain=bread"],"n,enne,haine,aine"),
+ L("o","o","/o/","moto=motorbike","rose",["Open o in a closed syllable;/ɔ/;porte=door;école=school","ou;/u/;loup=wolf;nous=we","oi;/wa/;moi=me;roi=king","on (nasal);/ɔ̃/;bon=good;pont=bridge"],"o,eau,au,oh,aux"),
+ L("p","pé","/p/","papa=dad","pomme=apple",["Silent at the end of a word;silent;trop=too much;beaucoup=a lot","ph;/f/;photo;phrase=sentence"],"p,pé,paix,pet"),
+ L("q","ku","/k/","qui=who","quatre=four",["Almost always qu, and the u is silent;/k/;quand=when;musique=music"],"q,cul,ku,qu,queue"),
+ L("r","erre","/ʁ/","rouge=red","rue=street",["-er at the end of verbs: the r is silent;/e/;parler=to speak;aller=to go"],"r,erre,air,ère,aire,hair"),
+ L("s","esse","/s/","sel=salt","soleil=sun",["Between two vowels;/z/;rose;maison=house","Silent at the end of a word;silent;vous=you;les=the","In liaison before a vowel;/z/;les amis=the friends;vous avez=you have"],"s,esse,est-ce,ès"),
+ L("t","té","/t/","tête=head","table",["Silent at the end of a word;silent;chat=cat;petit=small","-tion;/sjɔ̃/;nation;attention"],"t,té,thé,tes,t'es"),
+ L("u","u","/y/","lune=moon","tu=you",["un (nasal);/œ̃/;un=one;brun=brown"],"u,eu,hu,hue,û"),
+ L("v","vé","/v/","vélo=bike","ville=town",[],"v,vé,vais,ve"),
+ L("w","double vé","/w/","kiwi","week-end=weekend",["In some older loanwords;/v/;wagon=railway car;Wagner"],"w,double vé,double v,double ve"),
+ L("x","iks","/ks/","taxi","boxe=boxing",["ex- before a vowel;/ɡz/;examen=exam;exemple=example","In six and dix;/s/;six;dix=ten","In liaison;/z/;deux amis=two friends;six ans=six years"],"x,ix,iks,ics"),
+ L("y","i grec","/i/","stylo=pen","cycle",["Between two vowels;/j/;crayon=pencil;voyage=journey"],"y,i grec,igrec,i grecque"),
+ L("z","zède","/z/","zéro=zero","zoo",["Silent at the end of a word;silent;nez=nose;chez=at"],"z,zède,zed,zèd")
+ ],
+ rules:[
+ {t:"Final consonants are usually silent",d:"Most final consonants are dropped. C, R, F and L are often spoken (think “CaReFuL”).",ex:["grand=tall","trop=too much","avec=with","sel=salt"]},
+ {t:"Final -e is silent",d:"It isn't spoken, but it makes the consonant before it heard.",ex:["petit=small","petite=small (f.)","grand=tall","grande=tall (f.)"]},
+ {t:"Liaison",d:"A silent final consonant links to the next word when that word starts with a vowel.",ex:["les amis=the friends","vous avez=you have","petit ami=boyfriend"]},
+ {t:"Nasal vowels",d:"A vowel followed by n or m (at the end, or before another consonant) is said through the nose.",ex:["enfant=child","bon=good","vin=wine","un=one"]},
+ {t:"Vowel teams",d:"ou /u/, oi /wa/, au and eau /o/, ai /ɛ/, eu /ø/.",ex:["nous=we","moi=me","beau=beautiful","lait=milk","bleu=blue"]},
+ {t:"Accents change the sound",d:"é is /e/, è and ê are /ɛ/. ç is always /s/.",ex:["été=summer","mère=mother","fête=party","garçon=boy"]},
+ {t:"Even rhythm, last syllable heavier",d:"Syllables are evenly timed, with a little extra weight on the last one of a phrase.",ex:["chocolat=chocolate","Paris","téléphone=phone"]},
+ {t:"H is never pronounced",d:"Some words have an “h aspiré”, which blocks liaison even though it is silent.",ex:["homme=man","hôtel=hotel","les héros=the heroes"]}
+ ]},
+de:{name:"German",native:"Deutsch",tts:"de-DE",spec:"ß",cls:"l-de",
+ intro:"Standard German. 26 letters plus Ä, Ö, Ü and ß. Nearly every letter is spoken, and vowel length matters.",
+ letters:[
+ L("a","a","/a/","Apfel=apple","Hand=hand",["Long A before one consonant, or with h or aa;/aː/;Name=name;Haar=hair","au;/aʊ/;Haus=house;Baum=tree","ai;/aɪ/;Mai=May;Kaiser=emperor"],"a,ah,aa"),
+ L("b","be","/b/","Ball=ball","Bett=bed",["At the end of a word or syllable, like p;/p/;halb=half;gelb=yellow"],"b,be,bee,beh"),
+ L("c","ce","/k/","Café","Computer",["Before e or i in loanwords;/ts/;Cent;Celsius","ch after a, o, u or au;/x/;Buch=book;Nacht=night","ch after e, i, ä, ö, ü or a consonant;/ç/;ich=I;Milch=milk","chs;/ks/;sechs=six;Fuchs=fox","ck;/k/;Zucker=sugar;Brücke=bridge"],"c,ce,ceh,zeh,tse,ze"),
+ L("d","de","/d/","Dach=roof","du=you",["At the end of a word or syllable, like t;/t/;Hund=dog;Kind=child"],"d,de,deh,dee"),
+ L("e","e","/ɛ/","Bett=bed","essen=to eat",["Long E;/eː/;Tee=tea;gehen=to go","ei;/aɪ/;Eis=ice;mein=my","eu;/ɔʏ/;heute=today;neu=new","Unstressed -e at the end;/ə/;Name=name;bitte=please","-er at the end;/ɐ/;Vater=father;Lehrer=teacher"],"e,eh,ee"),
+ L("f","ef","/f/","Fisch=fish","Frau=woman",[],"f,ef,eff"),
+ L("g","ge","/ɡ/","Garten=garden","gut=good",["At the end of a word, like k;/k/;Tag=day;Berg=mountain","-ig at the end;/ɪç/;König=king;wenig=little","ng;/ŋ/;singen=to sing;lang=long"],"g,ge,geh,gee"),
+ L("h","ha","/h/","Haus=house","Hund=dog",["After a vowel it is silent and makes the vowel long;silent;Kuh=cow;gehen=to go"],"h,ha,haa,hah"),
+ L("i","i","/ɪ/","Fisch=fish","Mitte=middle",["ie;/iː/;Liebe=love;vier=four","ih;/iː/;ihr=you (plural);ihn=him"],"i,ih,ie"),
+ L("j","jot","/j/","ja=yes","Junge=boy",["In some loanwords;/dʒ/;Job;Jeans"],"j,jot,jott,yacht,jod"),
+ L("k","ka","/k/","Katze=cat","kalt=cold",["kn: both letters are spoken;/kn/;Knie=knee;Knopf=button"],"k,ka,kah,kaa"),
+ L("l","el","/l/","Licht=light","Löwe=lion",[],"l,el,ell,elle"),
+ L("m","em","/m/","Mama=mum","Milch=milk",[],"m,em,emm"),
+ L("n","en","/n/","Nase=nose","neu=new",["nk;/ŋk/;danke=thanks;Bank=bench"],"n,en,enn"),
+ L("o","o","/ɔ/","Sonne=sun","kommen=to come",["Long O with oh, oo, or before one consonant;/oː/;Brot=bread;Boot=boat"],"o,oh,oo"),
+ L("p","pe","/p/","Papa=dad","Post=post",["pf: both letters are spoken;/pf/;Apfel=apple;Pferd=horse","ph;/f/;Physik=physics;Alphabet"],"p,pe,peh,pee"),
+ L("q","ku","/kv/","Quelle=spring (water)","Qualität=quality",[],"q,ku,kuh"),
+ L("r","er","/ʁ/","rot=red","Regen=rain",["After a long vowel it softens to a vowel sound;/ɐ/;Tür=door;vier=four"],"r,er,err,ehr"),
+ L("s","es","/z/","Sonne=sun","sagen=to say",["At the end of a word;/s/;Haus=house;Glas=glass","sch;/ʃ/;Schule=school;Fisch=fish","sp or st at the start of a word;/ʃp/ /ʃt/;Sport;Stadt=city","ss;/s/;Wasser=water;Kuss=kiss"],"s,es,ess"),
+ L("t","te","/t/","Tisch=table","Tag=day",["th sounds like a plain t;/t/;Theater=theatre;Thema=topic","-tion;/tsi̯oːn/;Nation;Station"],"t,te,teh,tee"),
+ L("u","u","/ʊ/","Mund=mouth","Hund=dog",["Long U;/uː/;gut=good;Uhr=clock"],"u,uh"),
+ L("v","fau","/f/","Vater=father","viel=a lot",["In loanwords;/v/;Vase;Klavier=piano"],"v,vau,fau"),
+ L("w","we","/v/","Wasser=water","Wein=wine",[],"w,we,weh,wee"),
+ L("x","ix","/ks/","Taxi","Hexe=witch",[],"x,ix,iks,icks"),
+ L("y","ypsilon","/ʏ/","Typ=type","Gymnastik=gymnastics",["In some loanwords;/j/;Yoga;Yacht"],"y,ypsilon,üpsilon,upsilon"),
+ L("z","zett","/ts/","Zeit=time","Zug=train",["tz;/ts/;Katze=cat;Platz=square"],"z,zett,zet,set"),
+ L("ä","ä","/ɛ/","Äpfel=apples","Männer=men",["Long Ä;/ɛː/;Käse=cheese;Bär=bear","äu;/ɔʏ/;Häuser=houses;Bäume=trees"],"ä,äh,ae"),
+ L("ö","ö","/œ/","zwölf=twelve","können=can",["Long Ö;/øː/;schön=beautiful;Öl=oil"],"ö,öh,oe"),
+ L("ü","ü","/ʏ/","Glück=luck","fünf=five",["Long Ü;/yː/;Tür=door;grün=green"],"ü,üh,ue"),
+ L("ß","eszett","/s/","Straße=street","groß=big",["ß follows long vowels and ei, au, eu. ss follows short vowels;/s/;Fuß=foot;heißen=to be called"],"ß,eszett,es zett,scharfes s,ss","Eszett")
+ ],
+ rules:[
+ {t:"Say every letter",d:"German is spelled as it sounds. Final -e is spoken, and so is the k in kn.",ex:["Name=name","bitte=please","Knie=knee"]},
+ {t:"Long or short vowel",d:"A double consonant after a vowel makes it short. h, a double vowel or ie makes it long.",ex:["Bett=bed","Mutter=mother","Kuh=cow","Boot=boat","Liebe=love"]},
+ {t:"Final devoicing",d:"b, d and g at the end of a word or syllable sound like p, t and k.",ex:["halb=half","Hund=dog","Tag=day"]},
+ {t:"ei and ie",d:"ei is /aɪ/, ie is /iː/. Tip: say the English name of the second letter.",ex:["Eis=ice","Liebe=love","mein=my","vier=four"]},
+ {t:"The two sounds of ch",d:"/x/ (back of the throat) after a, o, u, au. /ç/ (a soft hiss) everywhere else.",ex:["Buch=book","Nacht=night","ich=I","Milch=milk"]},
+ {t:"S, sp and st",d:"s before a vowel is /z/. sp and st at the start of a word are /ʃp/ and /ʃt/.",ex:["Sonne=sun","Sport","Stein=stone"]},
+ {t:"Stress on the first syllable",d:"Most words stress the first syllable. The prefixes be-, ge- and ver- are never stressed.",ex:["Morgen=morning","Wasser=water","verstehen=to understand","Geschenk=gift"]},
+ {t:"Umlauts",d:"ä is like e in bed. For ö, say e with rounded lips. For ü, say i with rounded lips.",ex:["Käse=cheese","schön=beautiful","grün=green"]},
+ {t:"W, V and Z",d:"w sounds like English v, v like f, and z like ts.",ex:["Wasser=water","Vater=father","Zeit=time"]}
+ ]}
+};
+
+/* ---------------- LETTER TEAMS ---------------- */
+// kind|team|sound|practice word|second word|how it works
+const TEAMS={
+en:{note:"English letter teams, grouped as digraphs, trigraphs, diphthongs and triphthongs.",list:`
+Digraph|ch|/tʃ/|chair|lunch|
+Digraph|sh|/ʃ/|ship|fish|
+Digraph|th|/θ/|think|bath|Breath only: tongue lightly between the teeth.
+Digraph|th|/ð/|this|mother|Same tongue position, with your voice on.
+Digraph|ph|/f/|phone|graph|
+Digraph|wh|/w/|what|when|
+Digraph|ck|/k/|duck|back|Used right after a short vowel.
+Digraph|ng|/ŋ/|sing|long|Said at the back of the mouth. No hard g at the end.
+Digraph|kn|/n/|knee|knife|The k is silent.
+Digraph|wr|/r/|write|wrong|The w is silent.
+Digraph|qu|/kw/|queen|quick|
+Trigraph|tch|/tʃ/|match|kitchen|Used right after a short vowel.
+Trigraph|dge|/dʒ/|bridge|badge|Used right after a short vowel.
+Trigraph|igh|/aɪ/|night|high|The gh is silent.
+Vowel digraph|ee|/iː/|tree|green|
+Vowel digraph|ea|/iː/|sea|eat|
+Vowel digraph|oo|/uː/|moon|food|The long oo.
+Vowel digraph|oo|/ʊ/|book|look|The short oo.
+Vowel digraph|ar|/ɑː/|car|star|
+Vowel digraph|or|/ɔː/|fork|horse|
+Vowel digraph|er, ir, ur|/ɜː/|bird|nurse|Three spellings, one sound.
+Diphthong|ai, ay|/eɪ/|rain|day|ai inside a word, ay at the end.
+Diphthong|ie, y|/aɪ/|my|pie|
+Diphthong|oa, ow|/əʊ/|boat|snow|
+Diphthong|ou, ow|/aʊ/|house|cow|
+Diphthong|oi, oy|/ɔɪ/|coin|boy|oi inside a word, oy at the end.
+Diphthong|air, are|/eə/|hair|care|
+Diphthong|ear, eer|/ɪə/|deer|ear|
+Diphthong|ure|/ʊə/|pure|cure|
+Triphthong|ire|/aɪə/|fire|tired|Three vowel sounds glide together in one syllable.
+Triphthong|our, ower|/aʊə/|flower|hour|
+Triphthong|ayer|/eɪə/|player|layer|
+Triphthong|ower|/əʊə/|lower|mower|
+Triphthong|oya, oyer|/ɔɪə/|royal|employer|`},
+es:{note:"Spanish digraphs, diphthongs and triphthongs. Every vowel in a diphthong keeps its own clear sound, said quickly in one syllable.",list:`
+Digraph|ch|/tʃ/|chico=boy|leche=milk|
+Digraph|ll|/ʝ/|llave=key|calle=street|In much of Latin America it sounds like English j or sh.
+Digraph|rr|/r/|perro=dog|carro=car|Always a strong rolled r.
+Digraph|qu|/k/|queso=cheese|quince=fifteen|Only before e or i. The u is silent.
+Digraph|gu|/ɡ/|guitarra=guitar|guerra=war|Only before e or i. The u is silent.
+Diphthong|ai, ay|/ai̯/|aire=air|hay=there is|
+Diphthong|ei, ey|/ei̯/|rey=king|seis=six|
+Diphthong|oi, oy|/oi̯/|hoy=today|oigo=I hear|
+Diphthong|au|/au̯/|auto=car|causa=cause|
+Diphthong|eu|/eu̯/|Europa=Europe|deuda=debt|
+Diphthong|ia|/ja/|piano|familia=family|
+Diphthong|ie|/je/|tierra=earth|bien=well|
+Diphthong|io|/jo/|radio|Dios=God|
+Diphthong|iu|/ju/|ciudad=city|viuda=widow|
+Diphthong|ua|/wa/|agua=water|cuatro=four|
+Diphthong|ue|/we/|bueno=good|fuego=fire|
+Diphthong|uo|/wo/|cuota=fee|antiguo=old|
+Diphthong|ui, uy|/wi/|muy=very|ruido=noise|
+Triphthong|uay|/wai̯/|Uruguay|Paraguay|Three vowels in one syllable.
+Triphthong|uey|/wei̯/|buey=ox|averigüéis=you find out|
+Triphthong|iái|/jai̯/|estudiáis=you study|cambiáis=you change|A verb ending used in Spain.
+Triphthong|iéi|/jei̯/|estudiéis=you may study|cambiéis=you may change|A verb ending used in Spain.`},
+fr:{note:"French letter teams. French has no true triphthongs; its diphthongs are a short glide (w, ɥ or j) followed by a vowel.",list:`
+Digraph|ch|/ʃ/|chat=cat|chocolat=chocolate|
+Digraph|ph|/f/|photo|pharmacie=pharmacy|
+Digraph|gn|/ɲ/|montagne=mountain|champagne|Like ny in canyon.
+Digraph|qu|/k/|qui=who|quatre=four|The u is silent.
+Digraph|th|/t/|thé=tea|théâtre=theatre|The h is silent.
+Digraph|gu|/ɡ/|guitare=guitar|langue=tongue|Before e or i. The u is silent.
+Vowel digraph|ou|/u/|nous=we|loup=wolf|
+Vowel digraph|ai|/ɛ/|lait=milk|maison=house|
+Vowel digraph|ei|/ɛ/|neige=snow|seize=sixteen|
+Vowel digraph|au|/o/|jaune=yellow|chaud=hot|
+Trigraph|eau|/o/|beau=beautiful|gâteau=cake|
+Vowel digraph|eu|/ø/|bleu=blue|deux=two|Say e with rounded lips.
+Trigraph|œu|/œ/|sœur=sister|cœur=heart|An open, rounded e.
+Vowel digraph|er|/e/|parler=to speak|aller=to go|At the end of a verb the r is silent.
+Vowel digraph|ez|/e/|nez=nose|chez=at|The z is silent.
+Nasal vowel|an, en|/ɑ̃/|enfant=child|temps=time|Air goes through the nose. Don't say the n.
+Nasal vowel|on|/ɔ̃/|bon=good|pont=bridge|Air goes through the nose. Don't say the n.
+Nasal vowel|in, ain, ein|/ɛ̃/|vin=wine|pain=bread|Air goes through the nose. Don't say the n.
+Nasal vowel|un|/œ̃/|brun=brown|un=one|Many speakers say it like in.
+Diphthong|oi|/wa/|moi=me|roi=king|
+Diphthong|ui|/ɥi/|nuit=night|huit=eight|Start with rounded lips, as in u.
+Diphthong|oin|/wɛ̃/|loin=far|point|
+Diphthong|ien|/jɛ̃/|chien=dog|bien=well|
+Diphthong|ier|/je/|papier=paper|premier=first|
+Trigraph|ill|/ij/|fille=girl|famille=family|A few words say l: ville, mille.
+Trigraph|ail|/aj/|travail=work|ail=garlic|
+Trigraph|eil|/ɛj/|soleil=sun|réveil=alarm clock|
+Letter group|ouille|/uj/|grenouille=frog|nouilles=noodles|
+Letter group|tion|/sjɔ̃/|nation|attention|`},
+de:{note:"German letter teams. German has three diphthongs and no native triphthongs.",list:`
+Digraph|ch|/x/|Buch=book|Nacht=night|After a, o, u and au: a rough sound at the back of the throat.
+Digraph|ch|/ç/|ich=I|Milch=milk|After other vowels and consonants: a soft hiss, like a whispered h in huge.
+Digraph|ck|/k/|Zucker=sugar|Brücke=bridge|Comes after a short vowel.
+Digraph|ng|/ŋ/|singen=to sing|lang=long|No hard g at the end.
+Digraph|nk|/ŋk/|danke=thanks|Bank=bench|
+Digraph|pf|/pf/|Apfel=apple|Pferd=horse|Say both p and f.
+Digraph|ph|/f/|Physik=physics|Alphabet|
+Digraph|qu|/kv/|Quelle=spring|Qualität=quality|
+Digraph|sp|/ʃp/|Sport|spielen=to play|At the start of a word or word part.
+Digraph|st|/ʃt/|Stadt=city|Stein=stone|At the start of a word or word part.
+Digraph|tz|/ts/|Katze=cat|Platz=square|
+Digraph|th|/t/|Theater=theatre|Thema=topic|The h is silent.
+Trigraph|sch|/ʃ/|Schule=school|Fisch=fish|
+Trigraph|chs|/ks/|Fuchs=fox|sechs=six|
+Letter group|tsch|/tʃ/|Deutsch=German|tschüss=bye|
+Vowel digraph|ie|/iː/|Liebe=love|vier=four|
+Vowel digraph|aa|/aː/|Haar=hair|Saal=hall|
+Vowel digraph|ee|/eː/|Tee=tea|Meer=sea|
+Vowel digraph|oo|/oː/|Boot=boat|Zoo|
+Diphthong|ei, ai|/aɪ/|Eis=ice|Mai=May|
+Diphthong|au|/aʊ/|Haus=house|Baum=tree|
+Diphthong|eu, äu|/ɔʏ/|heute=today|Häuser=houses|`}
+};
+for(const [k,v] of Object.entries(TEAMS)){
+  LANGS[k].teamNote=v.note;
+  LANGS[k].teams=v.list.trim().split("\n").map(r=>{const [kind,u,snd,w1,w2,n]=r.split("|");
+    return {team:true,kind,l:u,snd,w:[pw(w1),pw(w2)],n:(n||"").trim(),pat:u.split(/\s*[,\/]\s*/).filter(Boolean).sort((a,b)=>b.length-a.length)}});
+}
+
+/* ---------------- HELPERS ---------------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const up=l=>l==="ß"?"ß":l.toUpperCase();
+const sayOf=(lang,x)=>x.say||(lang==="en"||lang==="fr"||lang==="de"?up(x.l):x.name);
+const ipaTxt=s=>s==="silent"?"silent":s;
+const MIC_SVG='<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
+const SPK_SVG='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/></svg>';
+
+let voices=[];
+const hasTTS="speechSynthesis" in window;
+function loadVoices(){try{voices=speechSynthesis.getVoices()||[]}catch(e){}}
+if(hasTTS){loadVoices();try{speechSynthesis.onvoiceschanged=loadVoices}catch(e){}}
+function pickVoice(tag){const b=tag.slice(0,2).toLowerCase();
+  const g=voices.filter(v=>v.lang&&/google/i.test(v.name));
+  return g.find(v=>v.lang.replace("_","-").toLowerCase()===tag.toLowerCase())||g.find(v=>v.lang.toLowerCase().startsWith(b))||voices.find(v=>v.lang&&v.lang.replace("_","-").toLowerCase()===tag.toLowerCase())||voices.find(v=>v.lang&&v.lang.toLowerCase().startsWith(b))}
+function speak(text,tag,rate){return new Promise(res=>{
+  if(!hasTTS){setTimeout(res,700);return}
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang=tag;const v=pickVoice(tag);if(v)u.voice=v;u.rate=rate||.8;
+    let done=false;const fin=()=>{if(!done){done=true;res()}};u.onend=fin;u.onerror=fin;setTimeout(fin,3000+text.length*250);
+    setTimeout(()=>speechSynthesis.speak(u),60)}catch(e){setTimeout(res,700)}})}
+
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let mode=SR?"voice":"self";
+let micNote=SR?"":"This browser can't check speech. Open this file in Google Chrome to have your pronunciation checked.";
+function listen(tag){return new Promise(res=>{
+  let r;try{r=new SR()}catch(e){res({err:"unsupported"});return}
+  r.lang=tag;r.maxAlternatives=5;r.interimResults=false;r.continuous=false;
+  let alts=null,err=null,ended=false;
+  r.onresult=e=>{try{alts=[...e.results[0]].map(a=>a.transcript)}catch(x){alts=[]}};
+  r.onerror=e=>{err=e.error||"error"};
+  r.onend=()=>{if(ended)return;ended=true;res(alts&&alts.length?{alts}:{err:err||"no-speech"})};
+  try{if(hasTTS)speechSynthesis.cancel();r.start()}catch(e){ended=true;res({err:"start"})}
+  setTimeout(()=>{try{r.stop()}catch(e){}},6500)})}
+const HARD=["not-allowed","service-not-allowed","unsupported","language-not-supported"];
+const norm=s=>s.toLowerCase().replace(/[.,!?¿¡"“”«»:;()\-]/g," ").replace(/\s+/g," ").trim();
+const strip=s=>s.normalize("NFD").replace(/[̀-ͯ]/g,"");
+function accepts(x,alts){
+  const special="äöüñß".includes(x.l);
+  const set=new Set(x.al.map(norm));
+  const sset=new Set([...set].map(strip));
+  for(const a of alts){
+    const t=norm(a);if(!t)continue;
+    if(set.has(t))return true;
+    const toks=t.split(" ");
+    if(toks.length<=3&&toks.some(k=>set.has(k)))return true;
+    if(!special){const st=strip(t);if(sset.has(st))return true;if(toks.length<=3&&toks.map(strip).some(k=>sset.has(k)))return true}
+  }
+  return false;
+}
+function hl(word,letter){
+  const re=new RegExp("("+letter.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","gi");
+  return esc(word).replace(re,"<mark>$1</mark>");
+}
+
+/* ---------------- STATE ---------------- */
+let S={lang:null,ph:"letters",idx:0,tidx:0,score:0,got:[],tgot:[],rbest:0};
+let run=0; // cancels audio sequences
+function loadProg(lang){try{return JSON.parse(localStorage.getItem("aa-"+lang)||"null")}catch(e){return null}}
+function saveProg(){try{localStorage.setItem("aa-"+S.lang,JSON.stringify({ph:S.ph,idx:S.idx,tidx:S.tidx,score:S.score,got:S.got,tgot:S.tgot,rbest:S.rbest||0}))}catch(e){}}
+const LG=()=>LANGS[S.lang];
+const isT=()=>S.ph==="teams";
+const items=()=>isT()?LG().teams:LG().letters;
+const ci=()=>isT()?S.tidx:S.idx;
+const setCi=i=>{if(isT())S.tidx=i;else S.idx=i};
+const gotArr=()=>isT()?S.tgot:S.got;
+const kid=x=>x.team?x.l+"|"+x.snd:x.l;
+const disp=x=>x.team?x.l:up(x.l);
+const unitWord=()=>isT()?"team":"letter";
+function bumpScore(d){S.score+=d;saveProg();const el=$("#score");if(el){el.textContent=S.score+" pts";el.classList.remove("bump");void el.offsetWidth;el.classList.add("bump")}}
+function lev(a,b){const m=a.length,n=b.length;if(!m)return n;if(!n)return m;let p=[...Array(n+1).keys()];for(let i=1;i<=m;i++){const c=[i];for(let j=1;j<=n;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c}return p[n]}
+function matchWord(target,alts){
+  const t=norm(target),ts=strip(t);
+  for(const a of alts){const n=norm(a);if(!n)continue;
+    if(n===t||strip(n)===ts)return true;
+    if((" "+n+" ").includes(" "+t+" ")||(" "+strip(n)+" ").includes(" "+ts+" "))return true;
+    if(ts.length>=5&&n.split(" ").some(k=>lev(strip(k),ts)<=1))return true;
+  }
+  return false;
+}
+function hlx(word,x){
+  const pats=x.team?x.pat:[x.l];
+  const re=new RegExp("("+pats.map(p=>p.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")","gi");
+  return esc(word).replace(re,"<mark>$1</mark>");
+}
+
+/* ---------------- HOME ---------------- */
+function home(){
+  run++;if(hasTTS)try{speechSynthesis.cancel()}catch(e){}
+  document.body.className="";
+  $("#app").innerHTML=`
+  <header style="display:flex;flex-direction:column;gap:10px">
+    <span class="label">Letters · Letter teams · Reading</span>
+    <h1>Symbols &amp; Sounds</h1>
+    <p class="lede">Learn each letter by ear: hear it, hear it in two words, see how it changes with other letters, then say it yourself.</p>
+  </header>
+  <section style="display:flex;flex-direction:column;gap:10px">
+    <span class="label">Choose the language you're learning</span>
+    <div class="langs">${Object.entries(LANGS).map(([k,v])=>{const p=loadProg(k);
+      const where=!p?"Start at A":p.ph==="reading"?`Reading practice · ${p.score} pts`:p.ph==="teams"?`Letter teams: ${esc(v.teams[Math.min(p.tidx||0,v.teams.length-1)].l)} · ${p.score} pts`:`Resume at ${up(v.letters[Math.min(p.idx,v.letters.length-1)].l)} · ${p.score} pts`;
+      return `<button class="lang ${v.cls}" data-k="${k}"><span class="nm">${v.name.toUpperCase()}</span><span class="meta">${v.native} · ${v.letters.length} letters · ${v.teams.length} letter teams</span><span class="prog">${where}</span></button>`}).join("")}</div>
+  </section>
+  <section class="howto">
+    <div><b>Tap the letter</b>You hear its name and see its main sound, then two example words play one after the other.</div>
+    <div><b>Learn the changes</b>See the letter's other sounds and the letter teams that change it, each with two examples.</div>
+    <div><b>Say it: +1</b>Pronounce the letter. Each one you get right earns a point.</div>
+    <div><b>Review every 6</b>The last 5 come back in random order. A miss costs 1 point and replays the lesson.</div>
+    <div><b>Then letter teams</b>After the alphabet: digraphs, trigraphs, diphthongs and triphthongs, practised the same way.</div>
+    <div><b>Finally, read aloud</b>Learn where the stress falls, then read a short A1 text for up to 5 points.</div>
+  </section>
+  ${micNote?`<p class="note">${esc(micNote)}</p>`:""}
+  <p class="note">Works in Google Chrome on a computer or an Android phone. You need an internet connection and a microphone.</p>`;
+  $(".langs").onclick=e=>{const b=e.target.closest("[data-k]");if(!b)return;
+    const k=b.dataset.k,p=loadProg(k)||{};
+    S={lang:k,ph:["teams","reading"].includes(p.ph)?p.ph:"letters",rbest:p.rbest||0,idx:Math.min(p.idx||0,LANGS[k].letters.length-1),tidx:Math.min(p.tidx||0,LANGS[k].teams.length-1),score:p.score||0,got:p.got||[],tgot:p.tgot||[]};
+    micReady?learn():micSetup()};
+}
+
+/* ---------------- MICROPHONE SETUP ---------------- */
+let micReady=false,meterStop=null;
+function framePolicyBlocksMic(){try{const p=document.permissionsPolicy||document.featurePolicy;return !!(p&&p.allowsFeature&&p.allowsFeature("microphone")===false)}catch(e){return false}}
+function micSetup(){
+  run++;const lg=LG();document.body.className=lg.cls;
+  $("#app").innerHTML=`<div class="top"><div class="left"><button class="btn ghost" id="back">← Languages</button><h2>${lg.name}</h2></div></div>
+  <section class="panel turn" style="max-width:640px;gap:16px">
+    <span class="label">Step 1 of 2 · Microphone</span>
+    <h2>Let the app hear you</h2>
+    <p>To check your pronunciation, the app needs your microphone. Chrome will ask for permission. Chrome sends what you say to Google's speech service to turn it into text, so you need to be online.</p>${location.protocol==="file:"?`<p class="note">Opened as a file, Chrome may ask for the microphone again each time you open it. To be asked only once, open it from a website address instead.</p>`:""}
+    <div class="turnrow"><button class="mic" id="askMic" aria-label="Allow microphone">${MIC_SVG}</button>
+      <div><p><b>Tap to allow the microphone</b></p><p class="label" id="micMsg" style="margin-top:4px">Then choose “Allow” in the browser's prompt</p></div></div>
+    <div id="meterBox" hidden style="display:flex;flex-direction:column;gap:6px"><span class="label">Say something to test it</span>
+      <div style="height:14px;border-radius:7px;background:var(--line);overflow:hidden"><div id="meter" style="height:100%;width:0;background:var(--good);transition:width .08s"></div></div></div>
+    <div class="fb" id="micFb" aria-live="polite"></div>
+    <div class="btns" id="micActs"><button class="btn ghost" id="selfGo">Continue without the microphone</button></div>
+  </section>`;
+  $("#back").onclick=()=>{stopMeter();home()};
+  $("#selfGo").onclick=()=>{stopMeter();mode="self";micReady=true;micNote=micNote||"You chose to continue without the microphone, so you'll mark your own answers.";learn()};
+  const fb=(k,t)=>{const f=$("#micFb");f.className="fb "+k;f.textContent=t};
+  const fail=(t)=>{fb("no",t);mode="self";micNote=t;$("#selfGo").textContent="Continue and mark my own answers";$("#selfGo").className="btn"};
+  if(!SR){fail("This browser can't turn speech into text, so it can't check pronunciation. Open this file in Google Chrome.");return}
+  if(!window.isSecureContext){fail("Chrome only allows the microphone on pages opened from a secure web address (https://…). On a phone, open the app from its web link instead of from a downloaded file.");return}
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){fail("This browser doesn't allow microphone access here. Open this file in Google Chrome.");return}
+  $("#askMic").onclick=async()=>{
+    $("#micMsg").textContent="Waiting for your permission…";fb("","");
+    try{
+      const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+      mode="voice";micReady=true;micNote="";
+      $("#askMic").disabled=true;$("#micMsg").textContent="Microphone allowed";
+      fb("ok","Microphone is on. Say something and watch the bar move.");
+      startMeter(stream);
+      $("#micActs").innerHTML=`<button class="btn" id="goLearn">Start learning →</button>`;
+      $("#goLearn").onclick=()=>{stopMeter();learn()};$("#goLearn").focus();
+    }catch(e){
+      const n=e&&e.name;
+      $("#micMsg").textContent="Microphone not available";
+      if(framePolicyBlocksMic()||(window.top!==window&&(n==="NotAllowedError"||n==="SecurityError")))
+        fail("This page isn't allowed to use the microphone. Open the file directly in Google Chrome, not inside another app.");
+      else if(n==="NotAllowedError")fail("Microphone permission was denied. Click the microphone icon at the right of Chrome's address bar, choose Allow, then reload the page.");
+      else if(n==="NotFoundError")fail("No microphone was found. Connect one and reload the page.");
+      else fail("The microphone couldn't be started ("+(n||"unknown error")+").");
+    }
+  };
+}
+function startMeter(stream){
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;const ctx=new AC();const src=ctx.createMediaStreamSource(stream);const an=ctx.createAnalyser();an.fftSize=512;src.connect(an);
+    const buf=new Uint8Array(an.fftSize);let raf;$("#meterBox").hidden=false;
+    const loop=()=>{an.getByteTimeDomainData(buf);let m=0;for(const v of buf)m=Math.max(m,Math.abs(v-128));const el=$("#meter");if(el)el.style.width=Math.min(100,m/64*100)+"%";raf=requestAnimationFrame(loop)};loop();
+    meterStop=()=>{cancelAnimationFrame(raf);stream.getTracks().forEach(t=>t.stop());try{ctx.close()}catch(e){}};
+  }catch(e){stream.getTracks().forEach(t=>t.stop())}
+}
+function stopMeter(){if(meterStop){meterStop();meterStop=null}}
+
+/* ---------------- LEARN ---------------- */
+let wake=null;
+async function keepAwake(){try{if(!wake&&navigator.wakeLock){wake=await navigator.wakeLock.request("screen");wake.addEventListener("release",()=>{wake=null})}}catch(e){}}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&S.lang)keepAwake()});
+function voiceCheck(){
+  keepAwake();
+  setTimeout(()=>{loadVoices();if(!hasTTS||!voices.length||pickVoice(LG().tts))return;
+    const n=document.createElement("p");n.className="note";
+    n.textContent=`Your device has no ${LG().name} voice installed, so letters may be read in the wrong accent. On Android: Settings → search “Text-to-speech” → Speech Services by Google → Install voice data → ${LG().name}. Then reload this page.`;
+    const b=$(".bench");b&&b.parentNode.insertBefore(n,b)},1200);
+}
+function topbar(extra){
+  return `<div class="top"><div class="left"><button class="btn ghost" id="back">← Languages</button><h2>${LG().name}</h2></div>
+  <div class="btns" style="align-items:center">${extra||""}<button class="btn ghost" id="rulesBtn"><span class="hide-sm">Pronunciation&nbsp;</span>Rules</button><span class="score" id="score">${S.score} pts</span></div></div>`;
+}
+function wireTop(){ $("#back").onclick=home; $("#rulesBtn").onclick=rules; }
+function phaseTabs(){
+  return `<div class="seg" role="tablist" id="seg"><button role="tab" data-ph="letters" aria-selected="${S.ph==="letters"}">Letters <span>${S.got.length}/${LG().letters.length}</span></button><button role="tab" data-ph="teams" aria-selected="${S.ph==="teams"}">Letter teams <span>${S.tgot.length}/${LG().teams.length}</span></button><button role="tab" data-ph="reading" aria-selected="${S.ph==="reading"}">Reading <span id="rbestTab">${S.rbest||0}/5</span></button></div>`;
+}
+function wirePhaseTabs(){
+  $("#seg").onclick=e=>{const b=e.target.closest("[data-ph]");if(!b||b.dataset.ph===S.ph)return;S.ph=b.dataset.ph;if(S.ph==="reading")readingIntro();else learn()};
+}
+function rail(){
+  const g=gotArr();
+  return `<div class="rail-wrap"><div class="rail ${isT()?"teams":""}" id="rail">${items().map((x,i)=>
+    `<button data-i="${i}" class="${i===ci()?"cur":""} ${g.includes(kid(x))?"done":""} ${(i+1)%6===0?"cp":""}" aria-label="${unitWord()} ${esc(disp(x))}${(i+1)%6===0?", review after this one":""}">${esc(disp(x))}</button>`).join("")}</div></div>`;
+}
+function glyph(x){return x.team?`<span class="g team" lang="${S.lang}">${esc(x.l)}</span>`:`<span class="g">${up(x.l)}${x.l!=="ß"?`<small>${x.l}</small>`:""}</span>`}
+function tileHTML(x,caption){
+  return `<div class="tilecol"><button class="tile" id="tile" aria-label="Play ${esc(disp(x))}">${glyph(x)}<span class="nm">${x.team?esc(x.kind):`said “${esc(x.name)}”`}</span></button>
+  <span class="tapcap" id="tapcap">${SPK_SVG}${caption}</span></div>`;
+}
+function wordStage(id){return `<div class="stage empty" id="${id}"><span>Two example words will play here, one after the other.</span></div>`}
+function showWord(stageId,x,i){
+  const w=x.w[i],st=$("#"+stageId);if(!st)return;
+  st.classList.remove("empty");
+  st.innerHTML=`<span class="count">Word ${i+1} of 2</span><span class="w" lang="${S.lang}">${hlx(w.w,x)}</span>${w.m?`<span class="m">${esc(w.m)}</span>`:""}`;
+}
+async function demo(x,stageId){
+  const my=++run,tag=LG().tts,tile=$("#tile");
+  tile&&tile.classList.add("playing");
+  if(!x.team){await speak(sayOf(S.lang,x),tag,.75); if(my!==run)return false}
+  const sl=$("#soundline");if(sl)sl.classList.remove("hidden");
+  await wait(450); if(my!==run)return false;
+  showWord(stageId,x,0); await speak(x.w[0].w,tag); if(my!==run)return false;
+  await wait(900); if(my!==run)return false;
+  showWord(stageId,x,1); await speak(x.w[1].w,tag); if(my!==run)return false;
+  tile&&tile.classList.remove("playing");
+  return true;
+}
+function varsHTML(x){
+  if(x.team)return `<p>${esc(x.n||`${x.l} makes the sound ${x.snd} in the words above.`)}</p>`;
+  if(!x.o.length)return `<p class="lede" style="font-size:1rem">${up(x.l)} keeps this one sound. No other sounds or letter teams to learn.</p>`;
+  return `<ul class="vars">${x.o.map(o=>`<li><div class="hd"><b>${esc(o.d)}</b><span class="ipa">${esc(ipaTxt(o.s))}</span></div>
+    <div class="chips">${o.ex.map(e=>`<button class="chip" data-say="${esc(e.w)}">${SPK_SVG}<b lang="${S.lang}">${esc(e.w)}</b>${e.m?`<span>${esc(e.m)}</span>`:""}</button>`).join("")}</div></li>`).join("")}</ul>`;
+}
+function wireChips(root){root.addEventListener("click",e=>{const c=e.target.closest("[data-say]");if(c){run++;speak(c.dataset.say,LG().tts)}})}
+
+function learn(){
+  if(S.ph==="reading"){readingIntro();return}
+  run++;
+  const lg=LG(),list=items(),i=ci(),x=list[i];
+  document.body.className=lg.cls;
+  saveProg();
+  $("#app").innerHTML=`${topbar()}${phaseTabs()}${rail()}
+  <div class="bench">
+    ${tileHTML(x,x.team?"Tap to hear it in two words":"Tap the letter to hear it")}
+    <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+      <section class="panel">
+        <div class="soundline hidden" id="soundline"><span class="label">${x.team?"Sound":"Main sound"}</span><span class="ipa">${esc(ipaTxt(x.snd))}</span><span class="label">${x.team?"Team":"Letter"} ${i+1} of ${list.length}</span></div>
+        ${wordStage("stage")}
+      </section>
+      <section class="panel hidden" id="varsP"><span class="label">${x.team?"How it works":"Other sounds &amp; letter teams"}</span>${varsHTML(x)}</section>
+      <section class="panel turn hidden" id="turnP"></section>
+    </div>
+  </div>`;
+  wireTop();
+  wirePhaseTabs();
+  $("#rail").onclick=e=>{const b=e.target.closest("[data-i]");if(b){setCi(+b.dataset.i);learn()}};
+  const cur=$("#rail .cur");if(cur)cur.scrollIntoView({block:"nearest",inline:"center"});
+  wireChips($("#varsP"));
+  voiceCheck();
+  let first=true;
+  $("#tile").onclick=async()=>{
+    const ok=await demo(x,"stage");
+    if(!ok)return;
+    $("#tapcap").innerHTML=SPK_SVG+"Tap again to replay";
+    if(first){first=false;$("#varsP").classList.remove("hidden");$("#turnP").classList.remove("hidden");learnTurn(x)}
+    if(innerWidth<780){const t=$("#turnP");t&&t.scrollIntoView({behavior:"smooth",block:"start"})}
+  };
+}
+function learnTurn(x){
+  const p=$("#turnP"),g=gotArr(),already=g.includes(kid(x));
+  const i=ci(),last=i===items().length-1;
+  const nextLabel=((i+1)%6===0)?"Start the review":last?(isT()?"On to reading practice":"On to letter teams"):(isT()?"Next team":"Next letter");
+  const target=x.team?x.w[0].w:null;
+  checkUI(p,x,{
+    target,
+    title:x.team?`Your turn: say the word “${target}”`:`Your turn: say the letter ${up(x.l)}`,
+    sub:(x.team?`Make the ${x.l} sound ${x.snd} clearly.`:`Say its name, “${x.name}”.`)+(already?" You already earned this point.":" +1 point if you get it right."),
+    onResult(ok,heard,fb,actions){
+      if(ok){
+        if(!g.includes(kid(x))){g.push(kid(x));bumpScore(1);fb("ok",`Correct! +1 point${heard?` (heard “${heard}”)`:""}`)}
+        else fb("ok",`Correct!${heard?` (heard “${heard}”)`:""}`);
+        actions(`<button class="btn" id="nx">${nextLabel} →</button>`);
+        $("#nx").onclick=advance;$("#nx").focus();
+        const rb=$("#rail [data-i='"+i+"']");if(rb)rb.classList.add("done");
+      }else{
+        fb("no",heard?`I heard “${heard}”. Listen again and try once more.`:"Not quite. Listen again and try once more.");
+        actions(`<button class="btn ghost" id="again">${SPK_SVG}Hear it again</button><button class="btn ghost" id="skip">Skip for now</button>`);
+        $("#again").onclick=()=>{run++;speak(x.team?target:sayOf(S.lang,x),LG().tts,.75)};
+        $("#skip").onclick=advance;
+      }
+    }
+  });
+}
+function endOfPhase(){if(isT())readingIntro();else teamsIntro()}
+function advance(){
+  const n=items().length,i=ci();
+  if((i+1)%6===0){review(shuffle(items().slice(i-4,i+1)));return}
+  if(i>=n-1){endOfPhase();return}
+  setCi(i+1);learn();
+}
+
+/* --------- the "say it" block, shared by learn and review --------- */
+function checkUI(p,x,o){
+  const tag=LG().tts;
+  const render=()=>{
+    p.innerHTML=`<span class="label">${esc(o.title)}</span>
+    <div class="turnrow">${mode==="voice"?`<button class="mic" id="mic" aria-label="Start listening">${MIC_SVG}</button>`:""}
+      <div><p>${esc(o.sub)}</p><p class="label" id="micstate" style="margin-top:4px">${mode==="voice"?"Tap the microphone, then speak":"Say it out loud, then mark how you did"}</p></div></div>
+    ${mode==="self"?`<div class="btns" id="selfb"><button class="btn good" id="yes">I said it right</button><button class="btn bad" id="no">I got it wrong</button></div>`:""}
+    <div class="fb" id="fb" aria-live="polite"></div>
+    <div class="btns" id="acts"></div>
+    ${micNote&&mode==="self"?`<p class="note">${esc(micNote)}</p>`:""}`;
+    const fb=(k,t)=>{const f=$("#fb");f.className="fb "+k;f.textContent=t};
+    const actions=h=>{$("#acts").innerHTML=h};
+    const finish=(ok,heard)=>{const m=$("#mic");if(m)m.disabled=ok||o.single;const sb=$("#selfb");if(sb&&(ok||o.single))sb.hidden=true;o.onResult(ok,heard,fb,actions)};
+    if(mode==="voice"){
+      const mic=$("#mic");
+      mic.onclick=async()=>{
+        run++;if(hasTTS)try{speechSynthesis.cancel()}catch(e){}mic.classList.add("on");$("#micstate").textContent="Listening… say it now";fb("","");actions("");
+        await wait(250);const r=await listen(tag);mic.classList.remove("on");
+        if(r.err){
+          if(HARD.includes(r.err)){mode="self";micNote="Chrome couldn't use the microphone, so you'll mark your own answers. Allow the microphone for this page (the icon at the right of the address bar) and reload.";render();return}
+          $("#micstate").textContent="Tap the microphone, then speak";
+          fb("no",r.err==="no-speech"?"I didn't hear anything. Tap the microphone and speak right after the beep or prompt.":r.err==="network"?"The speech service couldn't be reached. Check your internet connection and try again.":r.err==="audio-capture"?"Another app may be using the microphone. Close it and try again.":"Something interrupted the listening. Tap the microphone and try again.");return;
+        }
+        $("#micstate").textContent="Tap the microphone to try again";
+        finish(o.target?matchWord(o.target,r.alts):accepts(x,r.alts),r.alts[0]);
+      };
+    }else{
+      $("#yes").onclick=()=>finish(true,"");
+      $("#no").onclick=()=>finish(false,"");
+    }
+  };
+  render();
+}
+
+/* ---------------- REVIEW ---------------- */
+function review(queue){
+  run++;
+  const lg=LG();const res=[];let pos=0;const T=isT();
+  const targets=queue.map(x=>x.team?x.w[Math.random()*2|0].w:null);
+  document.body.className=lg.cls;
+  const draw=()=>{
+    const x=queue[pos],target=targets[pos];
+    $("#app").innerHTML=`${topbar()}
+    <section style="display:flex;flex-direction:column;gap:8px">
+      <span class="label">Review stop · after ${unitWord()} ${ci()+1}</span>
+      <h2>${T?"Say these 5 words from memory":"Say these 5 letters from memory"}</h2>
+      <div class="dots">${queue.map((_,i)=>`<i class="${res[i]===true?"ok":res[i]===false?"no":i===pos?"now":""}"></i>`).join("")}</div>
+    </section>
+    <div class="bench">
+      <div class="tilecol"><div class="tile" style="cursor:default" id="tile">${glyph(x)}<span class="nm">${pos+1} of ${queue.length}</span></div></div>
+      <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+        ${T?`<section class="panel"><span class="label">Read this word aloud</span><div class="stage"><span class="w" lang="${S.lang}">${hlx(target,x)}</span></div></section>`:""}
+        <section class="panel turn" id="turnP"></section>
+        <section class="panel hidden" id="fixP">
+          <div class="soundline hidden" id="soundline"><span class="label">Correct pronunciation</span>${T?"":`<span>“${esc(x.name)}”</span>`}<span class="ipa">${esc(ipaTxt(x.snd))}</span></div>
+          ${wordStage("stage")}
+        </section>
+      </div>
+    </div>`;
+    wireTop();
+    const nextBtn=label=>`<button class="btn" id="nx">${label} →</button>`;
+    const go=()=>{pos++;if(pos<queue.length)draw();else reviewEnd(queue,res)};
+    checkUI($("#turnP"),x,{
+      target,
+      title:T?`Say the word “${target}”`:"Say this letter",
+      sub:"No hints this time. +1 if it's right, −1 if it's wrong.",
+      single:true,
+      async onResult(ok,heard,fb,actions){
+        res[pos]=ok;
+        if(ok){bumpScore(1);fb("ok",`Correct! +1 point${heard?` (heard “${heard}”)`:""}`);actions(nextBtn(pos<queue.length-1?"Next":"See review results"));$("#nx").onclick=go;$("#nx").focus();return}
+        bumpScore(-1);
+        fb("no",`${heard?`I heard “${heard}”. `:""}−1 point. Listen to the correct pronunciation.`);
+        $("#fixP").classList.remove("hidden");
+        if(innerWidth<780)$("#fixP").scrollIntoView({behavior:"smooth",block:"start"});
+        await demo(x,"stage");
+        actions(nextBtn(pos<queue.length-1?"Continue":"See review results"));$("#nx").onclick=go;$("#nx").focus();
+      }
+    });
+  };
+  draw();
+}
+function reviewEnd(queue,res){
+  const right=res.filter(Boolean).length,n=items().length,i=ci();
+  const last=i>=n-1;
+  const nextTxt=last?(isT()?"On to reading practice":"On to letter teams"):(isT()?"Next team: "+items()[i+1].l:"Next letter: "+up(items()[i+1].l));
+  $("#app").innerHTML=`${topbar()}
+  <section class="panel" style="align-items:flex-start">
+    <span class="label">Review complete</span>
+    <div class="big">${right}/${queue.length}</div>
+    <p class="lede">${right===queue.length?"All five right.":"The ones you missed were replayed with their example words."}</p>
+    <div class="chips">${queue.map((x,k)=>`<span class="chip" style="cursor:default;border-color:${res[k]?"var(--good)":"var(--bad)"}"><b>${esc(disp(x))}</b><span>${res[k]?"+1":"−1"}</span></span>`).join("")}</div>
+    <div class="btns"><button class="btn" id="nx">${esc(nextTxt)} →</button></div>
+  </section>`;
+  wireTop();
+  $("#nx").onclick=()=>{if(last)endOfPhase();else{setCi(i+1);learn()}};$("#nx").focus();
+}
+
+/* ---------------- TEAMS INTRO ---------------- */
+function teamsIntro(){
+  run++;const lg=LG();S.ph="teams";saveProg();
+  const kinds=[...new Set(lg.teams.map(t=>t.kind))];
+  $("#app").innerHTML=`${topbar()}
+  <section class="panel turn" style="align-items:flex-start;gap:14px">
+    <span class="label">${lg.name} alphabet complete · ${S.got.length} of ${lg.letters.length} letters right</span>
+    <h2>Next: letter teams</h2>
+    <p>${esc(lg.teamNote)} For each one you hear two words, then say the first word yourself for 1 point. There's a review after every 6.</p>
+    <ul class="vars">${kinds.map(k=>{const t=lg.teams.filter(x=>x.kind===k);return `<li><div class="hd"><b>${esc(k)}s</b><span class="label">${t.length}</span></div><div class="chips">${t.map(x=>`<span class="chip" style="cursor:default"><b lang="${S.lang}">${esc(x.l)}</b><span class="ipa">${esc(x.snd)}</span></span>`).join("")}</div></li>`}).join("")}</ul>
+    <div class="btns"><button class="btn" id="go">Start letter teams →</button></div>
+  </section>`;
+  wireTop();
+  $("#go").onclick=()=>{S.tidx=0;learn()};$("#go").focus();
+}
+
+/* ---------------- READING PRACTICE ---------------- */
+// syllables use · ; the stressed syllable starts with ˈ
+const READ={
+en:{rule:{t:"Where the stress falls in English",pts:[
+  "English has no single fixed rule, so learn each word's stress with the word.",
+  "Most two-syllable nouns and adjectives stress the first syllable: TA·ble, HAP·py.",
+  "Most two-syllable verbs stress the second syllable: be·GIN, re·LAX.",
+  "Words ending in -tion, -sion and -ic stress the syllable just before the ending: in·for·MA·tion.",
+  "Unstressed vowels often weaken to a short “uh” sound /ə/."],
+  ex:["ˈta·ble","be·ˈgin","ˈpho·to·graph","pho·ˈto·gra·pher","in·for·ˈma·tion"]},
+ text:"My name is Anna. I live in a small house near the river with my family. Every morning I drink tea and eat bread with butter. Then I walk to school with my brother. In the afternoon we play football in the park. On Sunday we visit our grandmother. She makes a delicious chocolate cake.",
+ st:"anna:ˈan·na,river:ˈri·ver,family:ˈfa·mi·ly,every:ˈev·e·ry,morning:ˈmor·ning,butter:ˈbut·ter,brother:ˈbro·ther,afternoon:af·ter·ˈnoon,football:ˈfoot·ball,sunday:ˈsun·day,visit:ˈvi·sit,grandmother:ˈgrand·mo·ther,delicious:de·ˈli·cious,chocolate:ˈcho·co·late"},
+es:{rule:{t:"Where the stress falls in Spanish",pts:[
+  "Words ending in a vowel, n or s stress the second-to-last syllable: CA·sa, JO·ven.",
+  "Words ending in any other consonant stress the last syllable: ciu·DAD, ha·BLAR.",
+  "A written accent overrides both rules and marks the stressed syllable: can·CIÓN, ÁR·bol.",
+  "Every vowel keeps its full, clear sound, stressed or not."],
+  ex:["ˈca·sa","ˈjo·ven","ciu·ˈdad","can·ˈción","ˈár·bol"]},
+ text:"Me llamo Lucía y vivo en Madrid. Tengo una casa pequeña con un jardín. Por la mañana desayuno café con leche y pan. Después camino al trabajo. Por la tarde leo un libro o hablo con mis amigos. Los sábados voy al mercado con mi hermano. Me gusta mucho mi ciudad.",
+ st:"llamo:ˈlla·mo,lucía:lu·ˈcí·a,vivo:ˈvi·vo,madrid:ma·ˈdrid,tengo:ˈten·go,una:ˈu·na,casa:ˈca·sa,pequeña:pe·ˈque·ña,jardín:jar·ˈdín,mañana:ma·ˈña·na,desayuno:de·sa·ˈyu·no,café:ca·ˈfé,leche:ˈle·che,después:des·ˈpués,camino:ca·ˈmi·no,trabajo:tra·ˈba·jo,tarde:ˈtar·de,leo:ˈle·o,libro:ˈli·bro,hablo:ˈha·blo,amigos:a·ˈmi·gos,sábados:ˈsá·ba·dos,mercado:mer·ˈca·do,hermano:her·ˈma·no,gusta:ˈgus·ta,mucho:ˈmu·cho,ciudad:ciu·ˈdad"},
+fr:{rule:{t:"Where the stress falls in French",pts:[
+  "Every word has its stress on its last spoken syllable: cho·co·LAT.",
+  "A silent final -e doesn't count as a syllable: ba·NANE.",
+  "In a sentence, only the last word of each word group gets the stress: je suis é·tu·DIANT.",
+  "All the other syllables are said evenly, with the same length and strength."],
+  ex:["cho·co·ˈlat","ba·ˈnane","té·lé·ˈphone","é·tu·ˈdiant"]},
+ text:"Je m'appelle Léa. J'habite à Lyon avec ma famille. Le matin, je bois un café et je mange une tartine. Ensuite, je prends le bus pour aller à l'école. À midi, je déjeune avec mes amis. Le soir, nous regardons un film à la maison. J'aime beaucoup ma ville.",
+ st:"m'appelle:m'ap·ˈpelle,léa:lé·ˈa,j'habite:j'ha·ˈbite,lyon:ly·ˈon,avec:a·ˈvec,famille:fa·ˈmille,matin:ma·ˈtin,café:ca·ˈfé,tartine:tar·ˈtine,ensuite:en·ˈsuite,aller:al·ˈler,l'école:l'é·ˈcole,midi:mi·ˈdi,déjeune:dé·ˈjeune,amis:a·ˈmis,regardons:re·gar·ˈdons,maison:mai·ˈson,beaucoup:beau·ˈcoup"},
+de:{rule:{t:"Where the stress falls in German",pts:[
+  "Most German words stress the first syllable: MOR·gen, WAS·ser.",
+  "The prefixes be-, ge-, er-, ver-, zer- and ent- are never stressed. The stress moves to the next syllable: ver·STE·hen.",
+  "Separable prefixes like an-, auf- and mit- are stressed: AN·ru·fen.",
+  "In compound words, the first part gets the stress: FUSS·ball.",
+  "Many loanwords stress the last syllable: Mu·SIK."],
+  ex:["ˈmor·gen","ver·ˈste·hen","ˈan·ru·fen","ˈfuß·ball","mu·ˈsik"]},
+ text:"Ich heiße Jonas und wohne in Berlin. Ich habe einen Bruder und eine Schwester. Am Morgen trinke ich Kaffee und esse ein Brötchen. Dann fahre ich mit dem Bus zur Schule. Am Nachmittag spiele ich Fußball. Am Abend lese ich ein Buch. Am Wochenende besuchen wir unsere Oma.",
+ st:"heiße:ˈhei·ße,jonas:ˈjo·nas,wohne:ˈwoh·ne,berlin:ber·ˈlin,habe:ˈha·be,einen:ˈei·nen,bruder:ˈbru·der,eine:ˈei·ne,schwester:ˈschwes·ter,morgen:ˈmor·gen,trinke:ˈtrin·ke,kaffee:ˈkaf·fee,esse:ˈes·se,brötchen:ˈbröt·chen,fahre:ˈfah·re,schule:ˈschu·le,nachmittag:ˈnach·mit·tag,spiele:ˈspie·le,fußball:ˈfuß·ball,abend:ˈa·bend,lese:ˈle·se,wochenende:ˈwo·chen·en·de,besuchen:be·ˈsu·chen,unsere:ˈun·se·re,oma:ˈo·ma"}
+};
+for(const v of Object.values(READ)){v.map={};v.st.split(",").forEach(p=>{const i=p.indexOf(":");v.map[p.slice(0,i)]=p.slice(i+1)})}
+const RD=()=>READ[S.lang];
+const rkey=w=>w.toLowerCase().replace(/’/g,"'");
+const rnorm=w=>strip(w.toLowerCase().replace(/[’']/g,"").replace(/ß/g,"ss")).replace(/[^\p{L}\p{N}]/gu,"");
+const sylPlain=s=>s.replace(/[·ˈ]/g,"");
+const ORD=["first","second","third","fourth","fifth"];
+function stressInfo(word){
+  const syl=RD().map[rkey(word)];if(!syl)return null;
+  const parts=syl.split("·"),at=parts.findIndex(p=>p.startsWith("ˈ"));
+  const where=at===parts.length-1?"last":ORD[at];
+  return {parts:parts.map(p=>p.replace("ˈ","")),at,where,n:parts.length};
+}
+// dotted syllables, stressed one highlighted (rule examples and problem cards)
+function sylHTML(syl){return syl.split("·").map(p=>p.startsWith("ˈ")?`<b class="st">${esc(p.slice(1).toUpperCase())}</b>`:esc(p)).join("<span class=\"dot\">·</span>")}
+// the word as written, stressed syllable highlighted (whole-text stress view)
+function wordStressHTML(word){
+  const syl=RD().map[rkey(word)];if(!syl||sylPlain(syl)!==rkey(word))return esc(word);
+  let pos=0,out="";for(const p of syl.split("·")){const s=p.replace("ˈ",""),seg=word.slice(pos,pos+s.length);pos+=s.length;out+=p.startsWith("ˈ")?`<b class="st">${esc(seg)}</b>`:esc(seg)}
+  return out;
+}
+function tokenize(text){return text.match(/[\p{L}'’]+|[^\p{L}'’]+/gu).map(t=>({t,w:/\p{L}/u.test(t)}))}
+function near(a,b){const d=lev(a,b);return (a.length>=4&&d<=1)||(a.length>=7&&d<=2)}
+function align(T,H){
+  const n=T.length,m=H.length,D=[];for(let i=0;i<=n;i++){D.push(new Array(m+1).fill(0));D[i][0]=i}for(let j=0;j<=m;j++)D[0][j]=j;
+  const sc=(a,b)=>a===b?0:near(a,b)?.5:1;
+  for(let i=1;i<=n;i++)for(let j=1;j<=m;j++)D[i][j]=Math.min(D[i-1][j-1]+sc(T[i-1],H[j-1]),D[i-1][j]+1,D[i][j-1]+1);
+  const out=new Array(n).fill(null);let i=n,j=m;
+  while(i>0&&j>0){const c=sc(T[i-1],H[j-1]);
+    if(D[i][j]===D[i-1][j-1]+c){out[i-1]={st:c===0?"ok":c===.5?"close":"sub",h:j-1};i--;j--}
+    else if(D[i][j]===D[i-1][j]+1){out[i-1]={st:"miss"};i--}else j--}
+  while(i>0){out[i-1]={st:"miss"};i--}
+  return out;
+}
+function letterDiff(target,heard){
+  const a=[...target],A=a.map(c=>rnorm(c)),B=[...rnorm(heard)],n=A.length,m=B.length,D=[];
+  for(let i=0;i<=n;i++){D.push(new Array(m+1).fill(0));D[i][0]=i}for(let j=0;j<=m;j++)D[0][j]=j;
+  for(let i=1;i<=n;i++)for(let j=1;j<=m;j++)D[i][j]=Math.min(D[i-1][j-1]+(A[i-1]&&A[i-1]===B[j-1]?0:1),D[i-1][j]+1,D[i][j-1]+1);
+  const bad=new Array(n).fill(false);let i=n,j=m;
+  while(i>0&&j>0){const c=A[i-1]&&A[i-1]===B[j-1]?0:1;if(D[i][j]===D[i-1][j-1]+c){bad[i-1]=!!c&&!!A[i-1];i--;j--}else if(D[i][j]===D[i-1][j]+1){bad[i-1]=!!A[i-1];i--}else j--}
+  while(i>0){bad[i-1]=!!A[i-1];i--}
+  return a.map((c,k)=>bad[k]?`<mark class="lx">${esc(c)}</mark>`:esc(c)).join("");
+}
+
+function readingIntro(){
+  run++;const lg=LG(),r=RD().rule;S.ph="reading";saveProg();document.body.className=lg.cls;
+  $("#app").innerHTML=`${topbar()}${phaseTabs()}
+  <section class="panel turn" style="gap:14px">
+    <span class="label">Before you read · Step 1 of 2</span>
+    <h2>${esc(r.t)}</h2>
+    <ul class="pts">${r.pts.map(p=>`<li>${esc(p)}</li>`).join("")}</ul>
+    <span class="label">Examples · the stressed syllable is in capitals</span>
+    <div class="chips" id="stEx">${r.ex.map(s=>`<button class="chip" data-say="${esc(sylPlain(s))}">${SPK_SVG}<b class="syl" lang="${S.lang}">${sylHTML(s)}</b></button>`).join("")}</div>
+    <div class="btns"><button class="btn" id="go">Show the text →</button></div>
+  </section>`;
+  wireTop();wirePhaseTabs();wireChips($("#stEx"));
+  $("#go").onclick=readingPage;$("#go").focus();
+}
+
+function readingPage(){
+  run++;const lg=LG(),R=RD(),tag=lg.tts;
+  const toks=tokenize(R.text);const words=toks.filter(t=>t.w);const T=words.map(w=>rnorm(w.t));
+  let wi=0;
+  const passage=toks.map(t=>t.w?`<span class="wd" data-i="${wi++}">${esc(t.t)}</span>`:esc(t.t)).join("");
+  $("#app").innerHTML=`${topbar()}${phaseTabs()}
+  <section class="panel turn" style="gap:14px">
+    <span class="label">Read aloud · A1 · Step 2 of 2</span>
+    <p>${mode==="voice"?"Tap the text to start the microphone, then read it aloud at a calm pace. Words turn green as the app hears them.":"Reading is checked with the microphone, which isn't on. You can still listen to the text and read along."}</p>
+    <button class="passage" id="passage" lang="${S.lang}" aria-label="Tap to start reading">${passage}</button>
+    <p class="label" id="rstate">${mode==="voice"?"Tap the text to begin":"Microphone off"}</p>
+    <div class="btns"><button class="btn" id="doneR" hidden>Done reading</button><button class="btn ghost" id="hearAll">${SPK_SVG}Hear it read</button><button class="btn ghost" id="stressT" aria-pressed="false">Show stress</button></div>
+  </section>
+  <div id="results"></div>`;
+  wireTop();wirePhaseTabs();
+  const spans=[...document.querySelectorAll("#passage .wd")];
+  let netErr=0,showStress=false,listening=false,stopped=false,acc="",sess="",interim="",rec=null,hardErr=null,deadline=0,autoT=null;
+  const paintStress=()=>spans.forEach((s,k)=>{s.innerHTML=showStress?wordStressHTML(words[k].t):esc(words[k].t)});
+  $("#stressT").onclick=()=>{showStress=!showStress;$("#stressT").setAttribute("aria-pressed",showStress);$("#stressT").textContent=showStress?"Hide stress":"Show stress";paintStress()};
+  $("#hearAll").onclick=()=>{if(listening)return;run++;speak(R.text,tag,.85)};
+  const live=()=>{
+    const H=(acc+" "+sess+" "+interim).split(/\s+/).map(rnorm).filter(Boolean);
+    const al=align(T,H);let last=-1;
+    al.forEach((a,k)=>{if(a&&(a.st==="ok"||a.st==="close"))last=k});
+    spans.forEach((s,k)=>{s.className="wd"+(k<=last&&al[k]&&al[k].st!=="miss"?(al[k].st==="ok"?" ok":al[k].st==="close"?" close":""):"")+(k===last+1?" next":"")});
+    if(last===spans.length-1&&!autoT)autoT=setTimeout(stop,1500);
+  };
+  const stop=()=>{stopped=true;try{rec&&rec.stop()}catch(e){}};
+  const session=()=>{
+    try{rec=new SR()}catch(e){hardErr="unsupported";finish();return}
+    rec.lang=tag;rec.continuous=true;rec.interimResults=true;rec.maxAlternatives=1;
+    rec.onresult=e=>{const parts=[];let im="";
+      for(let k=0;k<e.results.length;k++){const t=e.results[k][0].transcript.trim();
+        if(e.results[k].isFinal){if(parts.length&&t.startsWith(parts[parts.length-1]))parts[parts.length-1]=t;else parts.push(t)}else im+=" "+t}
+      sess=parts.join(" ");interim=im;live()};
+    rec.onerror=e=>{if(HARD.includes(e.error))hardErr=e.error;if(e.error==="network"&&++netErr>=2)hardErr="network"};
+    rec.onend=()=>{acc+=" "+sess;sess="";interim="";
+      if(!stopped&&!hardErr&&Date.now()<deadline)setTimeout(()=>{if(!stopped)session();else finish()},120);else finish()};
+    try{rec.start()}catch(e){hardErr="start";finish()}
+  };
+  let finished=false;
+  const finish=()=>{if(finished)return;finished=true;listening=false;clearTimeout(autoT);
+    $("#passage").classList.remove("on");$("#doneR").hidden=true;
+    if(hardErr==="network"){$("#rstate").textContent="The speech service couldn't be reached. Check your internet connection, then tap the text again.";spans.forEach(s=>s.className="wd");return}
+    if(hardErr){mode="self";micNote="Chrome couldn't use the microphone. Allow it for this page and reload.";$("#rstate").textContent=micNote;return}
+    const H=acc.split(/\s+/).map(rnorm).filter(Boolean);
+    if(!H.length){$("#rstate").textContent="I didn't hear any reading. Tap the text and try again.";spans.forEach(s=>s.className="wd");return}
+    $("#rstate").textContent="Reading checked";
+    assess(T,H,words,acc.split(/\s+/).filter(Boolean),spans);
+  };
+  const begin=()=>{
+    if(mode!=="voice"){$("#rstate").textContent="Turn on the microphone to have your reading checked: go back to Languages and pick this language again.";return}
+    if(listening){stop();return}
+    run++;if(hasTTS)try{speechSynthesis.cancel()}catch(e){}
+    netErr=0;listening=true;stopped=false;finished=false;acc="";sess="";interim="";hardErr=null;autoT=null;deadline=Date.now()+180000;
+    $("#results").innerHTML="";spans.forEach(s=>s.className="wd");spans[0].classList.add("next");
+    $("#passage").classList.add("on");$("#doneR").hidden=false;$("#rstate").textContent="Listening… read the text aloud";
+    session();
+  };
+  $("#passage").onclick=begin;
+  $("#doneR").onclick=stop;
+}
+
+function assess(T,H,words,rawHeard,spans){
+  const al=align(T,H);
+  const c={ok:0,close:0,sub:0,miss:0};al.forEach(a=>c[a.st]++);
+  const acc=(c.ok+.5*c.close)/T.length,score=Math.round(acc*5);
+  const gain=Math.max(0,score-(S.rbest||0));if(score>(S.rbest||0)){S.rbest=score}bumpScore(gain);const rt=$("#rbestTab");if(rt)rt.textContent=S.rbest+"/5";
+  spans.forEach((s,k)=>{s.className="wd "+({ok:"ok",close:"close",sub:"bad",miss:"bad"}[al[k].st])});
+  const probs=al.map((a,k)=>({a,k,w:words[k].t,heard:a.h!=null?rawHeard[a.h]||"":""})).filter(p=>p.a.st!=="ok");
+  const stressLine=w=>{const s=stressInfo(w);if(!s)return `<p class="label">One syllable: no stress to place</p>`;
+    return `<p><span class="label">Stress</span> <b class="syl" lang="${S.lang}">${sylHTML(RD().map[rkey(w)])}</b> · stress the ${s.where} syllable</p>`};
+  const card=p=>{
+    const what=p.a.st==="miss"?"Not heard. Say this word clearly."
+      :p.a.st==="close"?`Almost. I heard “${esc(p.heard)}”.`
+      :`I heard “${esc(p.heard)}”. Check the highlighted letters.`;
+    const wordH=p.a.st==="miss"?esc(p.w):letterDiff(p.w,p.heard);
+    return `<li class="prob ${p.a.st}"><div class="hd"><b class="pw" lang="${S.lang}">${wordH}</b><button class="chip" data-say="${esc(p.w)}">${SPK_SVG}Hear it</button></div><p>${what}</p>${stressLine(p.w)}</li>`};
+  $("#results").innerHTML=`<section class="panel" style="gap:14px">
+    <span class="label">Your reading</span>
+    <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap"><div class="big">${score}/5</div><p class="lede">${gain?`+${gain} point${gain>1?"s":""} added`:score===5?"Perfect reading!":"Beat your best score of "+S.rbest+"/5 to earn more points"}</p></div>
+    <div class="tally"><span class="t ok">${c.ok} read well</span><span class="t close">${c.close} nearly right</span><span class="t bad">${c.sub} misread</span><span class="t bad">${c.miss} missed</span></div>
+    ${probs.length?`<span class="label">Words to practise</span><ul class="probs" id="probs">${probs.map(card).join("")}</ul>`
+      :`<p>Every word was recognised. Now compare your stress with the guide: tap <b>Show stress</b> above and read once more.</p>`}
+    <p class="note">The app checks which words were recognised. It can't measure stress from your voice, so for each word it shows where the stress belongs. Tap “Hear it” and compare.</p>
+    <div class="btns"><button class="btn" id="again">Read it again</button><button class="btn ghost" id="fin">See final results →</button></div>
+  </section>`;
+  if($("#probs"))wireChips($("#probs"));
+  $("#again").onclick=()=>{$("#results").innerHTML="";spans.forEach(s=>s.className="wd");scrollTo({top:0,behavior:"smooth"});$("#rstate").textContent="Tap the text to begin"};
+  $("#fin").onclick=done;
+  $("#results").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+/* ---------------- DONE ---------------- */
+function done(){
+  run++;const lg=LG();
+  $("#app").innerHTML=`${topbar()}
+  <section class="panel" style="align-items:flex-start;gap:14px">
+    <span class="label">${lg.name} complete: letters, letter teams and reading</span>
+    <div class="big">${S.score} pts</div>
+    <p class="lede">You pronounced ${S.got.length} of ${lg.letters.length} letters and ${S.tgot.length} of ${lg.teams.length} letter teams correctly in the lessons. Best reading score: ${S.rbest||0}/5.</p>
+    <div class="chips">${lg.letters.map(x=>`<span class="chip" style="cursor:default;${S.got.includes(x.l)?"border-color:var(--good)":""}"><b>${up(x.l)}</b></span>`).join("")}</div>
+    <div class="chips">${lg.teams.map(x=>`<span class="chip" style="cursor:default;${S.tgot.includes(kid(x))?"border-color:var(--good)":""}"><b lang="${S.lang}">${esc(x.l)}</b></span>`).join("")}</div>
+    <div class="btns"><button class="btn" id="rvL">Review 5 random letters</button><button class="btn" id="rvT">Review 5 random teams</button><button class="btn" id="rdA">Read the text again</button><button class="btn ghost" id="restart">Start again from A</button><button class="btn ghost" id="other">Choose another language</button></div>
+  </section>`;
+  wireTop();
+  $("#rvL").onclick=()=>{S.ph="letters";S.idx=lg.letters.length-1;review(shuffle(lg.letters).slice(0,5))};
+  $("#rvT").onclick=()=>{S.ph="teams";S.tidx=lg.teams.length-1;review(shuffle(lg.teams).slice(0,5))};
+  $("#rdA").onclick=()=>{S.ph="reading";saveProg();readingPage()};
+  $("#restart").onclick=()=>{S.ph="letters";S.idx=0;S.tidx=0;S.score=0;S.got=[];S.tgot=[];S.rbest=0;learn()};
+  $("#other").onclick=home;
+}
+
+/* ---------------- RULES ---------------- */
+function rules(){
+  run++;const lg=LG();
+  $("#app").innerHTML=`<div class="top"><div class="left"><button class="btn ghost" id="backL">← Back to lessons</button><h2>${lg.name} pronunciation rules</h2></div><span class="score" id="score">${S.score} pts</span></div>
+  <p class="lede">${esc(lg.intro)} Tap any example to hear it.</p>
+  <div class="rules" id="rulesG">${lg.rules.map(r=>`<section class="panel"><h3>${esc(r.t)}</h3><p>${esc(r.d)}</p>
+    <div class="chips">${r.ex.map(s=>{const e=pw(s);return `<button class="chip" data-say="${esc(e.w)}">${SPK_SVG}<b lang="${S.lang}">${esc(e.w)}</b>${e.m?`<span>${esc(e.m)}</span>`:""}</button>`}).join("")}</div></section>`).join("")}</div>`;
+  $("#backL").onclick=learn;
+  wireChips($("#rulesG"));
+}
+
+home();
+</script>
+</body>
+</html>
