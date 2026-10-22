@@ -161,6 +161,42 @@ mark.lx{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad
 .tpick .chip.on{border-color:var(--acc);background:var(--soft)}
 .tpick .chip b{font-family:var(--display)}
 .lvl{font-weight:800;color:var(--acc);font-size:.8rem;letter-spacing:.06em}
+.hubs{display:flex;flex-direction:column;gap:12px;max-width:680px}
+.hubc{appearance:none;display:flex;align-items:center;gap:14px;text-align:left;border:2px solid var(--line);background:var(--surface);border-radius:18px;padding:16px;cursor:pointer;box-shadow:0 5px 0 var(--acc)}
+.hubc:disabled{cursor:default;box-shadow:none;opacity:.6}
+.hubc .hn{font-family:var(--display);font-weight:900;font-size:1.8rem;color:var(--acc);width:1.4em;flex:0 0 auto;text-align:center}
+.hubc .ht{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.hubc .ht b{font-family:var(--display);font-weight:800;font-size:1.15rem}
+.hubc .ht span{color:var(--muted);font-size:.92rem}
+.hubc .go{font-size:1.5rem;color:var(--acc);font-weight:800}
+.hubc .soon{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:3px 9px;white-space:nowrap}
+.glist{display:flex;flex-direction:column;gap:18px;max-width:760px}
+.gg{display:flex;flex-direction:column;gap:8px}
+.gi{background:var(--surface);border:1px solid var(--line);border-radius:14px}
+.gi[open]{border-color:var(--acc)}
+.gi summary{list-style:none;cursor:pointer;display:flex;align-items:baseline;gap:12px;padding:14px 16px;font-weight:700;font-size:1.05rem}
+.gi summary::-webkit-details-marker{display:none}
+.gi summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px;border-radius:14px}
+.rn{font-family:var(--ipa);color:var(--acc);font-weight:700;min-width:3.4em;font-variant-numeric:tabular-nums}
+.gt{flex:1;min-width:0}
+.chev{width:10px;height:10px;border-right:2.5px solid var(--muted);border-bottom:2.5px solid var(--muted);transform:rotate(45deg);align-self:center;transition:transform .2s}
+.gi[open] .chev{transform:rotate(-135deg)}
+.gbody{padding:0 16px 16px;display:flex;flex-direction:column;gap:10px}
+.form{background:var(--soft);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.form p{font-weight:600}
+.more{align-self:flex-start}
+.extra{display:flex;flex-direction:column;gap:10px}
+.vpick .chip.on{border-color:var(--acc);background:var(--soft)}
+.conj{list-style:none;margin:0;padding:0;display:grid;gap:6px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.conj button,.tbl-wrap td button{appearance:none;border:0;background:none;padding:0;cursor:pointer;text-align:left;color:var(--ink);font-weight:600}
+.conj button{display:flex;gap:8px;align-items:center;width:100%;padding:9px 12px;border-radius:10px;background:var(--bg);border:1px solid var(--line)}
+.conj button svg{flex:0 0 auto;color:var(--acc)}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+.tbl-wrap table{border-collapse:collapse;width:100%;min-width:max-content}
+.tbl-wrap th,.tbl-wrap td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl-wrap th{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);background:var(--soft)}
+.tbl-wrap tr:last-child td{border-bottom:0}
+.tbl-wrap td button:hover{color:var(--acc)}
 .hidden{display:none}
 @media(max-width:779px){.tile{max-width:min(240px,64vw)}.tile .g{font-size:clamp(5rem,24vw,7rem)}.hide-sm{display:none}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -573,12 +609,12 @@ function home(){
   <section style="display:flex;flex-direction:column;gap:10px">
     <span class="label">Choose the language you're learning</span>
     <div class="langs">${Object.entries(LANGS).map(([k,v])=>{const p=loadProg(k);
-      const where=!p?"Start at A":p.ph==="reading"?`Reading practice · ${calcScore(p)} pts`:p.ph==="teams"?`Letter teams: ${esc(v.teams[Math.min(p.tidx||0,v.teams.length-1)].l)} · ${calcScore(p)} pts`:`Resume at ${up(v.letters[Math.min(p.idx,v.letters.length-1)].l)} · ${calcScore(p)} pts`;
+      const where=!p?"Start at A":p.ph==="more"?`What's next · ${calcScore(p)} pts`:p.ph==="reading"?`Reading practice · ${calcScore(p)} pts`:p.ph==="teams"?`Letter teams: ${esc(v.teams[Math.min(p.tidx||0,v.teams.length-1)].l)} · ${calcScore(p)} pts`:`Resume at ${up(v.letters[Math.min(p.idx,v.letters.length-1)].l)} · ${calcScore(p)} pts`;
       return `<button class="lang ${v.cls}" data-k="${k}"><span class="nm">${v.name.toUpperCase()}</span><span class="meta">${v.native} · ${v.letters.length} letters · ${v.teams.length} letter teams</span><span class="prog">${where}</span></button>`}).join("")}</div>
   </section>`;
   $(".langs").onclick=e=>{const b=e.target.closest("[data-k]");if(!b)return;
     const k=b.dataset.k,p=loadProg(k)||{};
-    S={lang:k,ph:["teams","reading"].includes(p.ph)?p.ph:"letters",rb:rbFrom(p),idx:Math.min(p.idx||0,LANGS[k].letters.length-1),tidx:Math.min(p.tidx||0,LANGS[k].teams.length-1),score:calcScore(p),got:p.got||[],tgot:p.tgot||[],miss:p.miss||[],tmiss:p.tmiss||[]};
+    S={lang:k,ph:["teams","reading","more"].includes(p.ph)?p.ph:"letters",rb:rbFrom(p),idx:Math.min(p.idx||0,LANGS[k].letters.length-1),tidx:Math.min(p.tidx||0,LANGS[k].teams.length-1),score:calcScore(p),got:p.got||[],tgot:p.tgot||[],miss:p.miss||[],tmiss:p.tmiss||[]};
     micReady?learn():micSetup()};
 }
 
@@ -654,10 +690,10 @@ function topbar(extra){
 }
 function wireTop(){ $("#back").onclick=home; $("#rulesBtn").onclick=rules; }
 function phaseTabs(){
-  return `<div class="seg" role="tablist" id="seg"><button role="tab" data-ph="letters" aria-selected="${S.ph==="letters"}">Letters <span>${S.got.length}/${LG().letters.length}</span></button><button role="tab" data-ph="teams" aria-selected="${S.ph==="teams"}">Letter teams <span>${S.tgot.length}/${LG().teams.length}</span></button><button role="tab" data-ph="reading" aria-selected="${S.ph==="reading"}">Reading <span id="rbestTab">${rbSum()}/${RD().texts.length*5}</span></button></div>`;
+  return `<div class="seg" role="tablist" id="seg"><button role="tab" data-ph="letters" aria-selected="${S.ph==="letters"}">Letters <span>${S.got.length}/${LG().letters.length}</span></button><button role="tab" data-ph="teams" aria-selected="${S.ph==="teams"}">Letter teams <span>${S.tgot.length}/${LG().teams.length}</span></button><button role="tab" data-ph="reading" aria-selected="${S.ph==="reading"}">Reading <span id="rbestTab">${rbSum()}/${RD().texts.length*5}</span></button><button role="tab" data-ph="more" aria-selected="${S.ph==="more"}">What's next</button></div>`;
 }
 function wirePhaseTabs(){
-  $("#seg").onclick=e=>{const b=e.target.closest("[data-ph]");if(!b||b.dataset.ph===S.ph)return;S.ph=b.dataset.ph;if(S.ph==="reading")readingIntro();else learn()};
+  $("#seg").onclick=e=>{const b=e.target.closest("[data-ph]");if(!b||b.dataset.ph===S.ph)return;S.ph=b.dataset.ph;if(S.ph==="reading")readingIntro();else if(S.ph==="more")hub();else learn()};
 }
 function rail(){
   const g=gotArr();
@@ -697,6 +733,7 @@ function wireChips(root){root.addEventListener("click",e=>{const c=e.target.clos
 
 function learn(){
   if(S.ph==="reading"){readingIntro();return}
+  if(S.ph==="more"){hub();return}
   run++;
   const lg=LG(),list=items(),i=ci(),x=list[i];
   document.body.className=lg.cls;
@@ -1104,6 +1141,259 @@ function assess(T,H,words,rawHeard,spans,ti){
   $("#results").scrollIntoView({behavior:"smooth",block:"start"});
 }
 
+/* ---------------- GRAMMAR ---------------- */
+const roman=n=>{const m=[[10,"x"],[9,"ix"],[5,"v"],[4,"iv"],[1,"i"]];let s="";for(const [v,r] of m)while(n>=v){s+=r;n-=v}return s};
+const sp=s=>s.split(" ");
+const speakable=t=>t.replace(/\([^)]*\)/g,"").replace(/(\p{L}+)(\/\p{L}+)+/gu,"$1").replace(/[«»„“”]/g,"").replace(/\s+/g," ").trim();
+
+/* English */
+const ENV={work:["work","works","worked","worked","working"],go:["go","goes","went","gone","going"],be:["be","is","was","been","being"]};
+function enConj(v,k){
+  const [b,s3,p,pp,ing]=ENV[v],P=["I","you","he/she/it","we","you (plural)","they"];
+  const bp=["am","are","is","are","are","are"],bpa=["was","were","was","were","were","were"],hv=["have","have","has","have","have","have"];
+  if(k==="imper")return [`(you) ${b[0].toUpperCase()+b.slice(1)}!`,`(you) Don't ${b}!`,`(we) Let's ${b}.`];
+  const f={pres:i=>v==="be"?bp[i]:i===2?s3:b,prescont:i=>bp[i]+" "+ing,presperf:i=>hv[i]+" "+pp,presperfcont:i=>hv[i]+" been "+ing,
+    past:i=>v==="be"?bpa[i]:p,pastcont:i=>bpa[i]+" "+ing,pastperf:()=>"had "+pp,pastperfcont:()=>"had been "+ing,
+    fut:()=>"will "+b,goingto:i=>bp[i]+" going to "+b,futcont:()=>"will be "+ing,futperf:()=>"will have "+pp,futperfcont:()=>"will have been "+ing,
+    cond:()=>"would "+b,condperf:()=>"would have "+pp,subj:()=>b,subjpast:()=>v==="be"?"were":p}[k];
+  return P.map((pr,i)=>(k==="subj"?"(that) ":k==="subjpast"?"if ":"")+pr+" "+f(i));
+}
+/* Spanish */
+function esConj(v,k){
+  const P=["yo","tú","él/ella/usted","nosotros","vosotros","ellos/ellas/ustedes"],T=v==="tener";
+  const t=v.slice(-2),st=v.slice(0,-2),ar=t==="ar",ir=t==="ir";
+  const pp=T?"tenido":st+(ar?"ado":"ido"),ger=T?"teniendo":st+(ar?"ando":"iendo");
+  const PRES=T?sp("tengo tienes tiene tenemos tenéis tienen"):(ar?sp("o as a amos áis an"):ir?sp("o es e imos ís en"):sp("o es e emos éis en")).map(e=>st+e);
+  const INDEF=T?sp("tuve tuviste tuvo tuvimos tuvisteis tuvieron"):(ar?sp("é aste ó amos asteis aron"):sp("í iste ió imos isteis ieron")).map(e=>st+e);
+  const IMPF=(ar?sp("aba abas aba ábamos abais aban"):sp("ía ías ía íamos íais ían")).map(e=>st+e);
+  const FS=T?"tendr":v,FUT=sp("é ás á emos éis án").map(e=>FS+e),COND=sp("ía ías ía íamos íais ían").map(e=>FS+e);
+  const SUBJ=(ar?sp("e es e emos éis en"):sp("a as a amos áis an")).map(e=>(T?"teng":st)+e);
+  const IS=INDEF[5].slice(0,-3),acc={a:"á",e:"é"};
+  const SIMP=sp("ra ras ra ramos rais ran").map((e,i)=>i===3?IS.slice(0,-1)+acc[IS.slice(-1)]+e:IS+e);
+  const A={he:sp("he has ha hemos habéis han"),habia:sp("había habías había habíamos habíais habían"),habre:sp("habré habrás habrá habremos habréis habrán"),habria:sp("habría habrías habría habríamos habríais habrían"),estar:sp("estoy estás está estamos estáis están"),ir:sp("voy vas va vamos vais van")};
+  if(k==="imper"){const f=[T?"ten":PRES[2],SUBJ[2],SUBJ[3],v.slice(0,-1)+"d",SUBJ[5]];return ["(tú)","(usted)","(nosotros)","(vosotros)","(ustedes)"].map((p,i)=>`${p} ¡${f[i][0].toUpperCase()+f[i].slice(1)}!`)}
+  const f={pres:i=>PRES[i],prog:i=>A.estar[i]+" "+ger,pperf:i=>A.he[i]+" "+pp,indef:i=>INDEF[i],imperf:i=>IMPF[i],plusc:i=>A.habia[i]+" "+pp,
+    ira:i=>A.ir[i]+" a "+v,fut:i=>FUT[i],futperf:i=>A.habre[i]+" "+pp,cond:i=>COND[i],condperf:i=>A.habria[i]+" "+pp,subj:i=>SUBJ[i],subjimp:i=>SIMP[i]}[k];
+  return P.map((p,i)=>(k==="subj"||k==="subjimp"?"que ":"")+p+" "+f(i));
+}
+/* French */
+const FRV={parler:{pres:"parle parles parle parlons parlez parlent",pp:"parlé",e:0,imp:"parl",ps:"parlai parlas parla parlâmes parlâtes parlèrent",fs:"parler",subj:"parle parles parle parlions parliez parlent",imper:"parle parlons parlez"},
+ finir:{pres:"finis finis finit finissons finissez finissent",pp:"fini",e:0,imp:"finiss",ps:"finis finis finit finîmes finîtes finirent",fs:"finir",subj:"finisse finisses finisse finissions finissiez finissent",imper:"finis finissons finissez"},
+ aller:{pres:"vais vas va allons allez vont",pp:"allé",e:1,imp:"all",ps:"allai allas alla allâmes allâtes allèrent",fs:"ir",subj:"aille ailles aille allions alliez aillent",imper:"va allons allez"}};
+const FAV={pres:"ai as a avons avez ont",imp:"avais avais avait avions aviez avaient",fut:"aurai auras aura aurons aurez auront",cond:"aurais aurais aurait aurions auriez auraient"};
+const FET={pres:"suis es est sommes êtes sont",imp:"étais étais était étions étiez étaient",fut:"serai seras sera serons serez seront",cond:"serais serais serait serions seriez seraient"};
+function frConj(v,k){
+  const d=FRV[v],P=["je","tu","il/elle","nous","vous","ils/elles"],ag=["(e)","(e)","(e)","(e)s","(e)(s)","(e)s"];
+  const el=(p,f)=>p==="je"&&/^[aeiouhéèêâîôy]/i.test(f)?"j'"+f:p+" "+f;
+  const que=(p,f)=>{const x=el(p,f);return /^(il|elle)/.test(x)?"qu'"+x:"que "+x};
+  if(k==="imper")return sp(d.imper).map((f,i)=>`(${["tu","nous","vous"][i]}) ${f[0].toUpperCase()+f.slice(1)} !`);
+  const comp=t=>i=>sp((d.e?FET:FAV)[t])[i]+" "+d.pp+(d.e?ag[i]:"");
+  const f={pres:i=>sp(d.pres)[i],pc:comp("pres"),imp:i=>d.imp+sp("ais ais ait ions iez aient")[i],pqp:comp("imp"),ps:i=>sp(d.ps)[i],
+    fp:i=>sp(FRV.aller.pres)[i]+" "+v,fut:i=>d.fs+sp("ai as a ons ez ont")[i],fa:comp("fut"),cond:i=>d.fs+sp("ais ais ait ions iez aient")[i],condp:comp("cond"),subj:i=>sp(d.subj)[i]}[k];
+  return P.map((p,i)=>k==="subj"?que(p,f(i)):el(p,f(i)));
+}
+/* German */
+const DEV={machen:{pres:"mache machst macht machen macht machen",prat:"machte machtest machte machten machtet machten",pp:"gemacht",s:0,k1:"mache machest mache machen machet machen",imper:"Mach!|Macht!|Machen Sie!|Machen wir!"},
+ sprechen:{pres:"spreche sprichst spricht sprechen sprecht sprechen",prat:"sprach sprachst sprach sprachen spracht sprachen",pp:"gesprochen",s:0,k1:"spreche sprechest spreche sprechen sprechet sprechen",imper:"Sprich!|Sprecht!|Sprechen Sie!|Sprechen wir!"},
+ sein:{pres:"bin bist ist sind seid sind",prat:"war warst war waren wart waren",pp:"gewesen",s:1,k1:"sei seiest sei seien seiet seien",k2:"wäre wärst wäre wären wärt wären",imper:"Sei!|Seid!|Seien Sie!|Seien wir!"}};
+function deConj(v,k){
+  const d=DEV[v],P=["ich","du","er/sie/es","wir","ihr","sie/Sie"];
+  const HP=sp("habe hast hat haben habt haben"),HT=sp("hatte hattest hatte hatten hattet hatten"),SP=sp(DEV.sein.pres),ST=sp(DEV.sein.prat),W=sp("werde wirst wird werden werdet werden"),WU=sp("würde würdest würde würden würdet würden");
+  if(k==="imper")return d.imper.split("|").map((f,i)=>(i<2?`(${["du","ihr"][i]}) `:"")+f);
+  const f={pres:i=>sp(d.pres)[i],perf:i=>(d.s?SP:HP)[i]+" "+d.pp,prat:i=>sp(d.prat)[i],pqp:i=>(d.s?ST:HT)[i]+" "+d.pp,
+    fut1:i=>W[i]+" "+v,fut2:i=>W[i]+" "+d.pp+" "+(d.s?"sein":"haben"),k2:i=>d.k2?sp(d.k2)[i]:WU[i]+" "+v,k1:i=>sp(d.k1)[i]}[k];
+  return P.map((p,i)=>p+" "+f(i));
+}
+
+/* item: [conjugation key or "", title, explanation, how to form it, examples, table?] */
+const GRAM={
+en:{verbs:[["work","regular"],["go","irregular"],["be","irregular"]],conj:enConj,groups:[
+ ["Tenses",[
+  ["pres","Simple present","Habits, facts and routines.","base verb · add -s or -es for he, she, it",["She works in a bank.","Water boils at 100 degrees."]],
+  ["prescont","Present continuous","Actions happening now or around now, and fixed plans for the future.","am / is / are + verb-ing",["I am reading a book.","We are meeting Tom tomorrow."]],
+  ["presperf","Present perfect","Past actions connected to now: experiences, recent results, and situations that are still true.","have / has + past participle",["I have visited Paris twice.","She has lost her keys."]],
+  ["presperfcont","Present perfect continuous","An action that started in the past and is still going on, often with for or since.","have / has been + verb-ing",["They have been waiting for an hour.","I have been learning Spanish since May."]],
+  ["past","Simple past","Finished actions at a definite time in the past.","verb + -ed (regular) · past form (irregular: go → went)",["We watched a film last night.","He went home at six."]],
+  ["pastcont","Past continuous","An action in progress at a moment in the past, often interrupted by another action.","was / were + verb-ing",["I was cooking when you called.","They were playing football at five."]],
+  ["pastperf","Past perfect","An action that happened before another past action.","had + past participle",["The train had left when we arrived.","She had never seen snow before."]],
+  ["pastperfcont","Past perfect continuous","A longer action that continued up to a moment in the past.","had been + verb-ing",["He had been working all day, so he was tired.","We had been waiting for ten minutes."]],
+  ["fut","Simple future (will)","Predictions, promises, offers and decisions made at the moment of speaking.","will + base verb",["It will rain tomorrow.","I'll help you."]],
+  ["goingto","Future with going to","Plans and intentions, and predictions based on what you can see now.","am / is / are going to + base verb",["I'm going to visit my aunt.","Look at those clouds. It's going to rain."]],
+  ["futcont","Future continuous","An action that will be in progress at a time in the future.","will be + verb-ing",["This time tomorrow, I'll be flying to Rome.","They will be sleeping at midnight."]],
+  ["futperf","Future perfect","An action that will be finished before a time in the future.","will have + past participle",["By 2030, I will have finished university.","She'll have left by then."]],
+  ["futperfcont","Future perfect continuous","How long an action will have continued by a time in the future.","will have been + verb-ing",["By June, I will have been living here for ten years."]]]],
+ ["Moods",[
+  ["pres","Indicative","The normal mood for facts and questions. All the tenses above are in the indicative.","any tense above",["He lives in London.","Do you like coffee?"]],
+  ["imper","Imperative","Orders, instructions, advice and invitations. There is no subject.","base verb · don't + base verb · let's + base verb",["Close the door.","Don't touch that!","Let's go."]],
+  ["cond","Conditional","Imagined situations and polite requests, often with if.","would + base verb",["I would buy a car if I had more money.","Would you like some tea?"]],
+  ["condperf","Conditional perfect","What would have happened in the past, but didn't.","would have + past participle",["I would have called you, but my phone was dead."]],
+  ["subj","Present subjunctive","Formal demands and recommendations after verbs like suggest, insist and recommend. The verb stays in the base form for every person.","(that) + subject + base verb",["They insist that he leave now.","It's important that she be on time."]],
+  ["subjpast","Past subjunctive","Unreal or imagined situations after if and wish. With be, use were for every person.","if / wish + subject + past form (be → were)",["If I were you, I'd study more.","I wish she were here."]]]],
+ ["Other grammar",[
+  ["","Passive voice","Use the passive when the action matters more than who does it. The object of the active sentence becomes the subject.","be (in any tense) + past participle (+ by …)",["The house was built in 1990.","English is spoken all over the world.","The letter will be sent tomorrow."],
+   {h:["Tense","Active","Passive"],s:[1,2],r:[["Present","They clean the room.","The room is cleaned."],["Present continuous","They are cleaning the room.","The room is being cleaned."],["Present perfect","They have cleaned the room.","The room has been cleaned."],["Simple past","They cleaned the room.","The room was cleaned."],["Past continuous","They were cleaning the room.","The room was being cleaned."],["Past perfect","They had cleaned the room.","The room had been cleaned."],["Future","They will clean the room.","The room will be cleaned."],["With a modal","They must clean the room.","The room must be cleaned."]]}],
+  ["","Reported speech","When you report what someone said, the tense usually moves one step back, and pronouns and time words change.","say (that) … · tell someone (that) … · ask if / whether …",["today → that day","tomorrow → the next day","yesterday → the day before","here → there"],
+   {h:["Direct speech","Reported speech"],s:[0,1],r:[["“I am tired.”","He said he was tired."],["“I'm working.”","She said she was working."],["“I have finished.”","He said he had finished."],["“I saw it.”","She said she had seen it."],["“I will call.”","He said he would call."],["“I can swim.”","She said she could swim."],["“Are you hungry?”","He asked if I was hungry."],["“Where do you live?”","She asked where I lived."]]}],
+  ["","Negation","Add not after the auxiliary verb (be, have, will, can…). If there is no auxiliary, use do / does / did + not.","do / does / did + not + base verb · auxiliary + not",["I never eat meat.","Nobody called.","There is nothing in the fridge."],
+   {h:["Positive","Negative"],s:[0,1],r:[["I like tea.","I don't like tea."],["She works here.","She doesn't work here."],["They went out.","They didn't go out."],["He is happy.","He isn't happy."],["We have finished.","We haven't finished."],["I will come.","I won't come."],["You can swim.","You can't swim."]]}],
+  ["","Questions","Put the auxiliary before the subject. With no auxiliary, use do / does / did. Question words come first.","(question word) + auxiliary + subject + verb?",["Who is that?","What do you want?","When does the film start?","Why are you laughing?","How much is it?"],
+   {h:["Statement","Question"],s:[0,1],r:[["You like tea.","Do you like tea?"],["She works here.","Does she work here?"],["They left.","Did they leave?"],["He is tired.","Is he tired?"],["You can drive.","Can you drive?"],["She lives in Rome.","Where does she live?"]]}],
+  ["","Adjectives","Adjectives never change for gender or number. They go before the noun or after be. Short adjectives add -er / -est to compare; long ones use more / most.","short: -er / -est · long: more / most · irregular: good, bad, far",["a red car","The car is red.","My brother is taller than me.","This is the most beautiful beach."],
+   {h:["Adjective","Comparative","Superlative"],s:[0,1,2],r:[["tall","taller","tallest"],["big","bigger","biggest"],["happy","happier","happiest"],["beautiful","more beautiful","most beautiful"],["good","better","best"],["bad","worse","worst"],["far","farther / further","farthest / furthest"]]}],
+  ["","Adverbs","Adverbs say how, when or how often. Most are made by adding -ly to the adjective.","adjective + -ly · y → -ily · -le → -ly",["She speaks slowly.","He drives carefully.","I always get up early."],
+   {h:["Adjective","Adverb"],s:[0,1],r:[["quick","quickly"],["careful","carefully"],["happy","happily"],["gentle","gently"],["good","well"],["fast","fast"],["hard","hard"],["late","late"]]}],
+  ["","Plural formation","Most nouns add -s. The spelling changes after some endings, and a few common nouns are irregular.","+ -s · + -es · y → -ies · f → -ves",["one book, two books","one child, three children"],
+   {h:["Singular","Plural","Rule"],s:[0,1],r:[["book","books","+ s"],["bus","buses","+ es after s, x, ch, sh"],["box","boxes","+ es"],["city","cities","consonant + y → ies"],["boy","boys","vowel + y → + s"],["knife","knives","f / fe → ves"],["potato","potatoes","some -o → + es"],["man","men","irregular"],["woman","women","irregular"],["child","children","irregular"],["foot","feet","irregular"],["tooth","teeth","irregular"],["mouse","mice","irregular"],["sheep","sheep","no change"]]}],
+  ["","Feminine formation","English nouns have no grammatical gender, and most job words are used for everyone (teacher, doctor, actor). A few words still have separate female forms.","mostly no change · a few use -ess or a different word",["She is a doctor.","He is a nurse."],
+   {h:["Male","Female"],s:[0,1],r:[["actor","actress (actor is also used)"],["waiter","waitress"],["prince","princess"],["king","queen"],["man","woman"],["boy","girl"],["father","mother"],["husband","wife"],["uncle","aunt"],["he / him / his","she / her / her"]]}]]]]},
+
+es:{verbs:[["hablar","to speak"],["comer","to eat"],["vivir","to live"],["tener","to have · irregular"]],conj:esConj,groups:[
+ ["Tenses",[
+  ["pres","Presente","Habits, facts, what is happening now, and the near future.","-ar: -o, -as, -a, -amos, -áis, -an · -er: -o, -es, -e, -emos, -éis, -en · -ir: -o, -es, -e, -imos, -ís, -en",["Hablo español.=I speak Spanish.","Vivimos en Sevilla.=We live in Seville."]],
+  ["prog","Presente continuo","An action happening right now.","estar + gerundio (-ando / -iendo)",["Estoy comiendo.=I am eating.","¿Qué estás haciendo?=What are you doing?"]],
+  ["pperf","Pretérito perfecto","Past actions connected to the present, often with hoy, este año, ya or nunca.","haber (he, has, ha, hemos, habéis, han) + participio (-ado / -ido)",["Hoy he trabajado mucho.=Today I have worked a lot.","¿Has comido ya?=Have you eaten yet?"]],
+  ["indef","Pretérito indefinido","Finished actions at a specific time in the past.","-ar: -é, -aste, -ó, -amos, -asteis, -aron · -er / -ir: -í, -iste, -ió, -imos, -isteis, -ieron",["Ayer hablé con Ana.=Yesterday I spoke with Ana.","Vivieron en Roma dos años.=They lived in Rome for two years."]],
+  ["imperf","Pretérito imperfecto","Past habits, descriptions, and actions in progress in the past.","-ar: -aba, -abas, -aba, -ábamos, -abais, -aban · -er / -ir: -ía, -ías, -ía, -íamos, -íais, -ían",["De niño, comía mucha fruta.=As a child, I used to eat a lot of fruit.","Llovía cuando salí.=It was raining when I left."]],
+  ["plusc","Pretérito pluscuamperfecto","An action that happened before another past action.","había, habías, había, habíamos, habíais, habían + participio",["Cuando llegué, ya habían comido.=When I arrived, they had already eaten."]],
+  ["ira","Futuro próximo (ir a + infinitivo)","Plans and things that are about to happen.","ir (voy, vas, va, vamos, vais, van) + a + infinitivo",["Voy a estudiar esta noche.=I'm going to study tonight."]],
+  ["fut","Futuro simple","Future actions, predictions, and guesses about the present.","infinitivo + -é, -ás, -á, -emos, -éis, -án",["Mañana hablaré con él.=Tomorrow I will speak with him.","Serán las diez.=It must be about ten o'clock."]],
+  ["futperf","Futuro perfecto","An action that will be finished by a time in the future.","habré, habrás, habrá, habremos, habréis, habrán + participio",["En junio habré terminado.=By June I will have finished."]],
+  ["cond","Condicional simple","Hypothetical situations, polite requests and advice.","infinitivo + -ía, -ías, -ía, -íamos, -íais, -ían",["Me gustaría un café.=I would like a coffee.","Yo comería menos.=I would eat less."]],
+  ["condperf","Condicional compuesto","What would have happened, but didn't.","habría, habrías, habría, habríamos, habríais, habrían + participio",["Habría venido, pero estaba enfermo.=I would have come, but I was ill."]]]],
+ ["Moods",[
+  ["pres","Indicativo","The mood for facts and certainty. All the tenses above are in the indicative.","any tense above",["Ella vive aquí.=She lives here."]],
+  ["subj","Subjuntivo presente","Wishes, doubts, emotions and requests, usually after que.","-ar verbs take e endings, -er / -ir verbs take a endings: hable, coma, viva",["Quiero que vengas.=I want you to come.","Ojalá llueva.=I hope it rains.","Es importante que comas bien.=It's important that you eat well."]],
+  ["subjimp","Subjuntivo imperfecto","Past wishes, and unreal conditions with si.","ellos-form of the indefinido without -ron + -ra, -ras, -ra, -ramos, -rais, -ran",["Si tuviera tiempo, viajaría.=If I had time, I would travel.","Quería que hablaras con ella.=I wanted you to talk to her."]],
+  ["imper","Imperativo","Orders, instructions and invitations. Negative orders use the subjunctive: no hables.","tú: like the él form of the present · usted / nosotros / ustedes: subjunctive · vosotros: infinitive -r → -d",["¡Habla más despacio!=Speak more slowly!","No comas tanto.=Don't eat so much.","Abran el libro.=Open the book (you all)."]]]],
+ ["Other grammar",[
+  ["","Passive voice","Use ser + participio. The participle agrees with the subject. In everyday Spanish, the pasiva refleja with se is more common.","ser + participio (+ por …) · se + verb in the 3rd person",["La casa fue construida en 1990.=The house was built in 1990.","Se habla español.=Spanish is spoken.","Se venden pisos.=Flats for sale."],
+   {h:["Tense","Passive with ser"],s:[1],r:[["Presente","El libro es leído."],["Indefinido","El libro fue leído."],["Imperfecto","El libro era leído."],["Perfecto","El libro ha sido leído."],["Futuro","El libro será leído."],["Feminine plural","Las cartas fueron escritas."]]}],
+  ["","Reported speech","After a past reporting verb (dijo, preguntó), the tense moves back, and pronouns and time words change.","dijo que … · preguntó si … · preguntó dónde / cuándo …",["hoy → aquel día","mañana → al día siguiente","ayer → el día anterior","aquí → allí"],
+   {h:["Directo","Indirecto"],s:[0,1],r:[["«Estoy cansado.»","Dijo que estaba cansado."],["«Trabajo aquí.»","Dijo que trabajaba allí."],["«He comido.»","Dijo que había comido."],["«Compré pan.»","Dijo que había comprado pan."],["«Iré mañana.»","Dijo que iría al día siguiente."],["«Ven.»","Me dijo que fuera."],["«¿Tienes hambre?»","Me preguntó si tenía hambre."],["«¿Dónde vives?»","Me preguntó dónde vivía."]]}],
+  ["","Negation","Put no before the verb, and before any object pronouns. Spanish uses double negatives: no + verb + nada, nadie or nunca.","no + (pronoun) + verb · no … nada / nadie / nunca / ninguno",["No lo sé.=I don't know (it).","No veo a nadie.=I don't see anyone."],
+   {h:["Afirmativo","Negativo"],s:[0,1],r:[["Hablo inglés.","No hablo inglés."],["Lo sé.","No lo sé."],["Tengo algo.","No tengo nada."],["Viene alguien.","No viene nadie."],["Siempre como aquí.","Nunca como aquí."],["También quiero.","Tampoco quiero."],["Hay alguno.","No hay ninguno."]]}],
+  ["","Questions","Questions start with ¿ and end with ?. For yes/no questions, the word order can stay the same and your voice rises at the end. Question words always have an accent.","¿(question word) + verb + subject?",["¿Dónde vives?=Where do you live?","¿Qué quieres?=What do you want?","¿Cuándo llegas?=When do you arrive?","¿Por qué estudias español?=Why are you studying Spanish?","¿Cómo te llamas?=What's your name?","¿Cuánto cuesta?=How much is it?"],
+   {h:["Afirmación","Pregunta"],s:[0,1],r:[["Tienes hermanos.","¿Tienes hermanos?"],["Él vive aquí.","¿Vive él aquí?"],["Ella es María.","¿Quién es ella?"],["Prefieres el rojo.","¿Cuál prefieres?"]]}],
+  ["","Adjectives","Adjectives agree with the noun in gender and number, and usually go after it.","-o → -a for feminine · + -s after a vowel, + -es after a consonant for plural",["un coche rojo=a red car","una casa roja=a red house","Es más alto que yo.=He is taller than me."],
+   {h:["Masc. singular","Fem. singular","Masc. plural","Fem. plural"],s:[0,1,2,3],r:[["alto","alta","altos","altas"],["bonito","bonita","bonitos","bonitas"],["grande","grande","grandes","grandes"],["feliz","feliz","felices","felices"],["azul","azul","azules","azules"],["trabajador","trabajadora","trabajadores","trabajadoras"],["español","española","españoles","españolas"]]}],
+  ["","Adverbs","Many adverbs are made by adding -mente to the feminine form of the adjective. A written accent on the adjective stays.","feminine adjective + -mente",["Habla lentamente.=He speaks slowly.","Siempre llega tarde.=She always arrives late."],
+   {h:["Adjetivo","Adverbio"],s:[0,1],r:[["rápido","rápidamente"],["lento","lentamente"],["fácil","fácilmente"],["feliz","felizmente"],["claro","claramente"],["bueno","bien"],["malo","mal"]]}],
+  ["","Plural formation","Add -s after a vowel and -es after a consonant. Watch the spelling and the written accents.","vowel + -s · consonant + -es · z → -ces",["el libro → los libros=the book → the books","la ciudad → las ciudades=the city → the cities"],
+   {h:["Singular","Plural","Rule"],s:[0,1],r:[["la casa","las casas","vowel → + s"],["el libro","los libros","vowel → + s"],["la ciudad","las ciudades","consonant → + es"],["el árbol","los árboles","consonant → + es"],["el lápiz","los lápices","z → ces"],["la canción","las canciones","drops the written accent"],["el joven","los jóvenes","adds an accent to keep the stress"],["el lunes","los lunes","unstressed -s: no change"]]}],
+  ["","Feminine formation","Nouns for people and many animals change for gender, and so does the article.","-o → -a · consonant + -a · -e / -ista: same word",["el niño → la niña=the boy → the girl","el profesor → la profesora=the teacher (m → f)"],
+   {h:["Masculino","Femenino","Rule"],s:[0,1],r:[["el niño","la niña","-o → -a"],["el profesor","la profesora","consonant → + a"],["el español","la española","consonant → + a"],["el estudiante","la estudiante","-e: only the article changes"],["el artista","la artista","-ista: only the article changes"],["el actor","la actriz","special ending"],["el rey","la reina","special ending"],["el padre","la madre","different word"],["el hombre","la mujer","different word"]]}]]]]},
+
+fr:{verbs:[["parler","to speak · -er"],["finir","to finish · -ir"],["aller","to go · irregular"]],conj:frConj,groups:[
+ ["Tenses",[
+  ["pres","Présent","Habits, facts and what is happening now.","-er: -e, -es, -e, -ons, -ez, -ent · -ir (finir): -is, -is, -it, -issons, -issez, -issent",["Je parle français.=I speak French.","Nous finissons à six heures.=We finish at six."]],
+  ["pc","Passé composé","Finished actions in the past. It's the main past tense in speech.","avoir or être (present) + participe passé · with être, the participle agrees",["J'ai parlé avec Marie.=I spoke with Marie.","Elle est allée à Paris.=She went to Paris."]],
+  ["imp","Imparfait","Past habits, descriptions, and actions in progress in the past.","nous-form stem (parl-ons) + -ais, -ais, -ait, -ions, -iez, -aient",["Quand j'étais petit, je parlais anglais.=When I was little, I spoke English.","Il pleuvait.=It was raining."]],
+  ["pqp","Plus-que-parfait","An action that happened before another past action.","avoir or être (imparfait) + participe passé",["Il était déjà parti quand je suis arrivé.=He had already left when I arrived."]],
+  ["ps","Passé simple","The literary past tense. You'll read it in books, but you don't need to speak it.","-er: -ai, -as, -a, -âmes, -âtes, -èrent · -ir: -is, -is, -it, -îmes, -îtes, -irent",["Le roi parla longtemps.=The king spoke for a long time."]],
+  ["fp","Futur proche","Plans and things that are about to happen.","aller (present) + infinitive",["Je vais parler au directeur.=I'm going to speak to the manager."]],
+  ["fut","Futur simple","Future actions and predictions.","infinitive (-re verbs drop the e) + -ai, -as, -a, -ons, -ez, -ont",["Demain, je finirai ce livre.=Tomorrow I will finish this book.","Nous irons en Italie.=We will go to Italy."]],
+  ["fa","Futur antérieur","An action that will be finished before a moment in the future.","avoir or être (futur) + participe passé",["Quand tu arriveras, j'aurai fini.=When you arrive, I will have finished."]],
+  ["cond","Conditionnel présent","Hypothetical situations, polite requests and advice.","future stem + -ais, -ais, -ait, -ions, -iez, -aient",["Je voudrais un café.=I would like a coffee.","Si j'avais le temps, je parlerais avec lui.=If I had time, I would talk to him."]],
+  ["condp","Conditionnel passé","What would have happened, but didn't.","avoir or être (conditionnel) + participe passé",["J'aurais parlé, mais j'avais peur.=I would have spoken, but I was afraid."]]]],
+ ["Moods",[
+  ["pres","Indicatif","The mood for facts and certainty. All the tenses above except the conditionnel are in the indicative.","any tense above",["Elle habite à Lyon.=She lives in Lyon."]],
+  ["subj","Subjonctif présent","After expressions of wish, necessity, emotion and doubt followed by que.","ils-form stem (ils parl-ent) + -e, -es, -e, -ions, -iez, -ent",["Il faut que tu finisses.=You have to finish.","Je veux qu'elle parle.=I want her to speak."]],
+  ["imper","Impératif","Orders and instructions. Only tu, nous and vous, without the pronoun. -er verbs drop the -s in the tu form.","present tense of tu, nous, vous without the pronoun",["Parle plus fort !=Speak louder!","Allons-y !=Let's go!","Ne finissez pas sans moi.=Don't finish without me."]]]],
+ ["Other grammar",[
+  ["","Passive voice","Use être in the tense you need + participe passé. The participle agrees with the subject, and the agent is introduced with par. In speech, French often uses on instead.","être + participe passé (+ par …)",["La maison a été construite en 1990.=The house was built in 1990.","Ce livre est lu par beaucoup d'élèves.=This book is read by many students.","On parle français ici.=French is spoken here."],
+   {h:["Temps","Passif"],s:[1],r:[["Présent","La lettre est écrite."],["Passé composé","La lettre a été écrite."],["Imparfait","La lettre était écrite."],["Futur","La lettre sera écrite."],["Plural","Les lettres sont écrites."]]}],
+  ["","Reported speech","After a past reporting verb (il a dit, elle a demandé), the tense moves back, and pronouns and time words change.","dire que … · demander si … · dire de + infinitive",["aujourd'hui → ce jour-là","demain → le lendemain","hier → la veille","ici → là"],
+   {h:["Direct","Indirect"],s:[0,1],r:[["«Je suis fatigué.»","Il a dit qu'il était fatigué."],["«Je travaille ici.»","Elle a dit qu'elle travaillait là."],["«J'ai fini.»","Il a dit qu'il avait fini."],["«Je viendrai.»","Elle a dit qu'elle viendrait."],["«Viens !»","Il m'a dit de venir."],["«Tu as faim ?»","Il m'a demandé si j'avais faim."],["«Où habites-tu ?»","Elle m'a demandé où j'habitais."]]}],
+  ["","Negation","Put ne … pas around the conjugated verb (ne → n' before a vowel). In compound tenses, it goes around the auxiliary. In everyday speech, ne is often dropped.","ne + verb + pas / plus / jamais / rien · personne ne …",["Je n'ai pas fini.=I haven't finished.","Personne ne vient.=Nobody is coming."],
+   {h:["Affirmatif","Négatif"],s:[0,1],r:[["Je parle anglais.","Je ne parle pas anglais."],["J'aime le café.","Je n'aime pas le café."],["J'ai fini.","Je n'ai pas fini."],["Je mange encore.","Je ne mange plus."],["Je vais toujours au cinéma.","Je ne vais jamais au cinéma."],["Je vois quelque chose.","Je ne vois rien."],["Quelqu'un vient.","Personne ne vient."]]}],
+  ["","Questions","There are three ways to ask: rising intonation (informal), est-ce que (neutral), or swapping the verb and subject (formal).","intonation · est-ce que + statement · verb-subject inversion",["Où habites-tu ?=Where do you live?","Qu'est-ce que tu veux ?=What do you want?","Quand est-ce que tu pars ?=When are you leaving?","Comment tu t'appelles ?=What's your name?","Combien ça coûte ?=How much is it?"],
+   {h:["Style","Question"],s:[1],r:[["Intonation","Tu parles français ?"],["Est-ce que","Est-ce que tu parles français ?"],["Inversion","Parles-tu français ?"],["Inversion with il / elle","Parle-t-il français ?"],["With a question word","Pourquoi est-ce que tu apprends le français ?"]]}],
+  ["","Adjectives","Adjectives agree in gender and number, and usually go after the noun. A few common ones go before it: beau, bon, grand, petit, jeune, vieux, nouveau.","+ -e for feminine · + -s for plural · special endings below",["une voiture rouge=a red car","un petit chat=a small cat","Elle est plus grande que moi.=She is taller than me."],
+   {h:["Masc. singular","Fém. singular","Masc. plural","Fém. plural"],s:[0,1,2,3],r:[["grand","grande","grands","grandes"],["petit","petite","petits","petites"],["rouge","rouge","rouges","rouges"],["heureux","heureuse","heureux","heureuses"],["actif","active","actifs","actives"],["bon","bonne","bons","bonnes"],["blanc","blanche","blancs","blanches"],["beau","belle","beaux","belles"],["nouveau","nouvelle","nouveaux","nouvelles"]]}],
+  ["","Adverbs","Add -ment to the feminine adjective. If the adjective ends in a vowel, use the masculine. -ant and -ent become -amment and -emment.","feminine adjective + -ment",["Il parle lentement.=He speaks slowly.","Elle parle couramment.=She speaks fluently."],
+   {h:["Adjectif","Adverbe"],s:[0,1],r:[["lent","lentement"],["heureux","heureusement"],["rapide","rapidement"],["vrai","vraiment"],["poli","poliment"],["courant","couramment"],["évident","évidemment"],["bon","bien"],["mauvais","mal"]]}],
+  ["","Plural formation","Most nouns add -s, which isn't pronounced. The article (les, des) tells the listener it's plural.","+ -s · -eau / -eu → + -x · -al → -aux",["le livre → les livres=the book → the books","le gâteau → les gâteaux=the cake → the cakes"],
+   {h:["Singular","Plural","Rule"],s:[0,1],r:[["un livre","des livres","+ s (silent)"],["une maison","des maisons","+ s (silent)"],["un bus","des bus","-s, -x, -z: no change"],["un prix","des prix","-s, -x, -z: no change"],["un gâteau","des gâteaux","-eau → + x"],["un jeu","des jeux","-eu → + x"],["un journal","des journaux","-al → -aux"],["un travail","des travaux","some -ail → -aux"],["un œil","des yeux","irregular"]]}],
+  ["","Feminine formation","Nouns for people and many adjectives change for gender. Usually you add -e, but some endings change.","+ -e · -eur → -euse · -teur → -trice · -ien → -ienne",["un ami → une amie=a friend (m → f)","un acteur → une actrice=an actor → an actress"],
+   {h:["Masculin","Féminin","Rule"],s:[0,1],r:[["un ami","une amie","+ e"],["un étudiant","une étudiante","+ e"],["un vendeur","une vendeuse","-eur → -euse"],["un chanteur","une chanteuse","-eur → -euse"],["un acteur","une actrice","-teur → -trice"],["un boulanger","une boulangère","-er → -ère"],["un musicien","une musicienne","-ien → -ienne"],["un élève","une élève","-e: no change"],["un roi","une reine","special"],["un homme","une femme","different word"]]}]]]]},
+
+de:{verbs:[["machen","to make, to do · regular"],["sprechen","to speak · irregular"],["sein","to be · irregular"]],conj:deConj,groups:[
+ ["Tenses",[
+  ["pres","Präsens","The present, habits and facts. With a time word, it's also used for the future.","stem + -e, -st, -t, -en, -t, -en",["Ich mache meine Hausaufgaben.=I'm doing my homework.","Morgen fahre ich nach Berlin.=Tomorrow I'm going to Berlin."]],
+  ["perf","Perfekt","The main past tense in speech.","haben or sein (present) + Partizip II at the end · verbs of movement and change use sein",["Ich habe Fußball gespielt.=I played football.","Wir sind nach Hause gegangen.=We went home."]],
+  ["prat","Präteritum","The past tense of written German and stories. In speech, it's used mainly with sein, haben and modal verbs.","regular: stem + -te, -test, -te, -ten, -tet, -ten · irregular verbs change the vowel",["Ich war gestern müde.=I was tired yesterday.","Er sprach lange.=He spoke for a long time."]],
+  ["pqp","Plusquamperfekt","An action that happened before another past action.","hatte or war + Partizip II",["Als ich ankam, war der Zug schon abgefahren.=When I arrived, the train had already left."]],
+  ["fut1","Futur I","Future plans, predictions and assumptions.","werden + infinitive at the end",["Ich werde morgen arbeiten.=I will work tomorrow.","Er wird wohl krank sein.=He's probably ill."]],
+  ["fut2","Futur II","An action that will be finished in the future, or a guess about the past.","werden + Partizip II + haben / sein",["Bis Montag werde ich es gemacht haben.=I will have done it by Monday."]]]],
+ ["Moods",[
+  ["pres","Indikativ","The mood for facts and certainty. All the tenses above are in the indicative.","any tense above",["Sie wohnt in Berlin.=She lives in Berlin."]],
+  ["imper","Imperativ","Orders and requests. The du form has no -st and often drops the -e. Verbs with e → i keep the i: sprich!","du: stem (+ e) · ihr: like the present · Sie: infinitive + Sie",["Mach die Tür zu!=Close the door!","Sprechen Sie bitte langsam.=Please speak slowly."]],
+  ["k2","Konjunktiv II","Wishes, unreal situations and polite requests. Most verbs use würde + infinitive; sein, haben and modal verbs have their own forms.","würde + infinitive · wäre, hätte, könnte …",["Ich würde gern reisen.=I would like to travel.","Wenn ich Zeit hätte, wäre ich froh.=If I had time, I would be happy.","Könnten Sie mir helfen?=Could you help me?"]],
+  ["k1","Konjunktiv I","Used for reported speech, mainly in the news and in formal writing.","stem + -e, -est, -e, -en, -et, -en · sein: sei",["Er sagt, er sei krank.=He says he is ill.","Sie sagte, sie mache das morgen.=She said she would do it tomorrow."]]]],
+ ["Other grammar",[
+  ["","Passive voice","Use werden + Partizip II. The agent is introduced with von.","werden (any tense) + Partizip II",["Das Haus wird gebaut.=The house is being built.","Das Buch wurde 1990 geschrieben.=The book was written in 1990.","Hier wird Deutsch gesprochen.=German is spoken here."],
+   {h:["Zeit","Passiv"],s:[1],r:[["Präsens","Der Brief wird geschrieben."],["Präteritum","Der Brief wurde geschrieben."],["Perfekt","Der Brief ist geschrieben worden."],["Plusquamperfekt","Der Brief war geschrieben worden."],["Futur I","Der Brief wird geschrieben werden."],["With a modal verb","Der Brief muss geschrieben werden."]]}],
+  ["","Reported speech","Formal German uses Konjunktiv I. If that looks the same as the normal present, use Konjunktiv II. In everyday speech, most people use dass with the normal verb.","er sagt, er sei … · sie fragt, ob … · er sagt, dass …",["Er sagt, dass er müde ist.=He says that he's tired (everyday speech)."],
+   {h:["Direkte Rede","Indirekte Rede"],s:[0,1],r:[["„Ich bin müde.“","Er sagt, er sei müde."],["„Ich habe keine Zeit.“","Sie sagt, sie habe keine Zeit."],["„Ich komme morgen.“","Er sagt, er komme morgen."],["„Wir haben Hunger.“","Sie sagen, sie hätten Hunger."],["„Ich habe es gemacht.“","Er sagt, er habe es gemacht."],["„Kommst du?“","Sie fragt, ob ich komme."],["„Wo wohnst du?“","Er fragt, wo ich wohne."]]}],
+  ["","Negation","nicht negates verbs, adjectives and whole sentences. kein negates nouns that would have ein or no article, and it takes the same endings as ein.","nicht · kein / keine / keinen · nichts, niemand, nie",["Ich habe kein Auto.=I don't have a car.","Niemand kommt.=Nobody is coming."],
+   {h:["Positiv","Negativ"],s:[0,1],r:[["Ich arbeite heute.","Ich arbeite heute nicht."],["Das ist gut.","Das ist nicht gut."],["Ich habe ein Auto.","Ich habe kein Auto."],["Ich trinke Kaffee.","Ich trinke keinen Kaffee."],["Ich sehe etwas.","Ich sehe nichts."],["Jemand kommt.","Niemand kommt."],["Ich gehe immer dorthin.","Ich gehe nie dorthin."]]}],
+  ["","Questions","Yes/no questions start with the verb. W-questions start with the question word, and the verb comes second.","verb + subject …? · W-word + verb + subject …?",["Wo wohnst du?=Where do you live?","Wann beginnt der Kurs?=When does the course start?","Warum lernst du Deutsch?=Why are you learning German?","Wie heißt du?=What's your name?","Wie viel kostet das?=How much is it?"],
+   {h:["Aussage","Frage"],s:[0,1],r:[["Du kommst morgen.","Kommst du morgen?"],["Er spricht Deutsch.","Spricht er Deutsch?"],["Das ist Anna.","Wer ist das?"],["Du machst Sport.","Was machst du?"]]}],
+  ["","Adjectives","After sein, adjectives don't change. Before a noun, they take an ending that depends on the gender, the case and the article. This table shows the endings after der, die, das.","after sein: no ending · before a noun: -e or -en (after der / die / das)",["Das Haus ist groß.=The house is big.","ein großes Haus=a big house","Ich bin größer als du.=I'm taller than you."],
+   {h:["Case","Masculine","Feminine","Neuter","Plural"],s:[1,2,3,4],r:[["Nominativ","der große Mann","die große Frau","das große Haus","die großen Kinder"],["Akkusativ","den großen Mann","die große Frau","das große Haus","die großen Kinder"],["Dativ","dem großen Mann","der großen Frau","dem großen Haus","den großen Kindern"],["Genitiv","des großen Mannes","der großen Frau","des großen Hauses","der großen Kinder"],["Nominativ with ein","ein großer Mann","eine große Frau","ein großes Haus","große Kinder"]]}],
+  ["","Adverbs","Most adjectives can be used as adverbs without any change. Some common adverbs, like gern and oft, are words of their own.","adjective = adverb (no ending)",["Er fährt schnell.=He drives fast.","Sie singt gut.=She sings well.","Ich trinke gern Tee.=I like drinking tea."],
+   {h:["Adjektiv","Adverb","Example"],s:[0,1,2],r:[["schnell","schnell","Er läuft schnell."],["gut","gut","Sie kocht gut."],["leise","leise","Sprich leise!"],["glücklich","glücklich","Er lächelt glücklich."],["–","gern","Ich lese gern."],["–","oft","Wir gehen oft spazieren."]]}],
+  ["","Plural formation","German plurals should be learned with each noun, but there are patterns. The plural article is always die.","no ending · -e · -er · -en / -n · -s · often with an umlaut",["der Tag → die Tage=the day → the days","die Frau → die Frauen=the woman → the women"],
+   {h:["Singular","Plural","Pattern"],s:[0,1],r:[["der Lehrer","die Lehrer","-er / -el / -en: often no ending"],["der Apfel","die Äpfel","sometimes only an umlaut"],["der Tag","die Tage","+ e (many masculine nouns)"],["die Hand","die Hände","+ e with umlaut"],["das Kind","die Kinder","+ er"],["das Haus","die Häuser","+ er with umlaut"],["die Frau","die Frauen","+ en (most feminine nouns)"],["die Lampe","die Lampen","+ n"],["das Auto","die Autos","+ s (loanwords)"]]}],
+  ["","Feminine formation","Most nouns for people add -in, and the article becomes die. The plural ends in -innen.","+ -in · plural: -innen",["der Lehrer → die Lehrerin=the teacher (m → f)","die Lehrerinnen=the (female) teachers"],
+   {h:["Maskulin","Feminin","Rule"],s:[0,1],r:[["der Lehrer","die Lehrerin","+ in"],["der Student","die Studentin","+ in"],["der Freund","die Freundin","+ in"],["der Arzt","die Ärztin","+ in, often with umlaut"],["der Koch","die Köchin","+ in, often with umlaut"],["der Kollege","die Kollegin","-e → -in"],["der Franzose","die Französin","-e → -in, with umlaut"],["der Mann","die Frau","different word"],["der Vater","die Mutter","different word"]]}]]]]}
+};
+
+/* ---------------- NEXT STEPS ---------------- */
+function hub(){
+  run++;const lg=LG();S.ph="more";saveProg();document.body.className=lg.cls;
+  const opts=[["Master Grammar","Tenses, moods and the main rules, with full conjugations.",1],["Build vocabulary","Learn new words by topic.",0],["Practice vocabulary","Test yourself on the words you've learned.",0],["Practice speaking and listening","Short conversations to listen to and answer.",0]];
+  $("#app").innerHTML=`${topbar()}${phaseTabs()}
+  <section style="display:flex;flex-direction:column;gap:6px"><span class="label">${lg.name} · what's next</span><h2>Choose what to work on</h2></section>
+  <div class="hubs" id="hubs">${opts.map((o,i)=>`<button class="hubc" data-h="${i}" ${o[2]?"":"disabled"}><span class="hn">${i+1}</span><span class="ht"><b>${o[0]}</b><span>${o[1]}</span></span>${o[2]?`<span class="go">→</span>`:`<span class="soon">Coming soon</span>`}</button>`).join("")}</div>`;
+  wireTop();wirePhaseTabs();
+  $("#hubs").onclick=e=>{const b=e.target.closest("[data-h]");if(b&&!b.disabled&&b.dataset.h==="0")grammar()};
+}
+
+function grammar(){
+  run++;const lg=LG(),G=GRAM[S.lang];document.body.className=lg.cls;
+  let n=0;
+  const exHTML=ex=>`<div class="chips">${ex.map(s=>{const e=pw(s);return `<button class="chip" data-say="${esc(speakable(e.w))}">${SPK_SVG}<b lang="${S.lang}">${esc(e.w)}</b>${e.m?`<span>${esc(e.m)}</span>`:""}</button>`}).join("")}</div>`;
+  const item=(it,gi,ii)=>{const [k,t,d,f,ex,tb]=it;n++;
+    return `<details class="gi" data-g="${gi}" data-i="${ii}"><summary><span class="rn">(${roman(n)})</span><span class="gt" lang="${S.lang}">${esc(t)}</span><span class="chev" aria-hidden="true"></span></summary>
+    <div class="gbody"><p>${esc(d)}</p><div class="form"><span class="label">How to form it</span><p lang="${S.lang}">${esc(f)}</p></div>
+    <span class="label">Examples · tap to hear</span>${exHTML(ex)}
+    ${k?`<button class="btn ghost more" data-k="${k}">Show verb conjugation</button><div class="extra" hidden></div>`:tb?`<button class="btn ghost more" data-t="1">Show ${/Plural|Feminine|Adjectives|Adverbs/.test(t)?"word changes":"more examples"}</button><div class="extra" hidden></div>`:""}
+    </div></details>`};
+  $("#app").innerHTML=`${topbar()}${phaseTabs()}
+  <section style="display:flex;flex-direction:column;gap:6px"><button class="btn ghost" id="toHub" style="align-self:flex-start">← What's next</button><span class="label">Master Grammar · ${lg.name}</span><h2>Tap a topic to open it</h2></section>
+  <div class="glist" id="glist">${G.groups.map((g,gi)=>`<section class="gg"><h3 class="label">${esc(g[0])}</h3>${g[1].map((it,ii)=>item(it,gi,ii)).join("")}</section>`).join("")}</div>`;
+  wireTop();wirePhaseTabs();$("#toHub").onclick=hub;
+  const list=$("#glist");wireChips(list);
+  list.addEventListener("click",e=>{
+    const b=e.target.closest(".more");if(!b)return;
+    const box=b.nextElementSibling;if(!box.hidden){box.hidden=true;b.textContent=b.dataset.k?"Show verb conjugation":b.textContent.replace("Hide","Show");return}
+    const det=b.closest(".gi"),it=G.groups[+det.dataset.g][1][+det.dataset.i];
+    if(b.dataset.k){
+      let vi=0;const draw=()=>{const rows=G.conj(G.verbs[vi][0],b.dataset.k);
+        box.innerHTML=`<span class="label">Choose a verb</span><div class="chips vpick">${G.verbs.map((v,i)=>`<button class="chip${i===vi?" on":""}" data-v="${i}" aria-pressed="${i===vi}"><b lang="${S.lang}">${esc(v[0])}</b><span>${esc(v[1])}</span></button>`).join("")}</div>
+        <ol class="conj">${rows.map(r=>`<li><button data-say="${esc(speakable(r))}" lang="${S.lang}">${SPK_SVG}<span>${esc(r)}</span></button></li>`).join("")}</ol>`;
+        box.querySelector(".vpick").onclick=ev=>{const c=ev.target.closest("[data-v]");if(c){vi=+c.dataset.v;draw()}};};
+      draw();b.textContent="Hide verb conjugation";
+    }else{
+      const tb=it[5];
+      box.innerHTML=`<div class="tbl-wrap"><table><thead><tr>${tb.h.map(h=>`<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${tb.r.map(r=>`<tr>${r.map((c,ci)=>`<td>${tb.s.includes(ci)&&c!=="–"?`<button data-say="${esc(speakable(c))}" lang="${S.lang}">${esc(c)}</button>`:esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+      b.textContent=b.textContent.replace("Show","Hide");
+    }
+    box.hidden=false;
+  });
+}
+
 /* ---------------- DONE ---------------- */
 function done(){
   run++;const lg=LG();S.score=calcScore(S);saveProg();
@@ -1119,9 +1409,10 @@ function done(){
     <div class="chips">${lg.letters.map(x=>`<span class="chip ${S.miss.includes(x.l)?"miss":S.got.includes(x.l)?"ok":""}" style="cursor:default"><b>${up(x.l)}</b></span>`).join("")}</div>
     <span class="label">Letter teams</span>
     <div class="chips">${lg.teams.map(x=>`<span class="chip ${S.tmiss.includes(kid(x))?"miss":S.tgot.includes(kid(x))?"ok":""}" style="cursor:default"><b lang="${S.lang}">${esc(x.l)}</b></span>`).join("")}</div>
-    <div class="btns">${hard.length?`<button class="btn" id="rvH">Practise the ones I struggled with</button>`:""}<button class="btn" id="rvL">Review 5 random letters</button><button class="btn" id="rvT">Review 5 random teams</button><button class="btn" id="rdA">Reading practice</button><button class="btn ghost" id="restart">Start again from A</button><button class="btn ghost" id="other">Choose another language</button></div>
+    <div class="btns"><button class="btn" id="toNext">Continue: what's next →</button>${hard.length?`<button class="btn" id="rvH">Practise the ones I struggled with</button>`:""}<button class="btn" id="rvL">Review 5 random letters</button><button class="btn" id="rvT">Review 5 random teams</button><button class="btn" id="rdA">Reading practice</button><button class="btn ghost" id="restart">Start again from A</button><button class="btn ghost" id="other">Choose another language</button></div>
   </section>`;
   wireTop();
+  $("#toNext").onclick=hub;
   if($("#rvH"))$("#rvH").onclick=()=>review(shuffle(hard),done);
   $("#rvL").onclick=()=>review(shuffle(lg.letters).slice(0,5),done);
   $("#rvT").onclick=()=>review(shuffle(lg.teams).slice(0,5),done);
