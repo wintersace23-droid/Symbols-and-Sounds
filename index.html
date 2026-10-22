@@ -157,6 +157,10 @@ button:focus-visible{outline:3px solid var(--acc);outline-offset:3px}
 .prob .hd{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 .pw{font-family:var(--display);font-size:1.5rem;font-weight:800;overflow-wrap:anywhere}
 mark.lx{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad);border-radius:3px}
+.tpick{display:flex;flex-wrap:wrap;gap:8px}
+.tpick .chip.on{border-color:var(--acc);background:var(--soft)}
+.tpick .chip b{font-family:var(--display)}
+.lvl{font-weight:800;color:var(--acc);font-size:.8rem;letter-spacing:.06em}
 .hidden{display:none}
 @media(max-width:779px){.tile{max-width:min(240px,64vw)}.tile .g{font-size:clamp(5rem,24vw,7rem)}.hide-sm{display:none}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -520,10 +524,10 @@ function hl(word,letter){
 }
 
 /* ---------------- STATE ---------------- */
-let S={lang:null,ph:"letters",idx:0,tidx:0,score:0,got:[],tgot:[],miss:[],tmiss:[],rbest:0};
+let S={lang:null,ph:"letters",idx:0,tidx:0,score:0,got:[],tgot:[],miss:[],tmiss:[],rb:[0,0,0,0]};
 let run=0; // cancels audio sequences
 function loadProg(lang){try{return JSON.parse(localStorage.getItem("aa-"+lang)||"null")}catch(e){return null}}
-function saveProg(){try{localStorage.setItem("aa-"+S.lang,JSON.stringify({ph:S.ph,idx:S.idx,tidx:S.tidx,score:S.score,got:S.got,tgot:S.tgot,miss:S.miss,tmiss:S.tmiss,rbest:S.rbest||0}))}catch(e){}}
+function saveProg(){try{localStorage.setItem("aa-"+S.lang,JSON.stringify({ph:S.ph,idx:S.idx,tidx:S.tidx,score:S.score,got:S.got,tgot:S.tgot,miss:S.miss,tmiss:S.tmiss,rb:S.rb}))}catch(e){}}
 const LG=()=>LANGS[S.lang];
 const isT=()=>S.ph==="teams";
 const items=()=>isT()?LG().teams:LG().letters;
@@ -533,7 +537,7 @@ const gotArr=()=>isT()?S.tgot:S.got;
 const kid=x=>x.team?x.l+"|"+x.snd:x.l;
 const disp=x=>x.team?x.l:up(x.l);
 const unitWord=()=>isT()?"team":"letter";
-const calcScore=p=>(p.got||[]).length+(p.tgot||[]).length-(p.miss||[]).length-(p.tmiss||[]).length+(p.rbest||0);
+const calcScore=p=>(p.got||[]).length+(p.tgot||[]).length-(p.miss||[]).length-(p.tmiss||[]).length+rbFrom(p).reduce((a,b)=>a+b,0);
 const Gx=x=>x.team?S.tgot:S.got, Mx=x=>x.team?S.tmiss:S.miss;
 // +1 once per item for a correct pronunciation; −1 once per item for a mistake (and it's recorded)
 function award(x){const g=Gx(x);if(g.includes(kid(x)))return 0;g.push(kid(x));refreshScore();return 1}
@@ -574,7 +578,7 @@ function home(){
   </section>`;
   $(".langs").onclick=e=>{const b=e.target.closest("[data-k]");if(!b)return;
     const k=b.dataset.k,p=loadProg(k)||{};
-    S={lang:k,ph:["teams","reading"].includes(p.ph)?p.ph:"letters",rbest:p.rbest||0,idx:Math.min(p.idx||0,LANGS[k].letters.length-1),tidx:Math.min(p.tidx||0,LANGS[k].teams.length-1),score:calcScore(p),got:p.got||[],tgot:p.tgot||[],miss:p.miss||[],tmiss:p.tmiss||[]};
+    S={lang:k,ph:["teams","reading"].includes(p.ph)?p.ph:"letters",rb:rbFrom(p),idx:Math.min(p.idx||0,LANGS[k].letters.length-1),tidx:Math.min(p.tidx||0,LANGS[k].teams.length-1),score:calcScore(p),got:p.got||[],tgot:p.tgot||[],miss:p.miss||[],tmiss:p.tmiss||[]};
     micReady?learn():micSetup()};
 }
 
@@ -650,7 +654,7 @@ function topbar(extra){
 }
 function wireTop(){ $("#back").onclick=home; $("#rulesBtn").onclick=rules; }
 function phaseTabs(){
-  return `<div class="seg" role="tablist" id="seg"><button role="tab" data-ph="letters" aria-selected="${S.ph==="letters"}">Letters <span>${S.got.length}/${LG().letters.length}</span></button><button role="tab" data-ph="teams" aria-selected="${S.ph==="teams"}">Letter teams <span>${S.tgot.length}/${LG().teams.length}</span></button><button role="tab" data-ph="reading" aria-selected="${S.ph==="reading"}">Reading <span id="rbestTab">${S.rbest||0}/5</span></button></div>`;
+  return `<div class="seg" role="tablist" id="seg"><button role="tab" data-ph="letters" aria-selected="${S.ph==="letters"}">Letters <span>${S.got.length}/${LG().letters.length}</span></button><button role="tab" data-ph="teams" aria-selected="${S.ph==="teams"}">Letter teams <span>${S.tgot.length}/${LG().teams.length}</span></button><button role="tab" data-ph="reading" aria-selected="${S.ph==="reading"}">Reading <span id="rbestTab">${rbSum()}/${RD().texts.length*5}</span></button></div>`;
 }
 function wirePhaseTabs(){
   $("#seg").onclick=e=>{const b=e.target.closest("[data-ph]");if(!b||b.dataset.ph===S.ph)return;S.ph=b.dataset.ph;if(S.ph==="reading")readingIntro();else learn()};
@@ -911,6 +915,35 @@ de:{rule:{t:"Where the stress falls in German",pts:[
  st:"heiße:ˈhei·ße,jonas:ˈjo·nas,wohne:ˈwoh·ne,berlin:ber·ˈlin,habe:ˈha·be,einen:ˈei·nen,bruder:ˈbru·der,eine:ˈei·ne,schwester:ˈschwes·ter,morgen:ˈmor·gen,trinke:ˈtrin·ke,kaffee:ˈkaf·fee,esse:ˈes·se,brötchen:ˈbröt·chen,fahre:ˈfah·re,schule:ˈschu·le,nachmittag:ˈnach·mit·tag,spiele:ˈspie·le,fußball:ˈfuß·ball,abend:ˈa·bend,lese:ˈle·se,wochenende:ˈwo·chen·en·de,besuchen:be·ˈsu·chen,unsere:ˈun·se·re,oma:ˈo·ma"}
 };
 for(const v of Object.values(READ)){v.map={};v.st.split(",").forEach(p=>{const i=p.indexOf(":");v.map[p.slice(0,i)]=p.slice(i+1)})}
+/* extra reading texts: one more A1 and two A2 per language */
+const MORE={
+en:{titles:["Anna's day","My friend Tom","A week by the sea","My working week"],more:[
+ ["A1","This is my friend Tom. He is ten years old. He has a big dog called Max. Every day after school, Tom and Max go to the park. They run and play with a ball. Tom likes apples and orange juice. In the evening he reads a book and goes to bed at nine o'clock."],
+ ["A2","Last summer, my family and I travelled to the seaside for a week. We stayed in a small hotel near the beach. In the mornings we swam in the sea, and in the afternoons we visited the old town. The weather was sunny and warm, but one day it rained a lot, so we went to a museum. I really enjoyed the holiday and I want to go back next year."],
+ ["A2","I usually get up at seven o'clock on weekdays. After a quick shower, I have breakfast with my sister. Then I take the bus to the office, where I work as a receptionist. My job is quite busy because I answer the phone and help visitors. At the weekend I prefer to relax. I often cook a special dinner for my friends or watch a film at the cinema."]],
+ st:"after:ˈaf·ter,apples:ˈap·ples,orange:ˈo·range,evening:ˈeve·ning,o'clock:o'·ˈclock,summer:ˈsum·mer,travelled:ˈtra·velled,seaside:ˈsea·side,hotel:ho·ˈtel,mornings:ˈmor·nings,afternoons:af·ter·ˈnoons,visited:ˈvi·si·ted,weather:ˈwea·ther,sunny:ˈsun·ny,museum:mu·ˈse·um,really:ˈreal·ly,enjoyed:en·ˈjoyed,holiday:ˈho·li·day,usually:ˈu·su·al·ly,seven:ˈse·ven,weekdays:ˈweek·days,shower:ˈsho·wer,breakfast:ˈbreak·fast,sister:ˈsis·ter,office:ˈof·fice,receptionist:re·ˈcep·tion·ist,busy:ˈbu·sy,because:be·ˈcause,answer:ˈan·swer,visitors:ˈvi·si·tors,weekend:week·ˈend,prefer:pre·ˈfer,relax:re·ˈlax,often:ˈof·ten,special:ˈspe·cial,dinner:ˈdin·ner,cinema:ˈci·ne·ma"},
+es:{titles:["El día de Lucía","Mi amigo Pablo","Una semana en la playa","Mi semana"],more:[
+ ["A1","Mi amigo se llama Pablo. Tiene doce años y vive con sus padres. Pablo tiene un perro blanco que se llama Toby. Todos los días, después del colegio, juegan en el parque. A Pablo le gusta la fruta, especialmente las naranjas. Por la noche cena con su familia y lee un libro antes de dormir."],
+ ["A2","El verano pasado fui de vacaciones a la playa con mi familia. Nos quedamos una semana en un hotel pequeño cerca del mar. Por las mañanas nadábamos y por las tardes visitábamos el pueblo. Un día llovió mucho, así que fuimos a un museo. Me gustaron mucho las vacaciones y quiero volver el año que viene."],
+ ["A2","Normalmente me levanto a las siete de lunes a viernes. Después de ducharme, desayuno con mi hermana. Luego tomo el autobús para ir a la oficina, donde trabajo como recepcionista. Mi trabajo es bastante interesante porque hablo con mucha gente. Los fines de semana prefiero descansar. A veces cocino una cena especial para mis amigos o vamos al cine."]],
+ st:"pequeño:pe·ˈque·ño,amigo:a·ˈmi·go,llama:ˈlla·ma,pablo:ˈpa·blo,tiene:ˈtie·ne,doce:ˈdo·ce,años:ˈa·ños,vive:ˈvi·ve,padres:ˈpa·dres,perro:ˈpe·rro,blanco:ˈblan·co,toby:ˈto·by,todos:ˈto·dos,días:ˈdí·as,colegio:co·ˈle·gio,juegan:ˈjue·gan,parque:ˈpar·que,fruta:ˈfru·ta,especialmente:es·pe·cial·ˈmen·te,naranjas:na·ˈran·jas,noche:ˈno·che,cena:ˈce·na,familia:fa·ˈmi·lia,lee:ˈle·e,antes:ˈan·tes,dormir:dor·ˈmir,verano:ve·ˈra·no,pasado:pa·ˈsa·do,vacaciones:va·ca·ˈcio·nes,playa:ˈpla·ya,quedamos:que·ˈda·mos,semana:se·ˈma·na,hotel:ho·ˈtel,cerca:ˈcer·ca,mañanas:ma·ˈña·nas,nadábamos:na·ˈdá·ba·mos,tardes:ˈtar·des,visitábamos:vi·si·ˈtá·ba·mos,pueblo:ˈpue·blo,día:ˈdí·a,llovió:llo·ˈvió,así:a·ˈsí,fuimos:ˈfui·mos,museo:mu·ˈse·o,gustaron:gus·ˈta·ron,quiero:ˈquie·ro,volver:vol·ˈver,año:ˈa·ño,viene:ˈvie·ne,normalmente:nor·mal·ˈmen·te,levanto:le·ˈvan·to,siete:ˈsie·te,lunes:ˈlu·nes,viernes:ˈvier·nes,ducharme:du·ˈchar·me,hermana:her·ˈma·na,luego:ˈlue·go,tomo:ˈto·mo,autobús:au·to·ˈbús,para:ˈpa·ra,oficina:o·fi·ˈci·na,donde:ˈdon·de,como:ˈco·mo,recepcionista:re·cep·cio·ˈnis·ta,bastante:bas·ˈtan·te,interesante:in·te·re·ˈsan·te,porque:ˈpor·que,mucha:ˈmu·cha,gente:ˈgen·te,fines:ˈfi·nes,prefiero:pre·ˈfie·ro,descansar:des·can·ˈsar,veces:ˈve·ces,cocino:co·ˈci·no,especial:es·pe·ˈcial,vamos:ˈva·mos,cine:ˈci·ne"},
+fr:{titles:["La journée de Léa","Mon ami Hugo","Des vacances à la mer","Ma semaine"],more:[
+ ["A1","Mon ami s'appelle Hugo. Il a dix ans et il habite à Paris. Il a un petit chat noir. Après l'école, Hugo fait ses devoirs et joue au football avec ses copains. Il aime les pommes et le chocolat. Le soir, il mange avec ses parents et il lit une histoire avant de dormir."],
+ ["A2","L'été dernier, je suis parti en vacances au bord de la mer avec ma famille. Nous sommes restés une semaine dans un petit hôtel près de la plage. Le matin, nous nagions et l'après-midi, nous visitions la vieille ville. Un jour, il a beaucoup plu, alors nous sommes allés au musée. J'ai adoré ces vacances et je voudrais y retourner l'année prochaine."],
+ ["A2","D'habitude, je me lève à sept heures en semaine. Après une douche rapide, je prends le petit-déjeuner avec ma sœur. Ensuite, je vais au bureau en métro, où je travaille comme réceptionniste. Mon travail est assez intéressant parce que je parle avec beaucoup de gens. Le week-end, je préfère me reposer. Parfois, je prépare un dîner spécial pour mes amis ou nous allons au cinéma."]],
+ st:"ami:a·ˈmi,s'appelle:s'ap·ˈpelle,hugo:hu·ˈgo,habite:ha·ˈbite,paris:pa·ˈris,petit:pe·ˈtit,après:a·ˈprès,devoirs:de·ˈvoirs,football:foot·ˈball,copains:co·ˈpains,chocolat:cho·co·ˈlat,parents:pa·ˈrents,histoire:his·ˈtoire,avant:a·ˈvant,dormir:dor·ˈmir,l'été:l'é·ˈté,dernier:der·ˈnier,parti:par·ˈti,vacances:va·ˈcances,restés:res·ˈtés,semaine:se·ˈmaine,hôtel:hô·ˈtel,nagions:na·ˈgions,l'après:l'a·ˈprès,visitions:vi·si·ˈtions,alors:a·ˈlors,allés:al·ˈlés,musée:mu·ˈsée,adoré:a·do·ˈré,voudrais:vou·ˈdrais,retourner:re·tour·ˈner,l'année:l'an·ˈnée,prochaine:pro·ˈchaine,d'habitude:d'ha·bi·ˈtude,rapide:ra·ˈpide,déjeuner:dé·jeu·ˈner,bureau:bu·ˈreau,métro:mé·ˈtro,travaille:tra·ˈvaille,réceptionniste:ré·cep·tion·ˈniste,travail:tra·ˈvail,assez:as·ˈsez,intéressant:in·té·res·ˈsant,préfère:pré·ˈfère,reposer:re·po·ˈser,parfois:par·ˈfois,prépare:pré·ˈpare,dîner:dî·ˈner,spécial:spé·ˈcial,allons:al·ˈlons,cinéma:ci·né·ˈma"},
+de:{titles:["Der Tag von Jonas","Meine Freundin Lena","Urlaub an der Nordsee","Meine Woche"],more:[
+ ["A1","Das ist meine Freundin Lena. Sie ist zehn Jahre alt und wohnt in Hamburg. Lena hat eine kleine Katze. Nach der Schule macht sie ihre Hausaufgaben und spielt dann mit ihren Freunden im Park. Sie isst gern Äpfel und Bananen. Am Abend liest sie ein Buch und geht um acht Uhr ins Bett."],
+ ["A2","Letzten Sommer bin ich mit meiner Familie an die Nordsee gefahren. Wir haben eine Woche in einem kleinen Hotel am Strand gewohnt. Morgens sind wir geschwommen und nachmittags haben wir die Altstadt besucht. An einem Tag hat es stark geregnet, deshalb sind wir ins Museum gegangen. Der Urlaub hat mir sehr gut gefallen und ich möchte nächstes Jahr wieder hinfahren."],
+ ["A2","Normalerweise stehe ich unter der Woche um sieben Uhr auf. Nach dem Duschen frühstücke ich mit meiner Schwester. Danach fahre ich mit der U-Bahn ins Büro, wo ich als Rezeptionistin arbeite. Meine Arbeit ist ziemlich interessant, weil ich mit vielen Menschen spreche. Am Wochenende entspanne ich mich lieber. Manchmal koche ich ein besonderes Abendessen für meine Freunde oder wir gehen ins Kino."]],
+ st:"haben:ˈha·ben,meine:ˈmei·ne,freundin:ˈfreun·din,lena:ˈle·na,jahre:ˈjah·re,hamburg:ˈham·burg,kleine:ˈklei·ne,katze:ˈkat·ze,ihre:ˈih·re,hausaufgaben:ˈhaus·auf·ga·ben,ihren:ˈih·ren,freunden:ˈfreun·den,äpfel:ˈäp·fel,bananen:ba·ˈna·nen,letzten:ˈletz·ten,sommer:ˈsom·mer,meiner:ˈmei·ner,familie:fa·ˈmi·lie,nordsee:ˈnord·see,gefahren:ge·ˈfah·ren,woche:ˈwo·che,einem:ˈei·nem,kleinen:ˈklei·nen,hotel:ho·ˈtel,gewohnt:ge·ˈwohnt,morgens:ˈmor·gens,geschwommen:ge·ˈschwom·men,nachmittags:ˈnach·mit·tags,altstadt:ˈalt·stadt,besucht:be·ˈsucht,geregnet:ge·ˈreg·net,deshalb:ˈdes·halb,museum:mu·ˈse·um,gegangen:ge·ˈgan·gen,urlaub:ˈur·laub,gefallen:ge·ˈfal·len,möchte:ˈmöch·te,nächstes:ˈnächs·tes,wieder:ˈwie·der,hinfahren:ˈhin·fah·ren,normalerweise:nor·ˈma·ler·wei·se,stehe:ˈste·he,unter:ˈun·ter,sieben:ˈsie·ben,duschen:ˈdu·schen,frühstücke:ˈfrüh·stü·cke,danach:da·ˈnach,büro:bü·ˈro,rezeptionistin:re·zep·tio·ˈnis·tin,arbeite:ˈar·bei·te,arbeit:ˈar·beit,ziemlich:ˈziem·lich,interessant:in·te·res·ˈsant,vielen:ˈvie·len,menschen:ˈmen·schen,spreche:ˈspre·che,entspanne:ent·ˈspan·ne,lieber:ˈlie·ber,manchmal:ˈmanch·mal,koche:ˈko·che,besonderes:be·ˈson·de·res,abendessen:ˈa·bend·es·sen,freunde:ˈfreun·de,oder:ˈo·der,gehen:ˈge·hen,kino:ˈki·no"}
+};
+for(const [k,v] of Object.entries(MORE)){const r=READ[k];
+  r.texts=[{lvl:"A1",title:v.titles[0],text:r.text},...v.more.map((m,i)=>({lvl:m[0],title:v.titles[i+1],text:m[1]}))];
+  v.st.split(",").forEach(p=>{const i=p.indexOf(":");const w=p.slice(0,i);if(!r.map[w])r.map[w]=p.slice(i+1)});
+}
+const rbFrom=p=>Array.isArray(p.rb)?p.rb.slice(0,4).concat([0,0,0,0]).slice(0,4):[p.rbest||0,0,0,0];
+const rbSum=()=>S.rb.reduce((a,b)=>a+b,0);
 const RD=()=>READ[S.lang];
 const rkey=w=>w.toLowerCase().replace(/’/g,"'");
 const rnorm=w=>strip(w.toLowerCase().replace(/[’']/g,"").replace(/ß/g,"ss")).replace(/[^\p{L}\p{N}]/gu,"");
@@ -965,17 +998,19 @@ function readingIntro(){
     <div class="btns"><button class="btn" id="go">Show the text →</button></div>
   </section>`;
   wireTop();wirePhaseTabs();wireChips($("#stEx"));
-  $("#go").onclick=readingPage;$("#go").focus();
+  $("#go").onclick=()=>readingPage(0);$("#go").focus();
 }
 
-function readingPage(){
-  run++;const lg=LG(),R=RD(),tag=lg.tts;
-  const toks=tokenize(R.text);const words=toks.filter(t=>t.w);const T=words.map(w=>rnorm(w.t));
+function readingPage(ti){
+  ti=ti|0;run++;const lg=LG(),R=RD(),tag=lg.tts,TX=R.texts[ti];
+  const toks=tokenize(TX.text);const words=toks.filter(t=>t.w);const T=words.map(w=>rnorm(w.t));
   let wi=0;
   const passage=toks.map(t=>t.w?`<span class="wd" data-i="${wi++}">${esc(t.t)}</span>`:esc(t.t)).join("");
   $("#app").innerHTML=`${topbar()}${phaseTabs()}
   <section class="panel turn" style="gap:14px">
-    <span class="label">Read aloud · A1 · Step 2 of 2</span>
+    <span class="label">Read aloud · choose a text</span>
+    <div class="tpick" id="tpick">${R.texts.map((t,i)=>`<button class="chip${i===ti?" on":""}" data-t="${i}" aria-pressed="${i===ti}"><b>${i+1}</b><span><span class="lvl">${t.lvl}</span> ${esc(t.title)} · ${S.rb[i]}/5</span></button>`).join("")}</div>
+    <h2 lang="${S.lang}">${esc(TX.title)}</h2>
     <p>${mode==="voice"?"Tap the text to start the microphone, then read it aloud at a calm pace. Words turn green as the app hears them.":"Reading is checked with the microphone, which isn't on. You can still listen to the text and read along."}</p>
     <button class="passage" id="passage" lang="${S.lang}" aria-label="Tap to start reading">${passage}</button>
     <p class="label" id="rstate">${mode==="voice"?"Tap the text to begin":"Microphone off"}</p>
@@ -987,9 +1022,10 @@ function readingPage(){
   let paused=false,netErr=0,showStress=false,listening=false,stopped=false,acc="",sess="",interim="",rec=null,hardErr=null,deadline=0,autoT=null;
   const paintStress=()=>spans.forEach((s,k)=>{s.innerHTML=showStress?wordStressHTML(words[k].t):esc(words[k].t)});
   $("#stressT").onclick=()=>{showStress=!showStress;$("#stressT").setAttribute("aria-pressed",showStress);$("#stressT").textContent=showStress?"Hide stress":"Show stress";paintStress()};
-  $("#hearAll").onclick=()=>{if(listening)return;run++;speak(R.text,tag,.85)};
+  $("#hearAll").onclick=()=>{if(listening)return;run++;speak(TX.text,tag,.85)};
+  $("#tpick").onclick=e=>{const b=e.target.closest("[data-t]");if(!b||listening||+b.dataset.t===ti)return;try{rec&&rec.abort()}catch(x){}readingPage(+b.dataset.t)};
   const live=()=>{
-    const H=(acc+" "+sess+" "+interim).split(/\s+/).map(rnorm).filter(Boolean);
+    const H=(acc+" "+sess+" "+interim).split(/[\s\-]+/).map(rnorm).filter(Boolean);
     const al=align(T,H);let last=-1;
     al.forEach((a,k)=>{if(a&&(a.st==="ok"||a.st==="close"))last=k});
     spans.forEach((s,k)=>{s.className="wd"+(k<=last&&al[k]&&al[k].st!=="miss"?(al[k].st==="ok"?" ok":al[k].st==="close"?" close":""):"")+(k===last+1?" next":"")});
@@ -1016,10 +1052,10 @@ function readingPage(){
     $("#passage").classList.remove("on","paused");$("#doneR").hidden=true;
     if(hardErr==="network"){$("#rstate").textContent="The speech service couldn't be reached. Check your internet connection, then tap the text again.";spans.forEach(s=>s.className="wd");return}
     if(hardErr){mode="self";micNote="Chrome couldn't use the microphone. Allow it for this page and reload.";$("#rstate").textContent=micNote;return}
-    const H=acc.split(/\s+/).map(rnorm).filter(Boolean);
+    const H=acc.split(/[\s\-]+/).map(rnorm).filter(Boolean);
     if(!H.length){$("#rstate").textContent="I didn't hear any reading. Tap the text and try again.";spans.forEach(s=>s.className="wd");return}
     $("#rstate").textContent="Reading checked";
-    assess(T,H,words,acc.split(/\s+/).filter(Boolean),spans);
+    assess(T,H,words,acc.split(/[\s\-]+/).filter(t=>rnorm(t)),spans,ti);
   };
   const begin=()=>{
     if(mode!=="voice"){$("#rstate").textContent="Turn on the microphone to have your reading checked: go back to Languages and pick this language again.";return}
@@ -1035,11 +1071,13 @@ function readingPage(){
   $("#doneR").onclick=()=>{stopped=true;if(paused||!rec)finish();else stop()};
 }
 
-function assess(T,H,words,rawHeard,spans){
+function assess(T,H,words,rawHeard,spans,ti){
   const al=align(T,H);
   const c={ok:0,close:0,sub:0,miss:0};al.forEach(a=>c[a.st]++);
   const acc=(c.ok+.5*c.close)/T.length,score=Math.round(acc*5);
-  const gain=Math.max(0,score-(S.rbest||0));if(score>(S.rbest||0)){S.rbest=score}bumpScore(gain);const rt=$("#rbestTab");if(rt)rt.textContent=S.rbest+"/5";
+  const prev=S.rb[ti]||0,gain=Math.max(0,score-prev);if(score>prev)S.rb[ti]=score;bumpScore(gain);
+  const rt=$("#rbestTab");if(rt)rt.textContent=rbSum()+"/"+RD().texts.length*5;
+  const pk=$("#tpick [data-t='"+ti+"'] span");if(pk)pk.innerHTML=`<span class="lvl">${RD().texts[ti].lvl}</span> ${esc(RD().texts[ti].title)} · ${S.rb[ti]}/5`;
   spans.forEach((s,k)=>{s.className="wd "+({ok:"ok",close:"close",sub:"bad",miss:"bad"}[al[k].st])});
   const probs=al.map((a,k)=>({a,k,w:words[k].t,heard:a.h!=null?rawHeard[a.h]||"":""})).filter(p=>p.a.st!=="ok");
   const stressLine=w=>{const s=stressInfo(w);if(!s)return `<p class="label">One syllable: no stress to place</p>`;
@@ -1052,16 +1090,17 @@ function assess(T,H,words,rawHeard,spans){
     return `<li class="prob ${p.a.st}"><div class="hd"><b class="pw" lang="${S.lang}">${wordH}</b><button class="chip" data-say="${esc(p.w)}">${SPK_SVG}Hear it</button></div><p>${what}</p>${stressLine(p.w)}</li>`};
   $("#results").innerHTML=`<section class="panel" style="gap:14px">
     <span class="label">Your reading</span>
-    <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap"><div class="big">${score}/5</div><p class="lede">${gain?`+${gain} point${gain>1?"s":""} added`:score===5?"Perfect reading!":"Beat your best score of "+S.rbest+"/5 to earn more points"}</p></div>
+    <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap"><div class="big">${score}/5</div><p class="lede">${gain?`+${gain} point${gain>1?"s":""} added`:score===5?"Perfect reading!":"Your best on this text is "+S.rb[ti]+"/5. Beat it to earn more points"}</p></div>
     <div class="tally"><span class="t ok">${c.ok} read well</span><span class="t close">${c.close} nearly right</span><span class="t bad">${c.sub} misread</span><span class="t bad">${c.miss} missed</span></div>
     ${probs.length?`<span class="label">Words to practise</span><ul class="probs" id="probs">${probs.map(card).join("")}</ul>`
       :`<p>Every word was recognised. Now compare your stress with the guide: tap <b>Show stress</b> above and read once more.</p>`}
     <p class="note">The app checks which words were recognised. It can't measure stress from your voice, so for each word it shows where the stress belongs. Tap “Hear it” and compare.</p>
-    <div class="btns"><button class="btn" id="again">Read it again</button><button class="btn ghost" id="fin">See final results →</button></div>
+    <div class="btns"><button class="btn" id="again">Read it again</button>${ti<RD().texts.length-1?`<button class="btn" id="nextT">Next text: ${esc(RD().texts[ti+1].lvl)} →</button>`:""}<button class="btn ghost" id="fin">See final results →</button></div>
   </section>`;
   if($("#probs"))wireChips($("#probs"));
   $("#again").onclick=()=>{$("#results").innerHTML="";spans.forEach(s=>s.className="wd");scrollTo({top:0,behavior:"smooth"});$("#rstate").textContent="Tap the text to begin"};
   $("#fin").onclick=done;
+  if($("#nextT"))$("#nextT").onclick=()=>{scrollTo(0,0);readingPage(ti+1)};
   $("#results").scrollIntoView({behavior:"smooth",block:"start"});
 }
 
@@ -1073,21 +1112,21 @@ function done(){
   <section class="panel" style="align-items:flex-start;gap:14px">
     <span class="label">${lg.name} complete: letters, letter teams and reading</span>
     <div class="big">${S.score} pts</div>
-    <p class="lede">+${S.got.length+S.tgot.length} for letters and letter teams said correctly, −${S.miss.length+S.tmiss.length} for the ones you struggled with, +${S.rbest||0} for reading. Each letter or letter team counts only once.</p>
+    <p class="lede">+${S.got.length+S.tgot.length} for letters and letter teams said correctly, −${S.miss.length+S.tmiss.length} for the ones you struggled with, +${rbSum()} for reading (best score on each of the ${RD().texts.length} texts). Each letter or letter team counts only once.</p>
     <section style="display:flex;flex-direction:column;gap:8px;width:100%"><span class="label">Struggled with · ${hard.length}</span>
       ${hard.length?`<div class="chips">${hard.map(x=>`<span class="chip miss" style="cursor:default"><b lang="${S.lang}">${esc(disp(x))}</b><span class="ipa">${esc(ipaTxt(x.snd))}</span></span>`).join("")}</div>`:`<p>None. You pronounced every letter and letter team correctly.</p>`}</section>
     <span class="label">Letters · green = point earned · red = struggled</span>
     <div class="chips">${lg.letters.map(x=>`<span class="chip ${S.miss.includes(x.l)?"miss":S.got.includes(x.l)?"ok":""}" style="cursor:default"><b>${up(x.l)}</b></span>`).join("")}</div>
     <span class="label">Letter teams</span>
     <div class="chips">${lg.teams.map(x=>`<span class="chip ${S.tmiss.includes(kid(x))?"miss":S.tgot.includes(kid(x))?"ok":""}" style="cursor:default"><b lang="${S.lang}">${esc(x.l)}</b></span>`).join("")}</div>
-    <div class="btns">${hard.length?`<button class="btn" id="rvH">Practise the ones I struggled with</button>`:""}<button class="btn" id="rvL">Review 5 random letters</button><button class="btn" id="rvT">Review 5 random teams</button><button class="btn" id="rdA">Read the text again</button><button class="btn ghost" id="restart">Start again from A</button><button class="btn ghost" id="other">Choose another language</button></div>
+    <div class="btns">${hard.length?`<button class="btn" id="rvH">Practise the ones I struggled with</button>`:""}<button class="btn" id="rvL">Review 5 random letters</button><button class="btn" id="rvT">Review 5 random teams</button><button class="btn" id="rdA">Reading practice</button><button class="btn ghost" id="restart">Start again from A</button><button class="btn ghost" id="other">Choose another language</button></div>
   </section>`;
   wireTop();
   if($("#rvH"))$("#rvH").onclick=()=>review(shuffle(hard),done);
   $("#rvL").onclick=()=>review(shuffle(lg.letters).slice(0,5),done);
   $("#rvT").onclick=()=>review(shuffle(lg.teams).slice(0,5),done);
-  $("#rdA").onclick=()=>{S.ph="reading";saveProg();readingPage()};
-  $("#restart").onclick=()=>{S.ph="letters";S.idx=0;S.tidx=0;S.score=0;S.got=[];S.tgot=[];S.miss=[];S.tmiss=[];S.rbest=0;learn()};
+  $("#rdA").onclick=()=>{S.ph="reading";saveProg();readingPage(0)};
+  $("#restart").onclick=()=>{S.ph="letters";S.idx=0;S.tidx=0;S.score=0;S.got=[];S.tgot=[];S.miss=[];S.tmiss=[];S.rb=[0,0,0,0];learn()};
   $("#other").onclick=home;
 }
 
