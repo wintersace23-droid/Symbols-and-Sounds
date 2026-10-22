@@ -197,6 +197,17 @@ mark.lx{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad
 .tbl-wrap th{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);background:var(--soft)}
 .tbl-wrap tr:last-child td{border-bottom:0}
 .tbl-wrap td button:hover{color:var(--acc)}
+.quizrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:12px;margin-top:4px}
+.qbadge{font-size:.78rem;font-weight:800;color:var(--good);border:1.5px solid var(--good);border-radius:999px;padding:1px 8px;font-variant-numeric:tabular-nums;align-self:center}
+.final{border:2px solid var(--acc)}
+.final.locked{border-style:dashed;border-color:var(--line);opacity:.8}
+.qp{font-size:clamp(1.2rem,4.5vw,1.6rem);font-weight:800;line-height:1.3}
+.qopts{display:grid;gap:10px}
+.qo{appearance:none;text-align:left;border:2px solid var(--line);background:var(--bg);border-radius:12px;padding:14px 16px;font-weight:600;font-size:1.05rem;cursor:pointer;color:var(--ink)}
+.qo:hover:not(:disabled){border-color:var(--acc)}
+.qo:disabled{cursor:default}
+.qo.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 14%,var(--bg))}
+.qo.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--bg))}
 .hidden{display:none}
 @media(max-width:779px){.tile{max-width:min(240px,64vw)}.tile .g{font-size:clamp(5rem,24vw,7rem)}.hide-sm{display:none}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -560,10 +571,10 @@ function hl(word,letter){
 }
 
 /* ---------------- STATE ---------------- */
-let S={lang:null,ph:"letters",idx:0,tidx:0,score:0,got:[],tgot:[],miss:[],tmiss:[],rb:[0,0,0,0]};
+let S={lang:null,ph:"letters",idx:0,tidx:0,score:0,got:[],tgot:[],miss:[],tmiss:[],rb:[0,0,0,0],qz:{}};
 let run=0; // cancels audio sequences
 function loadProg(lang){try{return JSON.parse(localStorage.getItem("aa-"+lang)||"null")}catch(e){return null}}
-function saveProg(){try{localStorage.setItem("aa-"+S.lang,JSON.stringify({ph:S.ph,idx:S.idx,tidx:S.tidx,score:S.score,got:S.got,tgot:S.tgot,miss:S.miss,tmiss:S.tmiss,rb:S.rb}))}catch(e){}}
+function saveProg(){try{localStorage.setItem("aa-"+S.lang,JSON.stringify({ph:S.ph,idx:S.idx,tidx:S.tidx,score:S.score,got:S.got,tgot:S.tgot,miss:S.miss,tmiss:S.tmiss,rb:S.rb,qz:S.qz||{}}))}catch(e){}}
 const LG=()=>LANGS[S.lang];
 const isT=()=>S.ph==="teams";
 const items=()=>isT()?LG().teams:LG().letters;
@@ -573,7 +584,7 @@ const gotArr=()=>isT()?S.tgot:S.got;
 const kid=x=>x.team?x.l+"|"+x.snd:x.l;
 const disp=x=>x.team?x.l:up(x.l);
 const unitWord=()=>isT()?"team":"letter";
-const calcScore=p=>(p.got||[]).length+(p.tgot||[]).length-(p.miss||[]).length-(p.tmiss||[]).length+rbFrom(p).reduce((a,b)=>a+b,0);
+const calcScore=p=>(p.got||[]).length+(p.tgot||[]).length-(p.miss||[]).length-(p.tmiss||[]).length+rbFrom(p).reduce((a,b)=>a+b,0)+qzSum(p);
 const Gx=x=>x.team?S.tgot:S.got, Mx=x=>x.team?S.tmiss:S.miss;
 // +1 once per item for a correct pronunciation; −1 once per item for a mistake (and it's recorded)
 function award(x){const g=Gx(x);if(g.includes(kid(x)))return 0;g.push(kid(x));refreshScore();return 1}
@@ -614,7 +625,7 @@ function home(){
   </section>`;
   $(".langs").onclick=e=>{const b=e.target.closest("[data-k]");if(!b)return;
     const k=b.dataset.k,p=loadProg(k)||{};
-    S={lang:k,ph:["teams","reading","more"].includes(p.ph)?p.ph:"letters",rb:rbFrom(p),idx:Math.min(p.idx||0,LANGS[k].letters.length-1),tidx:Math.min(p.tidx||0,LANGS[k].teams.length-1),score:calcScore(p),got:p.got||[],tgot:p.tgot||[],miss:p.miss||[],tmiss:p.tmiss||[]};
+    S={lang:k,ph:["teams","reading","more"].includes(p.ph)?p.ph:"letters",rb:rbFrom(p),qz:p.qz||{},idx:Math.min(p.idx||0,LANGS[k].letters.length-1),tidx:Math.min(p.tidx||0,LANGS[k].teams.length-1),score:calcScore(p),got:p.got||[],tgot:p.tgot||[],miss:p.miss||[],tmiss:p.tmiss||[]};
     micReady?learn():micSetup()};
 }
 
@@ -1156,6 +1167,7 @@ function enConj(v,k){
     past:i=>v==="be"?bpa[i]:p,pastcont:i=>bpa[i]+" "+ing,pastperf:()=>"had "+pp,pastperfcont:()=>"had been "+ing,
     fut:()=>"will "+b,goingto:i=>bp[i]+" going to "+b,futcont:()=>"will be "+ing,futperf:()=>"will have "+pp,futperfcont:()=>"will have been "+ing,
     cond:()=>"would "+b,condperf:()=>"would have "+pp,subj:()=>b,subjpast:()=>v==="be"?"were":p}[k];
+  if(v==="be"&&["futcont","presperfcont","pastperfcont","futperfcont"].includes(k))return P.map(pr=>pr+" — not normally used with “be”");
   return P.map((pr,i)=>(k==="subj"?"(that) ":k==="subjpast"?"if ":"")+pr+" "+f(i));
 }
 /* Spanish */
@@ -1273,7 +1285,7 @@ es:{verbs:[["hablar","to speak"],["comer","to eat"],["vivir","to live"],["tener"
   ["","Passive voice","Use ser + participio. The participle agrees with the subject. In everyday Spanish, the pasiva refleja with se is more common.","ser + participio (+ por …) · se + verb in the 3rd person",["La casa fue construida en 1990.=The house was built in 1990.","Se habla español.=Spanish is spoken.","Se venden pisos.=Flats for sale."],
    {h:["Tense","Passive with ser"],s:[1],r:[["Presente","El libro es leído."],["Indefinido","El libro fue leído."],["Imperfecto","El libro era leído."],["Perfecto","El libro ha sido leído."],["Futuro","El libro será leído."],["Feminine plural","Las cartas fueron escritas."]]}],
   ["","Reported speech","After a past reporting verb (dijo, preguntó), the tense moves back, and pronouns and time words change.","dijo que … · preguntó si … · preguntó dónde / cuándo …",["hoy → aquel día","mañana → al día siguiente","ayer → el día anterior","aquí → allí"],
-   {h:["Directo","Indirecto"],s:[0,1],r:[["«Estoy cansado.»","Dijo que estaba cansado."],["«Trabajo aquí.»","Dijo que trabajaba allí."],["«He comido.»","Dijo que había comido."],["«Compré pan.»","Dijo que había comprado pan."],["«Iré mañana.»","Dijo que iría al día siguiente."],["«Ven.»","Me dijo que fuera."],["«¿Tienes hambre?»","Me preguntó si tenía hambre."],["«¿Dónde vives?»","Me preguntó dónde vivía."]]}],
+   {h:["Directo","Indirecto"],s:[0,1],r:[["«Estoy cansado.»","Dijo que estaba cansado."],["«Trabajo aquí.»","Dijo que trabajaba allí."],["«He comido.»","Dijo que había comido."],["«Compré pan.»","Dijo que había comprado pan."],["«Iré mañana.»","Dijo que iría al día siguiente."],["«Ven.»","Me dijo que viniera."],["«¿Tienes hambre?»","Me preguntó si tenía hambre."],["«¿Dónde vives?»","Me preguntó dónde vivía."]]}],
   ["","Negation","Put no before the verb, and before any object pronouns. Spanish uses double negatives: no + verb + nada, nadie or nunca.","no + (pronoun) + verb · no … nada / nadie / nunca / ninguno",["No lo sé.=I don't know (it).","No veo a nadie.=I don't see anyone."],
    {h:["Afirmativo","Negativo"],s:[0,1],r:[["Hablo inglés.","No hablo inglés."],["Lo sé.","No lo sé."],["Tengo algo.","No tengo nada."],["Viene alguien.","No viene nadie."],["Siempre como aquí.","Nunca como aquí."],["También quiero.","Tampoco quiero."],["Hay alguno.","No hay ninguno."]]}],
   ["","Questions","Questions start with ¿ and end with ?. For yes/no questions, the word order can stay the same and your voice rises at the end. Question words always have an accent.","¿(question word) + verb + subject?",["¿Dónde vives?=Where do you live?","¿Qué quieres?=What do you want?","¿Cuándo llegas?=When do you arrive?","¿Por qué estudias español?=Why are you studying Spanish?","¿Cómo te llamas?=What's your name?","¿Cuánto cuesta?=How much is it?"],
@@ -1387,21 +1399,32 @@ function hub(){
   $("#hubs").onclick=e=>{const b=e.target.closest("[data-h]");if(b&&!b.disabled&&b.dataset.h==="0")grammar()};
 }
 
-function grammar(){
+function grammar(openTitle){
   run++;const lg=LG(),G=GRAM[S.lang];document.body.className=lg.cls;
   let n=0;
   const exHTML=ex=>`<div class="chips">${ex.map(s=>{const e=pw(s);return `<button class="chip" data-say="${esc(speakable(e.w))}">${SPK_SVG}<b lang="${S.lang}">${esc(e.w)}</b>${e.m?`<span>${esc(e.m)}</span>`:""}</button>`}).join("")}</div>`;
-  const item=(it,gi,ii)=>{const [k,t,d,f,ex,tb]=it;n++;
-    return `<details class="gi" data-g="${gi}" data-i="${ii}"><summary><span class="rn">(${roman(n)})</span><span class="gt" lang="${S.lang}">${esc(t)}</span><span class="chev" aria-hidden="true"></span></summary>
+  const item=(it,gi,ii)=>{const [k,t,d,f,ex,tb]=it;n++;const bq=qzBest(t);
+    return `<details class="gi" data-g="${gi}" data-i="${ii}" data-t="${esc(t)}"><summary><span class="rn">(${roman(n)})</span><span class="gt" lang="${S.lang}">${esc(t)}</span>${bq!=null?`<span class="qbadge">${bq}/${QN}</span>`:""}<span class="chev" aria-hidden="true"></span></summary>
     <div class="gbody"><p>${esc(d)}</p><div class="form"><span class="label">How to form it</span><p lang="${S.lang}">${esc(f)}</p></div>
     <span class="label">Examples · tap to hear</span>${exHTML(ex)}
     ${k?`<button class="btn ghost more" data-k="${k}">Show verb conjugation</button><div class="extra" hidden></div>`:tb?`<button class="btn ghost more" data-t="1">Show ${/Plural|Feminine|Adjectives|Adverbs/.test(t)?"word changes":"more examples"}</button><div class="extra" hidden></div>`:""}
+    <div class="quizrow"><button class="btn quizb" data-qz="${ii}" data-qg="${gi}">Take the quiz · ${QN} questions</button><span class="label">${bq!=null?`Best score ${bq}/${QN}`:"Not taken yet"}</span></div>
     </div></details>`};
+  const items=allItems(S.lang),doneN=items.filter(it=>qzBest(it[1])!=null).length,allDone=doneN===items.length,fb=qzBest(FINAL_ID);
   $("#app").innerHTML=`${topbar()}${phaseTabs()}
-  <section style="display:flex;flex-direction:column;gap:6px"><button class="btn ghost" id="toHub" style="align-self:flex-start">← What's next</button><span class="label">Master Grammar · ${lg.name}</span><h2>Tap a topic to open it</h2></section>
-  <div class="glist" id="glist">${G.groups.map((g,gi)=>`<section class="gg"><h3 class="label">${esc(g[0])}</h3>${g[1].map((it,ii)=>item(it,gi,ii)).join("")}</section>`).join("")}</div>`;
+  <section style="display:flex;flex-direction:column;gap:6px"><button class="btn ghost" id="toHub" style="align-self:flex-start">← What's next</button><span class="label">Master Grammar · ${lg.name}</span><h2>Tap a topic to open it</h2><p class="label">Quizzes done: ${doneN} of ${items.length}</p></section>
+  <div class="glist" id="glist">${G.groups.map((g,gi)=>`<section class="gg"><h3 class="label">${esc(g[0])}</h3>${g[1].map((it,ii)=>item(it,gi,ii)).join("")}</section>`).join("")}
+  <section class="panel final ${allDone?"":"locked"}"><span class="label">Final quiz · intermediate · ${FINALQ[S.lang].length} questions</span>
+    <h3>All grammar topics</h3>
+    <p>${allDone?"Questions that mix every topic you've studied, at an intermediate level. 1 point for each correct answer.":`Unlocks when you've taken every topic quiz. ${items.length-doneN} to go.`}</p>
+    ${allDone?`<div class="quizrow"><button class="btn" id="finalB">Start the final quiz</button><span class="label">${fb!=null?`Best score ${fb}/${FINALQ[S.lang].length}`:"Not taken yet"}</span></div>`:""}
+  </section></div>`;
   wireTop();wirePhaseTabs();$("#toHub").onclick=hub;
   const list=$("#glist");wireChips(list);
+  if($("#finalB"))$("#finalB").onclick=()=>quiz(FINAL_ID,"All grammar topics",finalQs(),()=>grammar());
+  if(openTitle){const d=[...list.querySelectorAll(".gi")].find(x=>x.dataset.t===openTitle);if(d){d.open=true;d.scrollIntoView({block:"start"})}}
+  list.addEventListener("click",e=>{const qb=e.target.closest(".quizb");if(!qb)return;
+    const it=G.groups[+qb.dataset.qg][1][+qb.dataset.qz];quiz(it[1],it[1],quizFor(S.lang,it),()=>grammar(it[1]))});
   list.addEventListener("click",e=>{
     const b=e.target.closest(".more");if(!b)return;
     const box=b.nextElementSibling;if(!box.hidden){box.hidden=true;b.textContent=b.dataset.k?"Show verb conjugation":b.textContent.replace("Hide","Show");return}
@@ -1421,6 +1444,153 @@ function grammar(){
   });
 }
 
+/* ---------------- QUIZ QUESTIONS ---------------- */
+// "question|correct answer|wrong|wrong|wrong"
+const OQ={
+en:{
+"Passive voice":["Choose the passive: “They clean the room every day.”|The room is cleaned every day.|The room cleans every day.|The room is cleaning every day.|The room was clean every day.","Choose the passive: “Someone stole my bike.”|My bike was stolen.|My bike has stolen.|My bike was stole.|My bike is stealing.","English ___ all over the world.|is spoken|speaks|is speaking|spoken","The new bridge ___ next year.|will be built|will build|is building|will built","The letters ___ yesterday.|were sent|was sent|sent|have sent","Which sentence is passive?|The cake was eaten by the children.|The children ate the cake.|The children are eating the cake.|The cake looks delicious.","The room ___ at the moment.|is being cleaned|is cleaning|is been cleaned|cleaned","Our car has already ___ .|been repaired|repaired|being repaired|be repaired","In a passive sentence, the person who does the action is introduced with…|by|from|of|with","This song ___ by millions of people.|was downloaded|downloaded|was download|has downloading"],
+"Reported speech":["“I am tired,” she said. → She said she ___ tired.|was|is|has been|be","“I will call you,” he said. → He said he ___ call me.|would|will|shall|can","“I have finished,” Tom said. → Tom said he ___ finished.|had|has|have|was","“I saw the film,” she said. → She said she ___ the film.|had seen|has seen|see|was seeing","“Are you hungry?” he asked. → He asked ___ hungry.|if I was|was I|if was I|am I","“Where do you live?” she asked. → She asked where ___ .|I lived|did I live|do I live|lived I","“I can swim,” he said. → He said he ___ swim.|could|can|may|would can","In reported speech, “tomorrow” usually becomes…|the next day|yesterday|the day before|today","“I'm working,” she said. → She said she ___ working.|was|is|has|were","He ___ me that he was busy.|told|said|asked|spoke"],
+"Negation":["Make it negative: “I like coffee.”|I don't like coffee.|I not like coffee.|I doesn't like coffee.|I no like coffee.","Make it negative: “She works here.”|She doesn't work here.|She don't work here.|She doesn't works here.|She not works here.","Make it negative: “They went out.”|They didn't go out.|They didn't went out.|They don't went out.|They not went out.","Make it negative: “He is happy.”|He isn't happy.|He doesn't happy.|He don't is happy.|He not is happy.","Make it negative: “We have finished.”|We haven't finished.|We don't have finished.|We didn't finished.|We not have finished.","Make it negative: “I will come.”|I won't come.|I willn't come.|I don't will come.|I will no come.","Make it negative: “You can swim.”|You can't swim.|You don't can swim.|You can no swim.|You doesn't can swim.","Choose the correct sentence.|I never eat meat.|I don't never eat meat.|I not never eat meat.|I never don't eat meat.","There is ___ in the fridge.|nothing|anything|no thing|nobody","Choose the correct sentence.|Nobody called.|Nobody didn't call.|Anybody called not.|Nobody not called."],
+"Questions":["Make a question: “You like tea.”|Do you like tea?|Like you tea?|Does you like tea?|Do you likes tea?","Make a question: “She works here.”|Does she work here?|Does she works here?|Do she work here?|Works she here?","Make a question: “They left early.”|Did they leave early?|Did they left early?|Do they left early?|Left they early?","Make a question: “He is tired.”|Is he tired?|Does he tired?|Does he be tired?|Do he is tired?","Make a question: “You can drive.”|Can you drive?|Do you can drive?|Can drive you?|Do can you drive?","___ does she live? — In Rome.|Where|When|Who|Why","___ is your birthday? — In May.|When|Where|What|Who","Choose the correct question.|What do you want?|What you want?|What does you want?|What want you?","___ is that man? — He's my teacher.|Who|Which|Whose|Where","Choose the correct question.|How much does it cost?|How much it costs?|How much does it costs?|How much cost it?"],
+"Adjectives":["Choose the correct sentence.|I have a red car.|I have a car red.|I have a reds car.|I have red a car.","My brother is ___ than me.|taller|more tall|tallest|the taller","This is the ___ day of my life.|best|goodest|better|most good","Today is ___ than yesterday.|worse|badder|more bad|worst","Comparative of “happy”:|happier|happyer|more happy|happiest","Comparative of “big”:|bigger|biger|more big|biggest","This is the ___ beach in Spain.|most beautiful|beautifullest|more beautiful|beautifulest","Choose the correct phrase.|nice people|nices people|people nices|nice peoples","Superlative of “far”:|farthest|farrest|most far|farer","She is as ___ as her sister.|tall|taller|tallest|more tall"],
+"Adverbs":["Adverb of “quick”:|quickly|quickily|quicker|quickful","Adverb of “happy”:|happily|happyly|happly|happier","Adverb of “good”:|well|goodly|good|better","She speaks very ___ .|slowly|slow|slowlier|slowness","He drives ___ .|carefully|careful|carefuly|care","He works very ___ .|hard|hardly|hardy|hardful","Adverb of “gentle”:|gently|gentlely|gentily|gentle","Choose the correct sentence.|I always get up early.|I get always up early.|I get up always early.|Always get I up early.","The train arrived ___ .|late|lately|latly|latily","Adverb of “fast”:|fast|fastly|fastily|fastful"],
+"Plural formation":["Plural of “box”:|boxes|boxs|boxies|boxen","Plural of “city”:|cities|citys|cityes|citis","Plural of “child”:|children|childs|childes|childrens","Plural of “knife”:|knives|knifes|knifs|knive","Plural of “man”:|men|mans|mens|manes","Plural of “boy”:|boys|boies|boyes|boyz","Plural of “foot”:|feet|foots|feets|footes","Plural of “sheep”:|sheep|sheeps|sheepes|shoop","Plural of “potato”:|potatoes|potatos|potatoe|potaties","Plural of “mouse”:|mice|mouses|mices|meese"],
+"Feminine formation":["Female form of “actor”:|actress|actoress|actrice|actora","Female form of “king”:|queen|kingess|kinga|kingina","Female form of “waiter”:|waitress|waiteress|waitrice|waiterin","Female form of “prince”:|princess|princes|princesse|prinsess","Female form of “husband”:|wife|husbandess|husbanda|husbandine","Female form of “uncle”:|aunt|uncless|unclea|unclina","Which word is used for both men and women?|teacher|waitress|actress|princess","For a woman, “he” becomes…|she|her|hers|shes","Female form of “father”:|mother|fatheress|fathera|fatherine","Choose the correct sentence about a woman doctor.|She is a doctor.|She is a doctress.|She is a doctora.|She is a doctoress."]},
+es:{
+"Passive voice":["La casa ___ construida en 1990.|fue|ha|estuvo|era de","Las cartas fueron ___ ayer.|escritas|escrito|escritos|escribidas","El libro es leído ___ muchos estudiantes.|por|para|de|con","___ habla español.|Se|Es|Lo|Le","___ venden pisos.|Se|Es|Le|Lo","Passive of «Los niños comen la fruta.»|La fruta es comida por los niños.|La fruta come por los niños.|La fruta es comido por los niños.|La fruta está comiendo los niños.","La ciudad ___ fundada por los romanos.|fue|fueron|está|es de","Los museos serán ___ mañana.|abiertos|abiertas|abierto|abridos","Which passive is most common in everyday Spanish?|se + verb|ser + participio|estar + gerundio|haber + participio","El problema ha ___ resuelto.|sido|estado|ser|siendo"],
+"Reported speech":["«Estoy cansado.» → Dijo que ___ cansado.|estaba|estuve|estar|esté","«He comido.» → Dijo que ___ comido.|había|ha|hubo|habría","«Iré mañana.» → Dijo que ___ al día siguiente.|iría|va|fue|vaya","«Compré pan.» → Dijo que ___ pan.|había comprado|compra|comprará|compre","«¿Tienes hambre?» → Me preguntó ___ tenía hambre.|si|que|qué|cuando","«¿Dónde vives?» → Me preguntó ___ vivía.|dónde|si|que|cuál","«Ven.» → Me dijo que ___ .|viniera|venga|vine|vendría","In reported speech, «mañana» usually becomes…|al día siguiente|ayer|el día anterior|hoy","«Trabajo aquí.» → Dijo que trabajaba ___ .|allí|aquí|hoy|mañana","«Puedo ayudarte.» → Dijo que ___ ayudarme.|podía|pudo|pueda|podrá ayer"],
+"Negation":["Make it negative: «Hablo inglés.»|No hablo inglés.|Hablo no inglés.|No hablo no inglés.|Hablo inglés no.","Make it negative: «Lo sé.»|No lo sé.|Lo no sé.|Lo sé no.|No sé lo.","Make it negative: «Tengo algo.»|No tengo nada.|No tengo algo.|Tengo nada no.|No tengo ningo.","Make it negative: «Viene alguien.»|No viene nadie.|No viene alguien.|Viene nadie no.|No viene ninguien.","Make it negative: «Siempre como aquí.»|Nunca como aquí.|Nunca no como aquí.|Como nunca no aquí.|Siempre no como aquí.","«Yo tampoco.» means…|Me neither.|Me too.|Never me.|Not me always.","No hay ___ problema.|ningún|ninguno|nada|nadie","Choose the correct sentence.|No veo a nadie.|Veo a nadie.|No veo a alguien.|No veo nadie a.","Make it negative: «También quiero.»|Tampoco quiero.|No también quiero.|También no quiero.|Quiero tampoco no.","Choose the correct sentence.|No me gusta el café.|Me no gusta el café.|Me gusta no el café.|Me gusta el café no."],
+"Questions":["How is a Spanish question written?|¿ … ?|? … ?|¿ … ¿|only ? at the end","___ vives? — En Madrid.|¿Dónde|¿Cuándo|¿Quién|¿Cuánto","___ te llamas? — Me llamo Ana.|¿Cómo|¿Qué|¿Cuál|¿Dónde","___ cuesta? — Diez euros.|¿Cuánto|¿Cómo|¿Qué tal|¿Cuál","___ es ella? — Es mi hermana.|¿Quién|¿Qué|¿Dónde|¿Cuándo","___ estudias español? — Porque me gusta.|¿Por qué|¿Porque|¿Para|¿Qué","___ prefieres, el rojo o el azul?|¿Cuál|¿Quién|¿Cómo|¿Dónde","Question words in Spanish always have…|a written accent|a capital letter|an article|the word que after them","Make a question: «Tienes hermanos.»|¿Tienes hermanos?|¿Es tienes hermanos?|¿Hay tienes hermanos?|¿Do tienes hermanos?","___ llegas? — Mañana.|¿Cuándo|¿Dónde|¿Cuál|¿Quién"],
+"Adjectives":["una casa ___ (rojo)|roja|rojo|rojas|rojos","unos coches ___ (rápido)|rápidos|rápidas|rápido|rápida","una chica ___ (feliz)|feliz|feliza|felices|felize","los árboles ___ (grande)|grandes|grande|grandas|grandos","Feminine of «trabajador»:|trabajadora|trabajadore|trabajadriz|trabajadorina","las mujeres ___ (español)|españolas|españoles|española|españolos","Where do most Spanish adjectives go?|after the noun|before the noun|at the end of the sentence|before the article","Él es más alto ___ yo.|que|de|como|than","unas camisas ___ (azul)|azules|azuls|azulas|azul","Plural of «feliz»:|felices|felizes|felizs|felizas"],
+"Adverbs":["Adverb of «rápido»:|rápidamente|rapidomente|rápidomente|rápidamento","Adverb of «fácil»:|fácilmente|facilamente|fácilemente|fácilmento","Adverb of «bueno»:|bien|buenomente|buenmente|bonito","Adverb of «malo»:|mal|malomente|malmente|malo","Habla muy ___ .|lentamente|lentomente|lentamento|lentemente","Adverbs ending in -mente are built on…|the feminine adjective|the masculine adjective|the plural adjective|the verb","Adverb of «claro»:|claramente|claromente|clarmente|claridad","Adverb of «feliz»:|felizmente|felizamente|felicemente|felizmento","Siempre llega ___ .|tarde|tardamente|tardío|tardemente","Does «rápidamente» keep the accent of «rápido»?|Yes, the accent stays|No, it loses it|Only in the plural|Only in questions"],
+"Plural formation":["Plural of «la casa»:|las casas|los casas|las cases|la casas","Plural of «la ciudad»:|las ciudades|las ciudads|los ciudades|las ciudadas","Plural of «el lápiz»:|los lápices|los lápizes|los lápizs|los lápiz","Plural of «la canción»:|las canciones|las cancións|las canciónes|los canciones","Plural of «el joven»:|los jóvenes|los jovenes|los jóvens|los joven","Plural of «el lunes»:|los lunes|los luneses|los lunés|las lunes","Plural of «el árbol»:|los árboles|los árbols|los árbolos|las árboles","Plural of «el libro»:|los libros|los libres|las libros|los libroes","Plural of «el pez»:|los peces|los pezes|los pezs|los pez","Plural of «el hotel»:|los hoteles|los hotels|los hotel|las hoteles"],
+"Feminine formation":["Feminine of «el niño»:|la niña|la niñe|la niño|el niña","Feminine of «el profesor»:|la profesora|la profesor|la profesriz|la profesorina","Feminine of «el estudiante»:|la estudiante|la estudiantiz|la estudiantesa|el estudiante","Feminine of «el actor»:|la actriz|la actora|la actresa|la actore","Feminine of «el rey»:|la reina|la reya|la reyesa|la rey","Feminine of «el artista»:|la artista|la artisto|la artistesa|la artistiza","Feminine of «el padre»:|la madre|la padra|la padresa|la padre","Feminine of «el español»:|la española|la españole|la españolesa|la español","Feminine of «el hombre»:|la mujer|la hombra|la hombresa|la hombre","Feminine of «el gato»:|la gata|la gate|la gatriz|la gato"]},
+fr:{
+"Passive voice":["La maison ___ construite en 1990.|a été|est été|a|avait","Les lettres sont ___ .|écrites|écrits|écrite|écrivées","Ce livre est lu ___ beaucoup d'élèves.|par|de|pour|avec","Passive of «Le chat mange la souris.»|La souris est mangée par le chat.|La souris mange par le chat.|La souris est mangé par le chat.|La souris a mangé le chat.","La réunion ___ demain.|sera annulée|annulera|est annulant|sera annulé","In speech, French often avoids the passive by using…|on|il y a|ça|y","Les portes ___ fermées hier soir.|ont été|sont été|ont|étaient été","Le gâteau a été ___ par ma sœur.|fait|faite|faits|fais","Which verb forms the passive?|être|avoir|aller|venir","La voiture ___ réparée la semaine prochaine.|sera|serait été|a été demain|est été"],
+"Reported speech":["«Je suis fatigué.» → Il a dit qu'il ___ fatigué.|était|fut|sera|soit","«J'ai fini.» → Elle a dit qu'elle ___ fini.|avait|a|aurait|ait","«Je viendrai.» → Il a dit qu'il ___ .|viendrait|vint|vient|vienne","«Tu as faim ?» → Il m'a demandé ___ j'avais faim.|si|que|qu'est-ce que|est-ce que","«Où habites-tu ?» → Elle m'a demandé ___ j'habitais.|où|si|que|qu'où","«Viens !» → Il m'a dit ___ venir.|de|à|que|pour","In reported speech, «demain» becomes…|le lendemain|la veille|hier|ce jour-là","In reported speech, «hier» becomes…|la veille|le lendemain|demain|aujourd'hui","«Je travaille ici.» → Elle a dit qu'elle travaillait ___ .|là|demain|hier|aujourd'hui","«Qu'est-ce que tu veux ?» → Il m'a demandé ___ je voulais.|ce que|qu'est-ce que|quoi que|est-ce que"],
+"Negation":["Make it negative: «Je parle anglais.»|Je ne parle pas anglais.|Je parle ne pas anglais.|Je ne pas parle anglais.|Je pas parle ne anglais.","Make it negative: «J'aime le café.»|Je n'aime pas le café.|Je ne aime pas le café.|Je n'aime le café pas.|Je pas n'aime le café.","Make it negative: «J'ai fini.»|Je n'ai pas fini.|Je n'ai fini pas.|Je ne pas ai fini.|J'ai ne pas fini.","«Je ne mange plus.» means…|I don't eat any more.|I eat more.|I never eat.|I eat nothing.","Make it negative: «Je vois quelque chose.»|Je ne vois rien.|Je ne vois pas quelque chose.|Je vois rien ne.|Je ne vois personne.","Make it negative: «Quelqu'un vient.»|Personne ne vient.|Personne vient pas.|Ne personne vient.|Quelqu'un ne vient personne.","Make it negative: «Je vais toujours au cinéma.»|Je ne vais jamais au cinéma.|Je ne vais pas jamais au cinéma.|Je vais ne jamais au cinéma.|Je jamais vais au cinéma.","Before a vowel, ne becomes…|n'|ne'|nu|non","In everyday speech, which part of the negation is often dropped?|ne|pas|both|neither","Il n'a ___ d'argent.|pas|pas de|non|aucun pas"],
+"Questions":["Formal question with inversion: «Tu parles français.»|Parles-tu français ?|Tu-parles français ?|Parles tu-français ?|Est-ce tu parles français ?","Neutral question: «Tu viens.»|Est-ce que tu viens ?|Est-ce tu viens ?|Que est-ce tu viens ?|Est-ce que viens-tu ?","Inversion with il: «Il parle français.»|Parle-t-il français ?|Parle-il français ?|Parle il-t français ?|Il-parle français ?","___ habites-tu ? — À Lyon.|Où|Quand|Qui|Combien","___ ça coûte ? — Dix euros.|Combien|Comment|Quoi|Quel","___ tu t'appelles ? — Léa.|Comment|Qui|Quel|Où","___ est-ce que tu veux ? — Un café.|Qu'|Qui|Quoi|Quel","___ est-ce que tu apprends le français ? — Pour mon travail.|Pourquoi|Parce que|Pour|Comment","___ heure est-il ?|Quelle|Quel|Qu'|Combien","In an informal question, you can simply…|raise your voice at the end|add pas|put the verb last|add que at the start"],
+"Adjectives":["une voiture ___ (vert)|verte|vert|verts|vertes","des filles ___ (heureux)|heureuses|heureux|heureuse|heureuxes","une ___ maison (beau)|belle|beau|beaue|bel","Feminine of «actif»:|active|actife|activve|actif","Feminine of «bon»:|bonne|bone|bonee|bon","des livres ___ (nouveau)|nouveaux|nouveaus|nouvelles|nouveau","Feminine of «blanc»:|blanche|blance|blanque|blanc","Where does «petit» go?|before the noun: un petit chat|after the noun: un chat petit|at the end of the sentence|before the article","Elle est plus grande ___ moi.|que|de|comme|qu'à","un ___ ami (beau, before a vowel)|bel|beau|belle|beaux"],
+"Adverbs":["Adverb of «lent»:|lentement|lentment|lentemment|lentamente","Adverb of «vrai»:|vraiment|vraiement|vraimment|vraiamment","Adverb of «courant»:|couramment|courantement|couremment|courammant","Adverb of «évident»:|évidemment|évidamment|évidentement|évidemant","Adverb of «bon»:|bien|bonment|bonement|bon","Adverb of «mauvais»:|mal|mauvaisement|mauvaisment|mauvais","Adverb of «heureux»:|heureusement|heureuxment|heureusemment|heureuxement","Adverbs are usually formed from…|the feminine adjective + -ment|the masculine plural + -ment|the verb + -ment|the noun + -ment","Adverb of «poli»:|poliment|polimment|polement|poliement","Il parle ___ (rapide).|rapidement|rapidamente|rapidment|rapidemment"],
+"Plural formation":["Plural of «un livre»:|des livres|des livrex|des livre|des livrees","Plural of «un gâteau»:|des gâteaux|des gâteaus|des gâteau|des gâteauxs","Plural of «un journal»:|des journaux|des journals|des journales|des journaus","Plural of «un prix»:|des prix|des prixs|des prixes|des prixe","Plural of «un jeu»:|des jeux|des jeus|des jeues|des jeu","Plural of «un œil»:|des yeux|des œils|des œux|des yeuxs","Plural of «un nez»:|des nez|des nezs|des nezes|des neux","Plural of «un travail»:|des travaux|des travails|des travailles|des travaus","Is the plural -s pronounced in French?|No, it's silent|Yes, always|Only after a vowel|Only in questions","Plural of «le bus»:|les bus|les buses|les buss|les bux"],
+"Feminine formation":["Feminine of «un ami»:|une amie|une amiee|une amia|une amine","Feminine of «un acteur»:|une actrice|une acteuse|une acteure|une actresse","Feminine of «un vendeur»:|une vendeuse|une vendrice|une vendeure|une vendeuresse","Feminine of «un musicien»:|une musicienne|une musiciene|une musicienn|une musiciaine","Feminine of «un boulanger»:|une boulangère|une boulangeure|une boulangerre|une boulangeuse","Feminine of «un élève»:|une élève|une élèvee|une élèvesse|une élèveuse","Feminine of «un roi»:|une reine|une roie|une roiesse|une roine","Feminine of «un homme»:|une femme|une homme|une hommesse|une hommine","Feminine of «un chanteur»:|une chanteuse|une chantrice|une chanteure|une chanteurine","Feminine of «un étudiant»:|une étudiante|une étudiantte|une étudiantine|une étudianne"]},
+de:{
+"Passive voice":["Das Haus ___ gebaut.|wird|ist werden|hat|werdet","Das Buch ___ 1990 geschrieben.|wurde|wird|hat|war werden","Hier ___ Deutsch gesprochen.|wird|hat|werden|habe","Der Brief ist geschrieben ___ .|worden|geworden|werden|wurde","The person who does the action is introduced with…|von|für|mit|bei","Passive of „Der Koch kocht die Suppe.“|Die Suppe wird vom Koch gekocht.|Die Suppe kocht vom Koch.|Die Suppe wird den Koch gekocht.|Die Suppe ist kochen vom Koch.","Die Fenster ___ gestern geputzt.|wurden|wurde|werden gestern|haben","Der Brief muss heute geschrieben ___ .|werden|wird|worden|geworden","Which verb forms the Vorgangspassiv?|werden|sein|haben|bleiben","Die Stadt ___ von den Römern gegründet.|wurde|hat|wird morgen|ist werden"],
+"Reported speech":["„Ich bin müde.“ → Er sagt, er ___ müde.|sei|ist gewesen|seid|wäre gewesen","„Ich habe keine Zeit.“ → Sie sagt, sie ___ keine Zeit.|habe|hat gehabt|hätte gehabt|haben","„Wir haben Hunger.“ → Sie sagen, sie ___ Hunger.|hätten|haben gehabt|hatten gehabt|habe","„Kommst du?“ → Sie fragt, ___ ich komme.|ob|dass|wenn|wie","„Wo wohnst du?“ → Er fragt, ___ ich wohne.|wo|ob|dass|was","„Ich komme morgen.“ → Er sagt, er ___ morgen.|komme|kommen|kam|gekommen","Konjunktiv I in reported speech is used mainly in…|the news and formal writing|text messages|questions|commands","In everyday speech: Er sagt, ___ er müde ist.|dass|ob|wenn|weil","„Ich habe es gemacht.“ → Er sagt, er ___ es gemacht.|habe|hat gehabt|hatte gehabt|haben","Konjunktiv I of „sein“ for er / sie / es:|sei|ist|wäre gewesen|seie"],
+"Negation":["Ich habe ___ Auto.|kein|nicht|keinen|nicht ein","Ich trinke ___ Kaffee.|keinen|kein|keines|keine","Das ist ___ gut.|nicht|kein|keine|nichts","Ich arbeite heute ___ .|nicht|kein|keine|nie nicht","Make it negative: „Ich sehe etwas.“|Ich sehe nichts.|Ich sehe nicht etwas.|Ich sehe kein etwas.|Ich nicht sehe etwas.","Make it negative: „Jemand kommt.“|Niemand kommt.|Nicht jemand kommt.|Kein jemand kommt.|Jemand kommt nichts.","Make it negative: „Ich gehe immer dorthin.“|Ich gehe nie dorthin.|Ich gehe immer nicht dorthin.|Ich gehe kein dorthin.|Ich nie gehe dorthin.","Ich habe ___ Zeit.|keine|kein|nicht|keinen","kein negates…|nouns with ein or no article|verbs|adjectives|whole sentences","Er hat ___ Geschwister.|keine|kein|nicht|keinen"],
+"Questions":["Make a question: „Du kommst morgen.“|Kommst du morgen?|Morgen du kommst?|Kommst morgen du?|Du morgen kommst?","Make a question: „Er spricht Deutsch.“|Spricht er Deutsch?|Er Deutsch spricht?|Sprecht er Deutsch?|Spricht Deutsch er?","___ wohnst du? — In Köln.|Wo|Wann|Wer|Was","___ beginnt der Kurs? — Um neun.|Wann|Wo|Wie|Wer","___ heißt du? — Anna.|Wie|Was|Wer|Wo","___ lernst du Deutsch? — Für meine Arbeit.|Warum|Wie viel|Wann|Woher","___ kostet das? — Zehn Euro.|Wie viel|Wie|Was viel|Wann","In a W-question, the verb comes…|second|first|last|third","Choose the correct question.|Was machst du heute?|Was du machst heute?|Was machst heute du?|Machst was du heute?","___ kommst du? — Aus Spanien.|Woher|Wohin|Wo|Wann"],
+"Adjectives":["der ___ Mann (groß, Nominativ)|große|großen|großer|großes","Ich sehe den ___ Mann. (groß)|großen|große|großer|großes","das ___ Haus (klein, Nominativ)|kleine|kleinen|kleiner|kleines","ein ___ Haus (klein)|kleines|kleine|kleinen|kleiner","ein ___ Mann (alt)|alter|alte|alten|altes","mit der ___ Frau (jung)|jungen|junge|junger|junges","Das Haus ist ___ .|groß|große|großes|großen","die ___ Kinder (klein, Nominativ Plural)|kleinen|kleine|kleiner|kleines","Ich bin ___ als du. (groß)|größer|großer|mehr groß|am größten","eine ___ Idee (gut)|gute|guter|gutes|guten"],
+"Adverbs":["Er fährt ___ . (fast)|schnell|schnelllich|schnelle|schnellem","Sie singt ___ . (well)|gut|gutlich|gute|guten","How are most German adverbs formed?|The adjective is used unchanged|Add -lich|Add -mente|Add -ly","Ich lese ___ . (I like reading.)|gern|gut|lieb|gernlich","Wir gehen ___ spazieren. (often)|oft|offen|oftlich|häufiglich","Sprich bitte ___ ! (quietly)|leise|leiselich|leiser|leisem","Er lächelt ___ . (happily)|glücklich|glücklichlich|glücke|glücklichen","Comparative of „gern“:|lieber|gerner|mehr gern|gernlicher","Sie arbeitet ___ . (hard)|hart|härtlich|harte|harten","Er kommt ___ . (late)|spät|späte|spätlich|spätem"],
+"Plural formation":["Plural of „der Tag“:|die Tage|die Tags|die Täge|die Tagen","Plural of „die Frau“:|die Frauen|die Fraue|die Fraus|die Fräuer","Plural of „das Kind“:|die Kinder|die Kinde|die Kinds|die Kindern","Plural of „das Haus“:|die Häuser|die Hause|die Hausen|die Häuse","Plural of „der Apfel“:|die Äpfel|die Apfels|die Äpfeln|die Apfel","Plural of „die Hand“:|die Hände|die Handen|die Hands|die Händer","Plural of „das Auto“:|die Autos|die Auten|die Autoe|die Autoer","Plural of „die Lampe“:|die Lampen|die Lampes|die Lämpe|die Lampe","Plural of „der Lehrer“:|die Lehrer|die Lehrern|die Lehrers|die Lehrere","The plural article is always…|die|der|das|den"],
+"Feminine formation":["Feminine of „der Lehrer“:|die Lehrerin|die Lehrerine|die Lehrere|die Lehrerinnen","Feminine of „der Arzt“:|die Ärztin|die Arztin|die Ärzte|die Arztine","Feminine of „der Koch“:|die Köchin|die Kochin|die Köche|die Kochine","Feminine of „der Freund“:|die Freundin|die Freunde|die Freundine|die Freundinn","Feminine of „der Student“:|die Studentin|die Studente|die Studentine|die Studentinne","Feminine of „der Kollege“:|die Kollegin|die Kollegein|die Kollegine|die Kollegen","Plural of „die Lehrerin“:|die Lehrerinnen|die Lehrerinen|die Lehrerins|die Lehrerin","Feminine of „der Mann“:|die Frau|die Männin|die Mannin|die Männer","Feminine of „der Franzose“:|die Französin|die Franzosin|die Französe|die Franzosein","Feminine of „der Vater“:|die Mutter|die Väterin|die Vaterin|die Vaterine"]}
+};
+const FINALQ={
+en:["By the time we arrived, the film ___ .|had already started|has already started|already starts|was already start","I ___ here since 2019.|have lived|am living|lived|live","If I ___ more time, I would learn Japanese.|had|have|would have|will have","This time next week, we ___ on the beach.|will be lying|will lie down yesterday|are lain|lie yesterday","She asked me where I ___ .|worked|work did|did work|do work","The museum ___ by thousands of tourists every year.|is visited|visits|is visiting|visited","I wish I ___ taller.|were|am|will be|be","If she had studied, she ___ the exam.|would have passed|would pass|will pass|had passed","They insist that he ___ on time.|be|is|was|will be","He ___ TV when the phone rang.|was watching|has watched|is watching|watches","Look at those clouds! It ___ .|is going to rain|rains|is raining yesterday|rained tomorrow","By 2030, scientists ___ a cure.|will have found|have found|are finding|found","He told me he ___ the next day.|would call|calls|called tomorrow|will called","___ you ever ___ to Japan?|Have … been|Did … been|Are … go|Do … been","She doesn't ___ any brothers.|have|has|having|had","This is ___ book I have ever read.|the most interesting|the more interesting|most interesting|the interestingest","She sings ___ than her sister.|better|more good|weller|best","The letters ___ before noon.|must be sent|must send|must sent|must sending","They ___ for two hours when the bus finally came.|had been waiting|have been waiting|were waited|are waiting","Choose the correct question.|Where did you buy that coat?|Where you bought that coat?|Where did you bought that coat?|Where bought you that coat?"],
+es:["Cuando llegué, ellos ya ___ .|habían comido|han comido|comerán|comen","Si tuviera dinero, ___ un coche.|compraría|compraré|compro|compré","Quiero que tú ___ conmigo.|vengas|vienes|vendrás|venir","Ayer ___ con mi madre.|hablé|hablaré|hablo|hable","De niño, ___ al fútbol todos los días.|jugaba|jugaré|juego|juegue","Mañana a esta hora ___ en la playa.|estaré tomando el sol|tomé el sol|estaba tomando el sol|estuve tomando el sol","Espero que ___ un buen viaje.|tengas|tienes|tendrás|tuviste","Si hubiera estudiado, ___ el examen.|habría aprobado|aprobaré|apruebo|había aprobado","La novela ___ por García Márquez.|fue escrita|fue escrito|escribió|está escribiendo","Me dijo que ___ al día siguiente.|vendría|vino|viene|venga","No conozco a ___ en esta ciudad.|nadie|alguien|nada|algo","___ estudias? — Medicina.|¿Qué|¿Cuál|¿Cómo|¿Quién","Unas flores muy ___ .|bonitas|bonitos|bonita|bonites","Lo hizo ___ (fácil).|fácilmente|facilmento|fácilamente|facilmenta","Plural of «la voz»:|las voces|las vozes|las vozs|los voces","Feminine of «el doctor»:|la doctora|la doctriz|la doctoresa|la doctor","Es importante que vosotros ___ temprano.|lleguéis|llegáis|llegaréis|llegabais","¡___ la puerta, por favor! (tú, cerrar)|Cierra|Cierras|Cerra|Cerrar","No ___ eso, por favor. (tú, decir)|digas|dices|di|dijiste","Ellos ___ viviendo aquí desde 2015.|llevan|tienen|hacen|son"],
+fr:["Quand je suis arrivé, il ___ .|était déjà parti|est déjà partira|avait déjà parti|partira déjà","Si j'avais le temps, je ___ avec toi.|viendrais|viendrai|viens|venais","Il faut que tu ___ tes devoirs.|fasses|fais|feras|faisais","Hier, nous ___ au cinéma.|sommes allés|avons allé|allons|irons","Quand j'étais petit, je ___ souvent à la plage.|allais|irais|irai|vais","Elle ___ de partir. (She has just left.)|vient|va|est|a","Demain, je ___ mes amis.|verrai|voirai|voyais|vis","Si j'avais su, je ___ venu.|serais|aurais|suis|serai","Je suis content que tu ___ venu.|sois|es|seras|étais","Les maisons ___ en 1900.|ont été construites|ont été construits|ont construites|sont été construites","Elle m'a dit qu'elle ___ le lendemain.|viendrait|vient|venait demain|vienne","Je n'ai ___ vu.|rien|pas rien|aucun|non","___ vous parlez espagnol ? (neutral)|Est-ce que|Qu'est-ce que|Est-ce|Que","une ___ idée (bon)|bonne|bon|bone|bons","Elle parle anglais ___ . (fluently)|couramment|courament|couramant|courrament","Plural of «un cheval»:|des chevaux|des chevals|des chevaus|des chevales","Feminine of «un directeur»:|une directrice|une directeuse|une directeure|une directresse","Je ___ en train de lire quand tu as appelé.|étais|suis|serai|avais","Ne ___ pas sans moi ! (vous, partir)|partez|partir|partiez|partons","Dès qu'il eut fini, il ___ . (literary)|partit|partira|partait demain|part hier"],
+de:["Gestern ___ ich ins Kino gegangen.|bin|habe|werde|wurde","Ich habe meine Hausaufgaben ___ .|gemacht|machte|gemachen|machen","Wenn ich Zeit hätte, ___ ich dich besuchen.|würde|werde|wurde|wäre","Als ich ankam, ___ der Zug schon abgefahren.|war|hat|hatte|wurde","Wenn ich das gewusst hätte, ___ ich gekommen.|wäre|hätte|würde|bin","Er sagt, er ___ krank. (Konjunktiv I)|sei|ist gewesen|wäre gewesen|seid","Das Auto ___ gerade repariert.|wird|hat|habe|werden","Ich habe ___ Hunger.|keinen|kein|nicht|keine","___ du mir helfen? (polite request)|Könntest|Gekonnt|Konntest gestern|Kann","Bis morgen ___ ich den Bericht geschrieben haben.|werde|wurde|würde|wäre","Sie fragt, ___ ich morgen komme.|ob|dass|wenn|was","Ich sehe den ___ Hund. (schwarz)|schwarzen|schwarze|schwarzer|schwarzes","mit meinem ___ Bruder (klein)|kleinen|kleiner|kleine|kleines","Plural of „der Stuhl“:|die Stühle|die Stuhle|die Stühlen|die Stuhls","Feminine of „der Verkäufer“:|die Verkäuferin|die Verkäufere|die Verkäuferine|die Verkaufin","Er spricht ___ als ich. (gut)|besser|guter|mehr gut|am besten","___ die Tür zu! (du, machen)|Mach|Machst|Gemacht|Machtet","Morgen ___ ich nach Berlin. (Präsens with future meaning)|fahre|fuhr|gefahren|fahren","Er ___ lange. (Präteritum of sprechen)|sprach|sprechte|sprich|gesprochen","Hier ___ nicht geraucht.|wird|ist|hat|werden"]
+};
+/* ---------------- QUIZZES ---------------- */
+const QN=10,FINAL_ID="__final";
+const pick=(a,n)=>shuffle(a).slice(0,n);
+const qzBest=id=>S.qz&&S.qz[id]!=null?S.qz[id]:null;
+const qzSum=p=>Object.values((p&&p.qz)||{}).reduce((a,b)=>a+b,0);
+function allItems(L){return GRAM[L].groups.flatMap(g=>g[1])}
+const NU=/not normally used/;
+const unPrefix=s=>s.replace(/^\([^)]*\)\s*/,"").replace(/^(que |qu'|\(that\) |if )/,"");
+function personsOf(L){return {en:["I","you","he/she/it","we","you (plural)","they"],es:["yo","tú","él/ella/usted","nosotros","vosotros","ellos/ellas/ustedes"],fr:["je","tu","il/elle","nous","vous","ils/elles"],de:["ich","du","er/sie/es","wir","ihr","sie/Sie"]}[L]}
+// questions for a tense or mood, built from the conjugation tables so every answer is right
+const INDIC=["Indicative","Indicativo","Indicatif","Indikativ"];
+function indicativeQuestions(L,it){
+  const G=GRAM[L],tenses=G.groups.filter(g=>/tense/i.test(g[0])).flatMap(g=>g[1]).filter(x=>x[0]);
+  const marked=G.groups.filter(g=>/Mood|Conditional/.test(g[0])).flatMap(g=>g[1]).filter(x=>x[0]&&x[0]!=="imper"&&!INDIC.includes(x[1]));
+  const out=[];
+  for(const [v] of G.verbs)personsOf(L).forEach((per,i)=>{
+    const ok=tenses.filter(x=>!NU.test(G.conj(v,x[0])[i])),t=ok[Math.random()*ok.length|0],ans=G.conj(v,t[0])[i];
+    const indicForms=new Set(tenses.map(x=>unPrefix(G.conj(v,x[0])[i])));
+    const extra=L==="en"&&v!=="be"?[`${per} would be ${ENV[v][4]}`,`${per} would have been ${ENV[v][4]}`]:[];
+    const wrong=[...new Set(marked.map(x=>G.conj(v,x[0])[i]).concat(extra))].filter(w=>!NU.test(w)&&!indicForms.has(unPrefix(w))&&w!==ans);
+    if(wrong.length>=3)out.push({p:`Which of these is in the ${it[1]}? (“${v}”, ${per})`,a:ans,w:pick(wrong,3)});
+  });
+  return pick(out,QN);
+}
+function verbQuestions(L,it){
+  if(INDIC.includes(it[1]))return indicativeQuestions(L,it);
+  const G=GRAM[L],k=it[0],title=it[1],verbs=G.verbs.map(v=>v[0]);
+  const others=allItems(L).filter(x=>x[0]&&x[0]!==k&&x[0]!=="imper"&&!INDIC.includes(x[1]));
+  const A=[],B=[];
+  for(const v of verbs){
+    const rows=G.conj(v,k);
+    rows.forEach((row,i)=>{
+      if(k==="imper"){
+        let label=(row.match(/^\(([^)]*)\)/)||[])[1]||row.split(" ").slice(-1)[0].replace(/[!.]/g,"");
+        if(L==="en")label=/Don't/.test(row)?"you, negative":label==="you"?"you, positive":"we (suggestion)";
+        const ans=unPrefix(row),wrong=[...new Set(rows.filter((_,j)=>j!==i).map(unPrefix).concat(unPrefix(G.conj(v,"pres")[2]),unPrefix(G.conj(v,"pres")[4])))].filter(w=>w!==ans);
+        if(wrong.length>=3)A.push({p:`Imperative of “${v}” for ${label}:`,a:ans,w:pick(wrong,3)});
+        const tt=[...new Set(others.map(o=>o[1]))];if(tt.length>=3)B.push({p:`Which tense or mood is “${row}”?`,a:title,w:pick(tt,3)});
+        return;
+      }
+      if(NU.test(row))return;
+      const ans=unPrefix(row);
+      const wrong=[...new Set(others.map(o=>unPrefix(G.conj(v,o[0])[i])))].filter(w=>w!==ans&&!NU.test(w));
+      if(wrong.length>=3)A.push({p:`${title}: “${v}” with ${personsOf(L)[i]}`,a:ans,w:pick(wrong,3)});
+      const clash=others.some(o=>unPrefix(G.conj(v,o[0])[i])===ans);
+      if(!clash){const t=[...new Set(others.filter(o=>unPrefix(G.conj(v,o[0])[i])!==ans&&!NU.test(G.conj(v,o[0])[i])).map(o=>o[1]))].filter(t2=>t2!==title);
+        if(t.length>=3)B.push({p:`Which tense or mood is “${row}”?`,a:title,w:pick(t,3)})}
+    });
+  }
+  const nb=Math.min(4,B.length);return shuffle([...pick(A,QN-nb),...pick(B,nb)]).slice(0,QN);
+}
+function parseQ(s){const [p,a,...w]=s.split("|");return {p,a,w}}
+function quizFor(L,it){return it[0]?verbQuestions(L,it):shuffle((OQ[L][it[1]]||[]).map(parseQ)).slice(0,QN)}
+
+function quiz(id,title,qs,back){
+  run++;const lg=LG();document.body.className=lg.cls;
+  qs=qs.map(q=>({p:q.p,a:q.a,o:shuffle([q.a,...q.w])}));
+  let pos=0,right=0;const res=[];
+  const draw=()=>{
+    const q=qs[pos];
+    $("#app").innerHTML=`${topbar()}
+    <section style="display:flex;flex-direction:column;gap:8px"><span class="label">${id===FINAL_ID?"Final quiz · intermediate":"Quiz"} · ${esc(title)}</span>
+      <div class="dots">${qs.map((_,i)=>`<i class="${res[i]===true?"ok":res[i]===false?"no":i===pos?"now":""}"></i>`).join("")}</div></section>
+    <section class="panel turn" style="gap:14px;max-width:680px">
+      <span class="label">Question ${pos+1} of ${qs.length}</span>
+      <h2 class="qp" lang="${S.lang}">${esc(q.p)}</h2>
+      <div class="qopts" id="qopts">${q.o.map((o,i)=>`<button class="qo" data-i="${i}" lang="${S.lang}">${esc(o)}</button>`).join("")}</div>
+      <div class="fb" id="fb" aria-live="polite"></div>
+      <div class="btns" id="acts"></div>
+    </section>`;
+    wireTop();
+    $("#qopts").onclick=e=>{const b=e.target.closest(".qo");if(!b||res[pos]!=null)return;
+      const ok=q.o[+b.dataset.i]===q.a;res[pos]=ok;if(ok)right++;
+      document.querySelectorAll(".qo").forEach((x,i)=>{x.disabled=true;if(q.o[i]===q.a)x.classList.add("right")});
+      if(!ok)b.classList.add("wrong");
+      const f=$("#fb");f.className="fb "+(ok?"ok":"no");f.textContent=ok?"Correct!":`Not quite. The answer is “${q.a}”.`;
+      $("#acts").innerHTML=`<button class="btn" id="nx">${pos<qs.length-1?"Next question":"See my score"} →</button>`;
+      $("#nx").onclick=()=>{pos++;if(pos<qs.length)draw();else end()};$("#nx").focus();
+      document.querySelectorAll(".dots i")[pos].className=ok?"ok":"no";
+    };
+  };
+  const end=()=>{
+    const prev=qzBest(id)||0,gain=Math.max(0,right-prev);
+    S.qz=S.qz||{};if(qzBest(id)==null||right>prev)S.qz[id]=right;bumpScore(gain);saveProg();
+    const unlocked=id!==FINAL_ID&&allItems(S.lang).every(it=>qzBest(it[1])!=null)&&qzBest(FINAL_ID)==null;
+    $("#app").innerHTML=`${topbar()}
+    <section class="panel" style="align-items:flex-start;gap:12px;max-width:680px">
+      <span class="label">${id===FINAL_ID?"Final quiz":"Quiz"} complete · ${esc(title)}</span>
+      <div class="big">${right}/${qs.length}</div>
+      <p class="lede">${gain?`+${gain} point${gain>1?"s":""} added.`:prev&&right<=prev?`Your best on this quiz is ${prev}/${qs.length}. Beat it to earn more points.`:"No points this time."} 1 point for each correct answer.</p>
+      ${unlocked?`<p class="note">You've finished every topic quiz. The final quiz is now unlocked at the bottom of the grammar list.</p>`:""}
+      <div class="btns"><button class="btn" id="again">Retake quiz</button><button class="btn ghost" id="bk">Back to grammar</button></div>
+    </section>`;
+    wireTop();
+    $("#again").onclick=()=>quiz(id,title,id===FINAL_ID?finalQs():quizFor(S.lang,allItems(S.lang).find(it=>it[1]===title)).map(q=>({p:q.p,a:q.a,w:q.w})),back);
+    $("#bk").onclick=back;
+  };
+  draw();
+}
+function finalQs(){return shuffle(FINALQ[S.lang].map(parseQ))}
+
 /* ---------------- DONE ---------------- */
 function done(){
   run++;const lg=LG();S.score=calcScore(S);saveProg();
@@ -1429,7 +1599,7 @@ function done(){
   <section class="panel" style="align-items:flex-start;gap:14px">
     <span class="label">${lg.name} complete: letters, letter teams and reading</span>
     <div class="big">${S.score} pts</div>
-    <p class="lede">+${S.got.length+S.tgot.length} for letters and letter teams said correctly, −${S.miss.length+S.tmiss.length} for the ones you struggled with, +${rbSum()} for reading (best score on each of the ${RD().texts.length} texts). Each letter or letter team counts only once.</p>
+    <p class="lede">+${S.got.length+S.tgot.length} for letters and letter teams said correctly, −${S.miss.length+S.tmiss.length} for the ones you struggled with, +${rbSum()} for reading (best score on each of the ${RD().texts.length} texts), +${qzSum(S)} from grammar quizzes. Each letter or letter team counts only once.</p>
     <section style="display:flex;flex-direction:column;gap:8px;width:100%"><span class="label">Struggled with · ${hard.length}</span>
       ${hard.length?`<div class="chips">${hard.map(x=>`<span class="chip miss" style="cursor:default"><b lang="${S.lang}">${esc(disp(x))}</b><span class="ipa">${esc(ipaTxt(x.snd))}</span></span>`).join("")}</div>`:`<p>None. You pronounced every letter and letter team correctly.</p>`}</section>
     <span class="label">Letters · green = point earned · red = struggled</span>
@@ -1444,7 +1614,7 @@ function done(){
   $("#rvL").onclick=()=>review(shuffle(lg.letters).slice(0,5),done);
   $("#rvT").onclick=()=>review(shuffle(lg.teams).slice(0,5),done);
   $("#rdA").onclick=()=>{S.ph="reading";saveProg();readingPage(0)};
-  $("#restart").onclick=()=>{S.ph="letters";S.idx=0;S.tidx=0;S.score=0;S.got=[];S.tgot=[];S.miss=[];S.tmiss=[];S.rb=[0,0,0,0];learn()};
+  $("#restart").onclick=()=>{S.ph="letters";S.idx=0;S.tidx=0;S.score=0;S.got=[];S.tgot=[];S.miss=[];S.tmiss=[];S.rb=[0,0,0,0];S.qz={};learn()};
   $("#other").onclick=home;
 }
 
