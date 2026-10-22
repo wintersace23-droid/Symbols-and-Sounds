@@ -208,6 +208,44 @@ mark.lx{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad
 .qo:disabled{cursor:default}
 .qo.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 14%,var(--bg))}
 .qo.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--bg))}
+.fx{position:relative;height:clamp(220px,46vw,300px);border-radius:16px;overflow:hidden;background:radial-gradient(ellipse at 50% 115%,#3a1204 0%,#0d0604 55%,#050304 100%);cursor:pointer}
+.fx canvas{position:absolute;inset:0;width:100%;height:100%}
+.fx-smoke,.fx-word{position:absolute;left:0;right:0;top:50%;padding:0 18px;text-align:center;font-family:var(--display);translate:0 -50%}
+.fx-smoke{font-weight:800;font-size:clamp(1.4rem,5.5vw,2.2rem);line-height:1.15;color:#ecebf2;opacity:0;filter:blur(14px);transform:translateY(16px) scale(1.05);transition:opacity 1.6s ease,filter 1.8s ease,transform 1.8s ease}
+.fx-smoke span{font-size:.62em;font-weight:600;color:#bdb9c9}
+.fx-smoke.in{opacity:1;filter:blur(0);transform:none}
+.fx-smoke.out{opacity:0;filter:blur(16px);transform:translateY(-26px) scale(1.08);transition-duration:.7s}
+.fx-word{padding-block:60px 40px;font-weight:900;font-variation-settings:"wdth" 110;font-size:clamp(1.9rem,8vw,3.2rem);line-height:1.05;color:#fff6d8;opacity:0;text-wrap:balance;--b:-10%;-webkit-mask-image:linear-gradient(to top,transparent var(--b),#000 calc(var(--b) + 12%));mask-image:linear-gradient(to top,transparent var(--b),#000 calc(var(--b) + 12%))}
+.fx-word.ignite{opacity:1;animation:ignite .5s ease-out both}
+.fx-word.lit{opacity:1;animation:flicker .18s infinite alternate}
+.fx-word.burn{opacity:1;color:#3a2416;text-shadow:0 0 6px #ff6a00,0 0 18px #b32000;transition:color .5s,text-shadow .5s}
+.fx-word.gone{opacity:0;transition:opacity .4s}
+@keyframes ignite{0%{opacity:0;transform:scale(.85) translateY(20px);filter:blur(6px)}100%{opacity:1;transform:none;filter:none}}
+@keyframes flicker{0%{text-shadow:0 0 4px #fff,0 -4px 10px #ffd23f,0 -10px 20px #ff8a00,0 -18px 34px #ff3d00}100%{text-shadow:0 0 6px #fff,0 -6px 14px #ffe066,0 -14px 26px #ff9a1f,0 -24px 42px #ff2a00}}
+.fx-skip{position:absolute;right:12px;bottom:10px;font-size:.7rem;color:#9c8f88;letter-spacing:.08em;text-transform:uppercase}
+.uses{display:flex;flex-direction:column;gap:8px;border-left:4px solid var(--acc);padding-left:12px}
+.uses ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:1.05rem}
+.uses .fx-replay{align-self:flex-start}
+.tcards{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;width:100%;padding-block:6px}
+.tcard{width:min(37vw,210px);aspect-ratio:5/7;perspective:900px}
+.tc-face{position:relative;width:100%;height:100%;border-radius:14px;display:grid;place-items:center;overflow:hidden;animation:flipin .8s cubic-bezier(.2,.8,.2,1) both}
+.tcard.neon .tc-face{animation-delay:.3s}
+.tcard.gold .tc-face{background:radial-gradient(ellipse at 50% 30%,#1f1c17,#050505 72%);box-shadow:0 10px 30px rgba(0,0,0,.45),inset 0 0 0 1px #6b5420}
+.tcard.neon .tc-face{background:radial-gradient(ellipse at 50% 30%,#1c0b33,#07030f 72%);box-shadow:0 0 18px rgba(255,61,240,.45),0 0 40px rgba(47,243,255,.25)}
+.tcard.neon .tc-orn{filter:drop-shadow(0 0 2px #ff3df0) drop-shadow(0 0 5px #2ff3ff)}
+.tc-orn{position:absolute;inset:0;width:100%;height:100%}
+.tc-mid{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px}
+.tc-num{font-family:var(--display);font-weight:900;font-size:clamp(2.8rem,13vw,4.6rem);line-height:1;font-variant-numeric:tabular-nums}
+.gold .tc-num{background:linear-gradient(180deg,#fbeab0,#c9982f 55%,#f3d98a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.neon .tc-num{color:#fff;text-shadow:0 0 6px #ff3df0,0 0 16px #ff3df0,0 0 30px #2ff3ff}
+.tc-lbl{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;font-weight:800}
+.gold .tc-lbl{color:#e3c46c} .neon .tc-lbl{color:#2ff3ff;text-shadow:0 0 6px #2ff3ff}
+.tc-c{position:absolute;font-family:var(--display);font-weight:900;font-size:.9rem;font-variant-numeric:tabular-nums}
+.tc-c.tl{top:9.5%;left:15%} .tc-c.br{bottom:9.5%;right:15%;transform:rotate(180deg)}
+.gold .tc-c{color:#e3c46c} .neon .tc-c{color:#ff8df7;text-shadow:0 0 6px #ff3df0}
+.tc-sub{position:absolute;bottom:12.5%;left:24%;right:24%;text-align:center;font-size:.58rem;letter-spacing:.06em;text-transform:uppercase;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gold .tc-sub{color:#c9a44a} .neon .tc-sub{color:#c9b7ff}
+@keyframes flipin{0%{transform:rotateY(90deg) scale(.9);opacity:0}100%{transform:none;opacity:1}}
 .hidden{display:none}
 @media(max-width:779px){.tile{max-width:min(240px,64vw)}.tile .g{font-size:clamp(5rem,24vw,7rem)}.hide-sm{display:none}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -1388,6 +1426,102 @@ for(const [L,G] of Object.entries(GRAM)){
   G.groups=LAYOUT[L].map(([name,titles])=>[name,titles.map(t=>{const it=pool.find(x=>x[1]===t);if(!it)throw new Error("grammar item missing: "+t);return it})]).concat([other]);
 }
 
+/* ---------------- WHAT EACH TENSE AND MOOD IS USED FOR ---------------- */
+const USES={
+en:{"Simple present":"Habits and routines|General truths|Facts|Timetables and schedules","Present continuous":"Actions happening now|Temporary situations|Fixed future plans|Changing situations","Present perfect":"Life experiences|Recent actions with a result now|Situations that are still true|Unfinished time: today, this week","Present perfect continuous":"Actions still going on|How long something has lasted|Recent activities with visible results","Simple past":"Finished past actions|Past habits|A series of past events|Stories","Past continuous":"Actions in progress in the past|The background to a story|An action that was interrupted|Two actions at the same time","Past perfect":"An action before another past action|Reasons for a past situation|Regrets: if I had known…","Past perfect continuous":"Long actions before a past moment|Causes of a past result|How long something had lasted","Simple future (will)":"Predictions|Promises|Offers|Decisions made on the spot","Future with going to":"Plans|Intentions|Predictions from what you see now","Future continuous":"Actions in progress at a future time|Polite questions about plans","Future perfect":"Actions finished before a future time|Deadlines","Future perfect continuous":"How long an action will have lasted|Duration up to a future moment","Indicative":"Facts|Statements|Questions|Certainty","Imperative":"Orders|Instructions|Advice|Invitations","Conditional":"Imagined situations|Polite requests|Advice: I would…","Conditional perfect":"Imagined past situations|Regrets|Results that never happened","Present subjunctive":"Formal demands|Recommendations|Necessity: it's vital that…","Past subjunctive":"Wishes|Unreal situations|Advice: if I were you…"},
+es:{"Presente":"Habits|Facts|Actions happening now|Near-future plans","Presente continuo":"Actions happening right now|Temporary situations","Pretérito perfecto":"Actions in an unfinished time: hoy, este año|Life experiences|Recent actions","Pretérito indefinido":"Finished actions at a specific time|A series of past events|Completed periods","Pretérito imperfecto":"Past habits|Descriptions in the past|Actions in progress in the past|Age and time in the past","Pretérito imperfecto continuo":"Actions in progress at a past moment|An action that was interrupted","Pretérito pluscuamperfecto":"An action before another past action|Reported past events","Pretérito anterior":"An action just before another past action|Literary texts","Futuro próximo (ir a + infinitivo)":"Plans|Intentions|Things about to happen","Futuro simple":"Future actions|Predictions|Promises|Guesses about the present","Futuro continuo":"Actions in progress at a future moment|Guesses about what's happening now","Futuro perfecto":"Actions finished by a future time|Guesses about the recent past","Condicional simple":"Hypothetical situations|Polite requests|Advice|The future seen from the past","Condicional compuesto":"What would have happened|Regrets|Guesses about the past","Indicativo":"Facts|Certainty|Statements|Questions","Subjuntivo presente":"Wishes|Doubts|Emotions|Requests after que","Subjuntivo perfecto":"Wishes about finished actions|Doubts about the recent past","Subjuntivo imperfecto":"Unreal conditions with si|Past wishes|Polite requests: quisiera…","Subjuntivo pluscuamperfecto":"Unreal past conditions|Regrets about the past","Imperativo":"Orders|Instructions|Advice|Invitations"},
+fr:{"Présent":"Habits|General truths|Actions happening now|The near future","Présent progressif":"Actions happening right now|Stressing that something is ongoing","Passé composé":"Finished past actions|A series of past events|Experiences","Passé récent":"Actions that have just happened","Imparfait":"Past habits|Descriptions|Actions in progress in the past|The background to a story","Plus-que-parfait":"An action before another past action|Regrets with si","Passé simple":"Finished actions in literature|Historical texts","Passé antérieur":"An action just before another past action|Literary texts","Futur proche":"Plans|Things about to happen","Futur simple":"Future actions|Predictions|Promises","Futur antérieur":"Actions finished before a future moment|Guesses about the past","Conditionnel présent":"Hypothetical situations|Polite requests|Advice|Wishes","Conditionnel passé":"What would have happened|Regrets|Reproaches","Indicatif":"Facts|Certainty|Statements|Questions","Subjonctif présent":"Wishes|Necessity: il faut que…|Emotions|Doubt","Subjonctif passé":"Finished actions after que|Feelings about the past","Impératif":"Orders|Instructions|Advice|Invitations"},
+de:{"Präsens":"Habits|Facts|Actions happening now|The future, with a time word","Perfekt":"Finished past actions|The past in everyday speech","Präteritum":"The past in writing and stories|sein, haben and modal verbs in speech","Plusquamperfekt":"An action before another past action|The background to a past story","Futur I":"Plans|Predictions|Assumptions about the present","Futur II":"Actions finished by a future time|Assumptions about the past","Indikativ":"Facts|Certainty|Statements|Questions","Imperativ":"Orders|Requests|Instructions|Advice","Konjunktiv II":"Wishes|Unreal situations|Polite requests|Advice","Konjunktiv II der Vergangenheit":"Unreal past situations|Regrets","Konjunktiv I":"Reported speech|News and formal writing"}
+};
+const usesOf=t=>{const u=(USES[S.lang]||{})[t];return u?u.split("|"):null};
+
+/* ---------------- SMOKE AND FIRE ANIMATION ---------------- */
+let fxStop=null;
+const reduceMotion=()=>{try{return matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){return false}};
+function fxHTML(title,uses){
+  return `<div class="fx" role="img" aria-label="${esc(title)} is used to describe: ${esc(uses.join(", "))}">
+    <canvas></canvas><div class="fx-smoke">${esc(title)}<br><span>is used to describe…</span></div><div class="fx-word"></div>
+    <span class="fx-skip">Tap to skip</span></div>
+  <div class="uses" hidden><span class="label">${esc(title)} is used to describe</span><ul>${uses.map(u=>`<li>${esc(u)}</li>`).join("")}</ul><button class="btn ghost fx-replay">Replay animation</button></div>`;
+}
+function playFx(body,title,instant){
+  if(fxStop)fxStop();
+  const uses=usesOf(title);if(!uses)return;
+  const stage=body.querySelector(".fx"),list=body.querySelector(".uses"),cv=stage.querySelector("canvas"),smoke=stage.querySelector(".fx-smoke"),word=stage.querySelector(".fx-word");
+  const finish=()=>{stop();stage.hidden=true;list.hidden=false};
+  if(instant||reduceMotion()){finish();return}
+  stage.hidden=false;list.hidden=true;
+  const ctx=cv.getContext("2d"),dpr=Math.min(2,window.devicePixelRatio||1);
+  let W=0,H=0;const size=()=>{const r=stage.getBoundingClientRect();W=r.width;H=r.height;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)};size();
+  const P=[];let raf=0,alive=true,t0=performance.now(),emit=null;
+  const add=(o)=>{if(P.length<700)P.push(o)};
+  const box=el=>{const a=el.getBoundingClientRect(),b=stage.getBoundingClientRect();return {x:a.left-b.left,y:a.top-b.top,w:a.width,h:a.height}};
+  const frame=now=>{
+    if(!alive)return;if(!stage.isConnected){stop();return}
+    ctx.clearRect(0,0,W,H);
+    if(emit)emit(now);
+    ctx.globalCompositeOperation="source-over";
+    for(let i=P.length-1;i>=0;i--){const p=P[i];p.life+=1;p.x+=p.vx;p.y+=p.vy;p.vy+=p.g||0;p.vx*=.99;
+      const k=p.life/p.max;if(k>=1){P.splice(i,1);continue}
+      if(p.t==="smoke"){const r=p.s*(1+k*1.6),a=.07*(1-k);const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,r);g.addColorStop(0,`rgba(200,200,210,${a})`);g.addColorStop(1,"rgba(200,200,210,0)");ctx.fillStyle=g;ctx.beginPath();ctx.arc(p.x,p.y,r,0,7);ctx.fill()}}
+    ctx.globalCompositeOperation="lighter";
+    for(const p of P){if(p.t==="smoke")continue;const k=p.life/p.max;
+      if(p.t==="fire"){const r=p.s*(1-k*.6);const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,r);
+        const c=k<.25?[255,240,190]:k<.55?[255,150,40]:[220,50,10];g.addColorStop(0,`rgba(${c[0]},${c[1]},${c[2]},${.3*(1-k)})`);g.addColorStop(1,`rgba(${c[0]},${c[1]},${c[2]},0)`);ctx.fillStyle=g;ctx.beginPath();ctx.arc(p.x,p.y,r,0,7);ctx.fill()}
+      else{ctx.fillStyle=`rgba(255,${180-120*k|0},60,${1-k})`;ctx.fillRect(p.x,p.y,p.s,p.s)}}
+    raf=requestAnimationFrame(frame);
+  };
+  const wait=ms=>new Promise(r=>setTimeout(r,ms));
+  const stop=()=>{alive=false;cancelAnimationFrame(raf);emit=null;if(fxStop===stop)fxStop=null};
+  fxStop=stop;stage.onclick=finish;
+  raf=requestAnimationFrame(frame);
+  (async()=>{
+    // 1. the statement rises out of smoke
+    word.className="fx-word";word.textContent="";smoke.className="fx-smoke in";
+    const sb=box(smoke);emit=()=>{for(let i=0;i<2;i++)add({t:"smoke",x:sb.x+Math.random()*sb.w,y:sb.y+sb.h*(.6+Math.random()*.6),vx:(Math.random()-.5)*.6,vy:-.3-Math.random()*.5,s:12+Math.random()*14,life:0,max:70+Math.random()*40})};
+    await wait(2600);if(!alive)return;
+    smoke.className="fx-smoke out";await wait(700);emit=null;if(!alive)return;
+    // 2. each use bursts out of flame, burns, then the next one
+    for(const u of uses){
+      word.textContent=u;word.style.setProperty("--b","-10%");word.className="fx-word ignite";
+      const b=box(word);
+      for(let i=0;i<45;i++)add({t:"fire",x:b.x+Math.random()*b.w,y:b.y+b.h*(.4+Math.random()*.7),vx:(Math.random()-.5)*2.4,vy:-1.2-Math.random()*2.6,s:10+Math.random()*16,life:0,max:30+Math.random()*25});
+      emit=()=>{for(let i=0;i<3;i++)add({t:"fire",x:b.x+Math.random()*b.w,y:b.y+b.h*(.85+Math.random()*.3),vx:(Math.random()-.5)*.8,vy:-1-Math.random()*1.8,s:7+Math.random()*11,life:0,max:28+Math.random()*22})};
+      await wait(500);if(!alive)return;word.className="fx-word lit";
+      await wait(1400);if(!alive)return;
+      // burn to a crisp: a glowing edge eats the word from the bottom up
+      word.className="fx-word burn";const start=performance.now(),dur=1300;
+      emit=now=>{const k=Math.min(1,(now-start)/dur);word.style.setProperty("--b",(k*110-10)+"%");const y=b.y+b.h*(1-k);
+        for(let i=0;i<3;i++)add({t:"fire",x:b.x+Math.random()*b.w,y:y+Math.random()*8,vx:(Math.random()-.5),vy:-1.4-Math.random()*1.6,s:6+Math.random()*10,life:0,max:20+Math.random()*16});
+        for(let i=0;i<3;i++)add({t:"ember",x:b.x+Math.random()*b.w,y,vx:(Math.random()-.5)*1.6,vy:-1.6-Math.random()*2.4,g:.015,s:1.5+Math.random()*2,life:0,max:50+Math.random()*40});
+        if(Math.random()<.5)add({t:"smoke",x:b.x+Math.random()*b.w,y,vx:(Math.random()-.5)*.4,vy:-.6,s:10+Math.random()*10,life:0,max:90})};
+      await wait(dur+150);if(!alive)return;emit=null;word.className="fx-word gone";await wait(450);if(!alive)return;
+    }
+    await wait(500);if(alive)finish();
+  })();
+}
+
+/* ---------------- TRUMP CARDS ---------------- */
+function cardSVG(id,neon){
+  const st=neon?`stroke="#ff3df0"`:`stroke="url(#${id})"`;
+  const cor=(x,y,sx,sy)=>`<path d="M${x} ${y+sy*22} Q${x} ${y} ${x+sx*22} ${y}" fill="none" ${st} stroke-width="1.4"/>`;
+  return `<svg class="tc-orn" viewBox="0 0 100 140" preserveAspectRatio="none" aria-hidden="true">
+    <defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6e3a1"/><stop offset=".45" stop-color="#c9982f"/><stop offset=".7" stop-color="#f3d98a"/><stop offset="1" stop-color="#a87a1f"/></linearGradient></defs>
+    <rect x="4" y="4" width="92" height="132" rx="6" fill="none" ${st} stroke-width="1.6"/>
+    <rect x="8" y="8" width="84" height="124" rx="4" fill="none" ${neon?`stroke="#2ff3ff"`:st} stroke-width=".7"/>
+    ${cor(8,8,1,1)}${cor(92,8,-1,1)}${cor(8,132,1,-1)}${cor(92,132,-1,-1)}
+    <path d="M30 44 H45 L50 39 L55 44 H70" fill="none" ${st} stroke-width="1"/><path d="M30 96 H45 L50 101 L55 96 H70" fill="none" ${st} stroke-width="1"/>
+    <path d="M50 30 l4 5 -4 5 -4 -5z" fill="none" ${st} stroke-width="1"/><path d="M50 100 l4 5 -4 5 -4 -5z" fill="none" ${st} stroke-width="1"/>
+  </svg>`;
+}
+function trumpCard(kind,num,label,sub){
+  const neon=kind==="neon",id="g"+Math.random().toString(36).slice(2,8);
+  return `<div class="tcard ${kind}"><div class="tc-face">${cardSVG(id,neon)}
+    <span class="tc-c tl">${num}</span><span class="tc-c br">${num}</span>
+    <div class="tc-mid"><span class="tc-num">${num}</span><span class="tc-lbl">${esc(label)}</span></div>
+    <span class="tc-sub">${esc(sub)}</span></div></div>`;
+}
+
 /* ---------------- NEXT STEPS ---------------- */
 function hub(){
   run++;const lg=LG();S.ph="more";saveProg();document.body.className=lg.cls;
@@ -1405,7 +1539,7 @@ function grammar(openTitle){
   const exHTML=ex=>`<div class="chips">${ex.map(s=>{const e=pw(s);return `<button class="chip" data-say="${esc(speakable(e.w))}">${SPK_SVG}<b lang="${S.lang}">${esc(e.w)}</b>${e.m?`<span>${esc(e.m)}</span>`:""}</button>`}).join("")}</div>`;
   const item=(it,gi,ii)=>{const [k,t,d,f,ex,tb]=it;n++;const bq=qzBest(t);
     return `<details class="gi" data-g="${gi}" data-i="${ii}" data-t="${esc(t)}"><summary><span class="rn">(${roman(n)})</span><span class="gt" lang="${S.lang}">${esc(t)}</span>${bq!=null?`<span class="qbadge">${bq}/${QN}</span>`:""}<span class="chev" aria-hidden="true"></span></summary>
-    <div class="gbody"><p>${esc(d)}</p><div class="form"><span class="label">How to form it</span><p lang="${S.lang}">${esc(f)}</p></div>
+    <div class="gbody">${k&&usesOf(t)?fxHTML(t,usesOf(t)):""}<p>${esc(d)}</p><div class="form"><span class="label">How to form it</span><p lang="${S.lang}">${esc(f)}</p></div>
     <span class="label">Examples · tap to hear</span>${exHTML(ex)}
     ${k?`<button class="btn ghost more" data-k="${k}">Show verb conjugation</button><div class="extra" hidden></div>`:tb?`<button class="btn ghost more" data-t="1">Show ${/Plural|Feminine|Adjectives|Adverbs/.test(t)?"word changes":"more examples"}</button><div class="extra" hidden></div>`:""}
     <div class="quizrow"><button class="btn quizb" data-qz="${ii}" data-qg="${gi}">Take the quiz · ${QN} questions</button><span class="label">${bq!=null?`Best score ${bq}/${QN}`:"Not taken yet"}</span></div>
@@ -1422,6 +1556,9 @@ function grammar(openTitle){
   wireTop();wirePhaseTabs();$("#toHub").onclick=hub;
   const list=$("#glist");wireChips(list);
   if($("#finalB"))$("#finalB").onclick=()=>quiz(FINAL_ID,"All grammar topics",finalQs(),()=>grammar());
+  list.addEventListener("toggle",e=>{const d=e.target;if(!d.classList||!d.classList.contains("gi"))return;
+    if(d.open){if(d.querySelector(".fx"))playFx(d,d.dataset.t,d.dataset.t===openTitle&&!d.dataset.played);d.dataset.played="1"}else if(fxStop)fxStop()},true);
+  list.addEventListener("click",e=>{const r=e.target.closest(".fx-replay");if(r){const d=r.closest(".gi");playFx(d,d.dataset.t)}});
   if(openTitle){const d=[...list.querySelectorAll(".gi")].find(x=>x.dataset.t===openTitle);if(d){d.open=true;d.scrollIntoView({block:"start"})}}
   list.addEventListener("click",e=>{const qb=e.target.closest(".quizb");if(!qb)return;
     const it=G.groups[+qb.dataset.qg][1][+qb.dataset.qz];quiz(it[1],it[1],quizFor(S.lang,it),()=>grammar(it[1]))});
@@ -1578,7 +1715,7 @@ function quiz(id,title,qs,back){
     $("#app").innerHTML=`${topbar()}
     <section class="panel" style="align-items:flex-start;gap:12px;max-width:680px">
       <span class="label">${id===FINAL_ID?"Final quiz":"Quiz"} complete · ${esc(title)}</span>
-      <div class="big">${right}/${qs.length}</div>
+      <div class="tcards">${trumpCard("gold",right,"Quiz points",`${title} · ${right}/${qs.length}`)}${trumpCard("neon",S.score,"Total score",lg.name)}</div>
       <p class="lede">${gain?`+${gain} point${gain>1?"s":""} added.`:prev&&right<=prev?`Your best on this quiz is ${prev}/${qs.length}. Beat it to earn more points.`:"No points this time."} 1 point for each correct answer.</p>
       ${unlocked?`<p class="note">You've finished every topic quiz. The final quiz is now unlocked at the bottom of the grammar list.</p>`:""}
       <div class="btns"><button class="btn" id="again">Retake quiz</button><button class="btn ghost" id="bk">Back to grammar</button></div>
