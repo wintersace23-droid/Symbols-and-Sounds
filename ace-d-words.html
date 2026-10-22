@@ -1,0 +1,496 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Ace D Words</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Manrope:wght@500;600;700;800&display=swap">
+<style>
+/* Layout: one rounded night-sky panel; start screen = hero art, segmented settings, gold CTA. Game = rounded playfield + word bar */
+:root{
+  --sky:#081330; --night:#0c1a3a; --panel:#0f2149; --raise:#16295a; --line:rgba(201,211,230,.14);
+  --bezel:#c9d3e6; --gold:#f5c533; --gold-hi:#ffe27a; --ember:#d9822b;
+  --ink:#eef2fb; --muted:#93a3c7; --good:#5fd38d; --bad:#ff6b6b;
+  --t1:#5fd38d; --t2:#58b4ff; --t3:#d58bff;
+  --display:"Archivo Black","Arial Black",Arial,sans-serif;
+  --body:"Manrope",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{color:var(--ink);font-family:var(--body);font-size:15px;font-weight:500;
+  background:radial-gradient(1.5px 1.5px at 12% 18%,rgba(255,226,122,.5),transparent 60%),radial-gradient(1px 1px at 78% 32%,rgba(255,255,255,.45),transparent 60%),
+  radial-gradient(1.5px 1.5px at 40% 72%,rgba(255,226,122,.35),transparent 60%),radial-gradient(1px 1px at 88% 82%,rgba(255,255,255,.35),transparent 60%),
+  radial-gradient(120% 80% at 50% 0%,#132a63 0%,var(--sky) 60%) fixed,var(--sky);
+  padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px));}
+.cab{max-width:520px;margin:0 auto;height:100%;display:flex;flex-direction:column;padding-block:10px;box-sizing:border-box}
+.frame{flex:1;min-height:0;border-radius:24px;border:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(22,41,90,.92),rgba(12,26,58,.96));box-shadow:0 20px 50px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06);
+  padding:20px 16px;display:flex;flex-direction:column;gap:18px;overflow-y:auto}
+
+/* start screen */
+.hero{display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:4px}
+.hero canvas{width:220px;height:110px;max-width:100%}
+h1{font-family:var(--display);font-weight:400;margin:0;font-size:2.4rem;line-height:1;text-align:center;letter-spacing:.01em;
+  background:linear-gradient(180deg,var(--gold-hi),var(--gold) 55%,var(--ember));-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 3px 0 rgba(0,0,0,.35)) drop-shadow(0 0 18px rgba(245,197,51,.25));text-wrap:balance}
+.tag{color:var(--muted);text-align:center;margin:0;line-height:1.55;font-size:.93rem;max-width:34ch}
+.sub{color:var(--muted);text-align:center;margin:0;line-height:1.5}
+.note{font-size:.8rem;color:var(--muted);margin:8px 2px 0;line-height:1.5}
+.sec{display:flex;flex-direction:column;gap:8px}
+label{font-size:.7rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:block}
+.seg{display:flex;gap:4px;padding:4px;background:rgba(8,19,48,.7);border:1px solid var(--line);border-radius:14px}
+.seg .chip{flex:1}
+.chip{font-family:var(--body);font-weight:700;font-size:.95rem;background:transparent;color:var(--ink);border:0;border-radius:10px;padding:10px 8px;cursor:pointer;transition:background .15s,color .15s}
+.chip[aria-pressed="true"]{background:linear-gradient(180deg,var(--gold-hi),var(--gold));color:#2a1a02;box-shadow:0 2px 10px rgba(245,197,51,.3)}
+.tiles6{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tile6{font-family:var(--body);text-align:left;background:var(--raise);border:1px solid var(--line);border-radius:14px;padding:12px 12px 10px;color:var(--ink);cursor:pointer;min-width:0;transition:border-color .15s,transform .15s}
+.tile6 b{display:block;font-size:.98rem;font-weight:800}
+.tile6 small{display:block;color:var(--muted);font-size:.72rem;margin-top:2px;font-variant-numeric:tabular-nums}
+.tile6[aria-pressed="true"]{border-color:var(--gold);background:linear-gradient(180deg,rgba(245,197,51,.2),rgba(245,197,51,.06));box-shadow:inset 0 0 0 1px var(--gold)}
+.tile6[aria-pressed="true"] b{color:var(--gold-hi)}
+.chip:focus-visible,.btn:focus-visible,.tile6:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
+input[type=text]{width:100%;box-sizing:border-box;background:rgba(8,19,48,.7);border:1px solid var(--line);border-radius:12px;color:var(--ink);font-family:var(--body);font-weight:600;font-size:1rem;padding:11px 12px}
+input[type=text]:focus{outline:none;border-color:var(--gold)}
+.names{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.legend{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.legend span{font-size:.78rem;font-weight:700;padding:5px 10px;border-radius:999px;background:rgba(8,19,48,.7);border:1px solid var(--line);color:var(--ink)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px}
+.btn{font-family:var(--display);font-weight:400;font-size:1.15rem;letter-spacing:.08em;border:0;border-radius:16px;padding:16px 8px;cursor:pointer;
+  background:linear-gradient(180deg,var(--gold-hi),var(--gold) 60%,#e9a92a);color:#2a1a02;box-shadow:0 5px 0 #b8661c,0 10px 28px rgba(245,197,51,.25)}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 #b8661c,0 6px 16px rgba(245,197,51,.2)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);box-shadow:none;font-family:var(--body);font-weight:800}
+.row{display:flex;gap:8px}.row>*{flex:1}
+
+/* game screen */
+.frame.game{padding:8px;gap:8px;overflow:hidden}
+.field{position:relative;flex:1;min-height:300px;background:radial-gradient(120% 70% at 50% 100%,#14306b,var(--night) 70%);border:1px solid var(--line);border-radius:18px;overflow:hidden;touch-action:manipulation}
+.field canvas{position:absolute;inset:0;width:100%;height:100%;cursor:pointer}
+.cat{position:absolute;top:10px;left:10px;font-family:var(--body);font-weight:800;font-size:1rem;background:rgba(8,19,48,.82);border:1px solid rgba(245,197,51,.6);color:var(--gold-hi);padding:6px 12px;border-radius:12px;pointer-events:none;backdrop-filter:blur(4px)}
+.cat small{display:block;font-size:.58rem;color:var(--muted);letter-spacing:.14em;font-weight:800}
+.clockbox{position:absolute;top:8px;right:8px;text-align:right;pointer-events:none;background:rgba(8,19,48,.28);border:1px solid rgba(201,211,230,.08);border-radius:10px;padding:4px 8px;opacity:.72}
+.clock{font-family:var(--display);font-size:.95rem;font-variant-numeric:tabular-nums}
+.clock.low{color:var(--bad)}
+.score{font-size:.48rem;color:var(--muted);letter-spacing:.14em;font-weight:800}
+.pts{font-family:var(--display);font-size:1.15rem;color:var(--gold);line-height:1.1;font-variant-numeric:tabular-nums}
+.pts.bump{animation:bump .35s}@keyframes bump{40%{transform:scale(1.3)}}
+.word{min-height:52px;background:rgba(8,19,48,.8);border:1px solid var(--line);border-radius:14px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--display);font-size:1.6rem;letter-spacing:.14em;padding:2px 10px;overflow-wrap:anywhere;color:var(--gold-hi)}
+.word:empty::before{content:"Tap the rising letters to spell a word";font-family:var(--body);font-weight:600;font-size:.88rem;letter-spacing:0;color:var(--muted)}
+.word.ok{border-color:var(--good);color:var(--good);box-shadow:0 0 0 3px rgba(95,211,141,.15)}
+.word.no{border-color:var(--bad);color:var(--bad);animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.l1{color:var(--t1)}.l2{color:var(--t2)}.l3{color:var(--t3)}
+canvas.mini{width:96px;height:96px;image-rendering:pixelated;display:block;margin:0 auto}
+.say{font-family:var(--display);color:var(--gold-hi);text-align:center;font-size:1.5rem}
+.card{background:var(--raise);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+td,th{padding:9px 4px;border-bottom:1px solid var(--line);text-align:left;font-weight:700}tr:last-child td{border-bottom:0}
+th{font-size:.66rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;font-weight:800}
+.win td{color:var(--gold-hi)}
+.missed{font-size:.85rem;line-height:1.8;margin:6px 0 0;font-weight:700}
+@media (prefers-reduced-motion:reduce){.word.no,.pts.bump{animation:none}}
+</style>
+
+<div class="cab"><div class="frame" id="app"></div></div>
+
+<script>
+/* Word bank: singular forms only, split into Basic (1 pt) / Intermediate (2 pts) / Advanced (3 pts). Plurals are recognised automatically. */
+const BANK={
+ Edibles:[
+  "APPLE MANGO BANANA GRAPE LEMON PEAR PEACH PLUM MELON BREAD RICE CAKE PIE EGG HONEY JAM MILK TEA SOUP CORN BEAN PEA ONION FIG DATE NUT LIME SALT CANDY FISH HAM OAT ROTI DAL NAAN",
+  "BUTTER CHEESE COFFEE SALAD PASTA PIZZA BURGER NOODLE TACO GARLIC TOMATO POTATO CARROT RADISH OKRA SAMOSA IDLI DOSA LADDU HALWA KHEER KIWI GUAVA OLIVE TOFFEE STEAK PRAWN CRAB SUGAR CURD MUFFIN COOKIE CEREAL YOGURT PICKLE",
+  "OMELET ALMOND CASHEW SPINACH CABBAGE PAPAYA APRICOT CHERRY LYCHEE PANEER BIRYANI PAKORA PARATHA CHUTNEY CROISSANT LASAGNA SPAGHETTI AVOCADO BROCCOLI CUCUMBER PUMPKIN TURNIP RAISIN WALNUT PISTACHIO JALEBI"],
+ Vehicles:[
+  "CAR BUS VAN TAXI CAB BIKE BOAT SHIP TRAIN PLANE JET TRAM CART RAFT SLED TANK AUTO JEEP SUB",
+  "TRUCK CYCLE SCOOTER MOPED LORRY YACHT CANOE FERRY ROCKET WAGON METRO BARGE KAYAK COACH SEDAN COUPE TONGA CRANE TRACTOR GLIDER LINER LIMO BLIMP",
+  "RICKSHAW DINGHY TRAILER BULLDOZER HELICOPTER AMBULANCE CARAVAN MINIBUS SCHOONER CATAMARAN SUBMARINE MOTORBIKE TRICYCLE SPACESHIP ZEPPELIN GONDOLA TANKER SEAPLANE AIRSHIP CHARIOT"],
+ Gadgets:[
+  "PHONE RADIO FAN LAMP IRON OVEN CLOCK WATCH MOUSE TIMER TORCH CABLE REMOTE MIXER STOVE METER",
+  "LAPTOP TABLET CAMERA DRONE ROUTER MODEM SPEAKER CHARGER CONSOLE PRINTER SCANNER HEATER KETTLE TOASTER BLENDER FRIDGE PAGER STYLUS MONITOR SCREEN HEADSET EARBUD TRIMMER DRYER GEYSER",
+  "KEYBOARD CALCULATOR MICROWAVE PROJECTOR SMARTWATCH WEBCAM JOYSTICK THERMOSTAT HUMIDIFIER PURIFIER AMPLIFIER TELESCOPE MICROPHONE GAMEPAD INVERTER TREADMILL"],
+ Animals:[
+  "CAT DOG COW OX YAK RAT BAT APE ANT BEE OWL HEN EMU ELK GNU PIG EEL FOX LION BEAR DEER GOAT HORSE MULE FROG TOAD MOLE HARE LAMB CALF BULL BOAR WOLF SEAL CROW DOVE DUCK",
+  "TIGER SHEEP DONKEY CAMEL ZEBRA HIPPO RHINO MONKEY PANDA KOALA OTTER WHALE SHARK CRANE STORK EAGLE HAWK PARROT SNAKE COBRA VIPER LIZARD GECKO RABBIT MOUSE HYENA LEMUR SLOTH TAPIR BISON MOOSE GOOSE",
+  "GIRAFFE LEOPARD CHEETAH GORILLA PENGUIN DOLPHIN OSTRICH PEACOCK ANTELOPE PANTHER JAGUAR BUFFALO KANGAROO ALLIGATOR CROCODILE PORCUPINE HEDGEHOG ARMADILLO CHAMELEON SQUIRREL MONGOOSE PELICAN FLAMINGO TORTOISE OCTOPUS SCORPION"],
+ Body:[
+  "ARM LEG EYE EAR LIP HIP TOE JAW RIB GUM HAND FOOT HEAD NOSE NECK KNEE CHIN HAIR NAIL SKIN BONE",
+  "HEART LUNG LIVER BRAIN THUMB WRIST ELBOW ANKLE HEEL CHEST WAIST SPINE TONGUE TOOTH CHEEK BROW LASH PALM SHIN NAVEL KIDNEY FINGER MUSCLE THROAT THIGH SKULL",
+  "SHOULDER STOMACH FOREHEAD EYEBROW EYELASH KNUCKLE NOSTRIL EYELID INTESTINE PANCREAS BLADDER SKELETON TONSIL ARTERY KNEECAP"],
+ Clothes:[
+  "HAT CAP TIE BELT SHOE SOCK SHIRT SKIRT DRESS COAT VEST ROBE GOWN SUIT BOOT TOP TEE BIB BRA SARI",
+  "SCARF GLOVE JEANS PANTS SHORTS SAREE KURTA DHOTI CLOAK SHAWL TUNIC SANDAL BLAZER JACKET HOODIE APRON MITTEN TURBAN LUNGI PYJAMA SLIPPER BLOUSE",
+  "SWEATER CARDIGAN WAISTCOAT DUPATTA SHERWANI LEHENGA SALWAR OVERCOAT RAINCOAT TROUSERS SNEAKER TUXEDO KIMONO PONCHO BANDANA STOCKING LEGGING UNIFORM"]
+};
+/* extra vocabulary, by level: [basic, intermediate, advanced] */
+const EXTRA={
+ Edibles:["BUN CHIP OIL MEAT BEEF PORK TOFU YAM MINT KALE LEEK PEA BERRY CORN JUICE",
+  "PEPPER GINGER CELERY LETTUCE MUTTON CHICKEN SAUSAGE PANCAKE WAFFLE DONUT BAGEL BISCUIT POPCORN PEANUT CHAPATI POHA UPMA KULFI LASSI BHAJI DHOKLA KEBAB CURRY GRAVY SYRUP CREAM MANGO ORANGE PRUNE BEET PECAN",
+  "CHOCOLATE PRETZEL BLUEBERRY STRAWBERRY RASPBERRY PINEAPPLE WATERMELON GRAPEFRUIT ASPARAGUS AUBERGINE BRINJAL CAULIFLOWER CORIANDER CINNAMON TURMERIC NUTMEG MACARONI RAVIOLI BURRITO SANDWICH CUSTARD RASGULLA POMEGRANATE TANGERINE MUSHROOM ZUCCHINI SPROUT"],
+ Vehicles:["KART UFO",
+  "BUGGY SLEIGH HEARSE CRUISER PICKUP SHUTTLE JETSKI SCOOTY STEAMER TUG CUTTER RACER",
+  "SKATEBOARD HOVERCRAFT LOCOMOTIVE FREIGHTER DESTROYER WARSHIP BATTLESHIP SPACECRAFT AIRCRAFT AIRLINER MONORAIL SNOWMOBILE STAGECOACH UNICYCLE MOTORCYCLE CONVERTIBLE LIMOUSINE TROLLEY SPEEDBOAT"],
+ Gadgets:["TV BULB DISK PEN",
+  "ROBOT TRIPOD EARPHONE GRINDER JUICER WASHER VACUUM SENSOR PROBE DIGITAL PAGER TABLET",
+  "HEADPHONE POWERBANK THERMOMETER DISHWASHER SMARTPHONE CAMCORDER PROCESSOR FLASHLIGHT PEDOMETER TRANSISTOR ROUTER COMPUTER HOVERBOARD"],
+ Animals:["CUB DOE RAM SOW KOI FLY",
+  "MOTH WASP SWAN GULL CRAB FINCH ROBIN PIGEON HERON IBIS RAVEN LLAMA PUMA LYNX FERRET BEAVER BADGER WEASEL TURTLE SALMON TROUT SQUID SPIDER BEETLE CRICKET HAMSTER PYTHON WALRUS",
+  "VULTURE BUTTERFLY DRAGONFLY GRASSHOPPER CATERPILLAR JELLYFISH STARFISH SEAHORSE ORANGUTAN CHIMPANZEE RACCOON REINDEER HUMMINGBIRD WOODPECKER LOBSTER RHINOCEROS HIPPOPOTAMUS ELEPHANT PORPOISE ANACONDA"],
+ Body:["FACE BACK LAP GUT FIST SOLE CALF BODY",
+  "MOUTH NERVE BLOOD VEIN CELL GLAND PUPIL IRIS FEMUR TIBIA PELVIS COLON ARMPIT TEMPLE NAPE MOLAR SPLEEN TENDON BICEP TRICEP LIMB JOINT GROIN",
+  "NEURON ABDOMEN DIAPHRAGM ESOPHAGUS TRACHEA LARYNX CARTILAGE LIGAMENT CAPILLARY VERTEBRA APPENDIX EARDRUM EARLOBE COLLARBONE HAMSTRING RETINA CORNEA PLASMA PLATELET HORMONE ARTERY UTERUS GALLBLADDER"],
+ Clothes:["CAPE TOGA KILT MASK SARONG",
+  "BEANIE BERET BIKINI CORSET JERSEY PARKA LOAFER TIGHTS ROMPER SHRUG POLO CROPTOP SLACKS CHINOS BOXERS COLLAR",
+  "OVERALLS JUMPSUIT PULLOVER CAMISOLE NIGHTGOWN BATHROBE SWIMSUIT TRACKSUIT WINDCHEATER SHERWANI ANARKALI DUNGAREE SUSPENDER"]
+};
+for(const k in EXTRA)EXTRA[k].forEach((x,i)=>BANK[k][i]+=" "+x);
+const CATS={};
+for(const k in BANK){CATS[k]=new Map();BANK[k].forEach((s,i)=>s.split(" ").forEach(w=>{if(!CATS[k].has(w))CATS[k].set(w,i+1)}))}
+const IRR={TEETH:"TOOTH",FEET:"FOOT",MICE:"MOUSE",GEESE:"GOOSE",OXEN:"OX",CALVES:"CALF",WOLVES:"WOLF",LOAVES:"LOAF",KNIVES:"KNIFE"};
+
+/* Returns the singular entry a typed word belongs to (so CAT and CATS are one entry), or null */
+function lemma(w,map){
+  if(map.has(w))return w;
+  const c=[IRR[w]];
+  if(w.endsWith("IES"))c.push(w.slice(0,-3)+"Y");
+  if(w.endsWith("VES"))c.push(w.slice(0,-3)+"F",w.slice(0,-3)+"FE");
+  if(w.endsWith("ES"))c.push(w.slice(0,-2));
+  if(w.endsWith("S"))c.push(w.slice(0,-1));
+  return c.find(x=>x&&map.has(x))||null;
+}
+
+
+const S={mode:"nouns",cat:"Animals",mins:3,players:1,names:["Player 1","Player 2","Player 3","Player 4"],turn:0,results:[],seed:1};
+const $=s=>document.querySelector(s), app=$("#app");
+const rngOf=s=>()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+const shuffle=(a,r=Math.random)=>{for(let i=a.length-1;i>0;i--){const j=r()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+/* Verbs mode: base (infinitive) form only, shown as "to EAT". [basic, intermediate, advanced] */
+const VBANK={
+ Edibles:["EAT DRINK BITE CHEW COOK BAKE BOIL FRY SIP DINE FEED TASTE LICK STIR CUT PEEL MIX POUR GRILL ROAST SUCK GULP HAVE SERVE DIP",
+  "DIGEST SWALLOW SLICE CHOP MASH WHISK KNEAD SIMMER STEAM TOAST MUNCH NIBBLE GOBBLE DEVOUR FEAST SAVOR SAVOUR SNACK BREW GRATE MINCE SPICE SEASON STEW SMOKE MELT FREEZE CHILL HEAT PICKLE BLEND GRIND SCOOP",
+  "MASTICATE INGEST CONSUME MARINATE SAUTE GARNISH FERMENT CARAMELIZE SIEVE STRAIN DEFROST REHEAT PRESERVE NOURISH REGURGITATE SALIVATE BARBECUE MICROWAVE DRIZZLE CURDLE BLANCH POACH BRAISE GORGE QUENCH"],
+ Vehicles:["DRIVE RIDE FLY SAIL ROW STEER PARK STOP GO HONK BRAKE TOW LAND BOARD SPEED",
+  "PEDAL CRUISE COMMUTE TRAVEL REVERSE SKID CRASH DOCK ANCHOR TOUR HAUL FUEL PILOT JOURNEY VOYAGE TAXI CARPOOL FERRY",
+  "ACCELERATE NAVIGATE OVERTAKE TRANSPORT REFUEL DECELERATE MANEUVER MANOEUVRE COLLIDE CHAUFFEUR HITCHHIKE DERAIL CAPSIZE EMBARK DISEMBARK"],
+ Gadgets:["CALL TEXT TAP TYPE SCAN PLUG CHARGE CLICK SAVE SEND PRINT RING ZOOM SWIPE LOG POST SHARE",
+  "DOWNLOAD UPLOAD STREAM DIAL BROWSE SCROLL RECORD FILM SYNC PAIR RESET REBOOT DELETE INSTALL COPY PASTE EDIT SEARCH UNPLUG MUTE PAUSE",
+  "TRANSMIT BROADCAST CONFIGURE COMPUTE PROGRAM ENCRYPT DECRYPT RECHARGE BOOKMARK FORMAT UPDATE UPGRADE DEBUG BACKUP TELEPHONE CALIBRATE PROJECT"],
+ Animals:["BARK MEOW MOO ROAR HOWL HISS PURR BUZZ CHIRP HOP RUN FLY SWIM DIG PECK NEST HUNT GROWL BITE CRAWL CROW QUACK BRAY NEIGH BLEAT OINK",
+  "GALLOP PROWL STALK GRAZE BURROW HATCH MOLT SLITHER WADDLE TROT FLUTTER SWOOP POUNCE SNARL SQUEAK SQUAWK CROAK HOOT CLUCK GNAW FORAGE HERD FLOCK SPAWN",
+  "HIBERNATE MIGRATE CAMOUFLAGE REGURGITATE RUMINATE BELLOW TRUMPET WHINNY CHATTER SCURRY SLINK SCAVENGE INCUBATE METAMORPHOSE ECHOLOCATE MOULT"],
+ Body:["WALK RUN SIT STAND JUMP KICK CLAP BLINK NOD WAVE SMILE HUG KISS SEE HEAR SMELL TOUCH LIFT PUSH PULL BEND COUGH YAWN SLEEP LIE GRIN WINK",
+  "BREATHE SNEEZE SHRUG STRETCH SQUAT KNEEL CRAWL STUMBLE SHIVER SWEAT WHISTLE SQUINT FROWN BLUSH HICCUP SNORE LIMP FLEX GRASP GRIP STROLL SPRINT TWIST",
+  "CIRCULATE PERSPIRE INHALE EXHALE PALPITATE SALIVATE FLINCH GRIMACE GESTURE STAGGER SOMERSAULT CONVULSE TREMBLE TIPTOE HYPERVENTILATE"],
+ Clothes:["WEAR DRESS TIE SEW KNIT FOLD WASH IRON ZIP DON DOFF HEM MEND DYE BUY TRY FIT SHOP",
+  "BUTTON UNZIP LACE BUCKLE STITCH PATCH DARN WEAVE STARCH FASTEN UNDRESS CHANGE ROLL TUCK HANG ALTER LAYER ADORN MODEL TAILOR",
+  "EMBROIDER ACCESSORIZE ACCESSORISE LAUNDER UNBUTTON CROCHET MONOGRAM APPLIQUE DISROBE BEDECK"]
+};
+const VCATS={};
+for(const k in VBANK){VCATS[k]=new Map();VBANK[k].forEach((s,i)=>s.split(" ").forEach(w=>{if(!VCATS[k].has(w))VCATS[k].set(w,i+1)}))}
+const VLABEL={Edibles:"Food",Vehicles:"Travel",Gadgets:"Tech",Animals:"Animals",Body:"Body",Clothes:"Clothing"};
+const isVerb=()=>S.mode==="verbs";
+/* Adjectives mode: base form only (WET, not WETTER). Colours are shared by most categories. [basic, intermediate, advanced] */
+const COLORS=["RED BLUE GREEN PINK GREY GRAY BLACK WHITE BROWN TAN",
+  "YELLOW ORANGE PURPLE VIOLET BEIGE CREAM GOLDEN SILVER MAROON NAVY OLIVE IVORY KHAKI TEAL CYAN LILAC AMBER",
+  "TURQUOISE MAGENTA CRIMSON SCARLET LAVENDER INDIGO BURGUNDY CHARCOAL AQUAMARINE VERMILION"];
+const ABANK={
+ Edibles:["HOT COLD SWEET SOUR RAW RIPE FRESH STALE DRY SOFT HARD TASTY YUMMY RICH WARM FAT LEAN MILD",
+  "SALTY SPICY BITTER TANGY JUICY CRISPY CRUNCHY CREAMY CHEWY GREASY OILY BLAND SAVORY SAVOURY ROTTEN SMOKY ZESTY STICKY FLUFFY MOIST SOGGY TENDER BAKED FRIED BOILED ROASTED GRILLED FROZEN HEALTHY ORGANIC HOMEMADE STEAMING VEGAN NUTTY",
+  "DELICIOUS SCRUMPTIOUS NUTRITIOUS SUCCULENT APPETIZING APPETISING AROMATIC PUNGENT FLAVORFUL FLAVOURFUL MOUTHWATERING DECADENT PALATABLE INEDIBLE CARAMELIZED FERMENTED MARINATED VEGETARIAN GOURMET"],
+ Vehicles:["FAST SLOW NEW OLD BIG SMALL LONG SAFE LOUD CHEAP WIDE",
+  "QUIET SPEEDY SHINY RUSTY STURDY SPORTY ELECTRIC DIESEL ROOMY COMPACT SMOOTH BUMPY NOISY FANCY DENTED SLEEK HEAVY LIGHT HYBRID MANUAL",
+  "AERODYNAMIC AUTOMATIC ECONOMICAL LUXURIOUS VINTAGE ARMORED ARMOURED AMPHIBIOUS SECONDHAND SPACIOUS POWERFUL RELIABLE SUPERSONIC MOTORIZED CONVERTIBLE"],
+ Gadgets:["NEW OLD SMART SLIM THIN FAST SLOW CHEAP LOUD HOT BIG SMALL HANDY",
+  "DIGITAL WIRELESS PORTABLE CORDLESS DURABLE MODERN SHINY SLEEK BULKY HEAVY LIGHT BROKEN CRACKED CHARGED LAGGY GLITCHY ONLINE OFFLINE ROBUST COMPACT USEFUL",
+  "RECHARGEABLE WATERPROOF ERGONOMIC INNOVATIVE OBSOLETE ELECTRONIC AUTOMATED PROGRAMMABLE VERSATILE COMPATIBLE INTUITIVE FUTURISTIC RESPONSIVE EFFICIENT"],
+ Animals:["WILD TAME CUTE BIG SMALL FAST SLOW FAT SHY BOLD LOUD CALM HAPPY SAD OLD YOUNG TALL LONG SHORT WET DRY",
+  "FURRY FLUFFY SCALY SPOTTED STRIPED FIERCE GENTLE PLAYFUL LOYAL CUDDLY HAIRY SLIMY FEATHERY SLEEK AGILE HUNGRY NOISY SNEAKY CLEVER WILY SHAGGY SPIKY TIMID VICIOUS",
+  "FEROCIOUS NOCTURNAL CARNIVOROUS HERBIVOROUS OMNIVOROUS VENOMOUS POISONOUS DOMESTICATED ENDANGERED MAJESTIC AQUATIC PREDATORY MIGRATORY AMPHIBIOUS NIMBLE COLOSSAL ELUSIVE TERRITORIAL CAMOUFLAGED DOCILE"],
+ Body:["TALL SHORT FAT THIN BIG SMALL LONG STRONG WEAK FIT SICK WELL HOT COLD DRY WET SORE PALE DARK FAIR BALD HAIRY TIRED LEAN SLIM BROWN BLACK RED",
+  "HEALTHY MUSCULAR SKINNY CHUBBY BONY SWOLLEN BRUISED ITCHY ACHY STIFF NUMB SWEATY OILY ROUGH SMOOTH SOFT WRINKLY CURLY WAVY STRAIGHT BLONDE BLOND FRECKLED TANNED BROAD SLENDER PETITE AGILE LIMP INJURED",
+  "ATHLETIC INFLAMED DEHYDRATED FATIGUED EMACIATED OBESE BRAWNY LANKY STOCKY SINEWY FLEXIBLE CALLOUSED NAUSEOUS FEVERISH ARTHRITIC SUPPLE CHISELED CHISELLED RADIANT LUSTROUS AMBIDEXTROUS"],
+ Clothes:["WET DRY NEW OLD SOFT TIGHT LOOSE LONG SHORT WARM COOL CLEAN DIRTY THIN THICK NEAT TORN BIG SMALL HOT COLD",
+  "SMOOTH COARSE SILKY WOOLEN WOOLLEN COTTON LEATHER DENIM FADED STRIPED CHECKED PLAIN FANCY BAGGY COZY COSY FITTED CASUAL FORMAL STYLISH TRENDY SHABBY FRAYED CRISP STIFF SHINY ROUGH FLUFFY FUZZY SHEER LIGHT HEAVY SNUG",
+  "WRINKLED CREASED TATTERED THREADBARE IMMACULATE ELEGANT TAILORED EMBROIDERED BREATHABLE WATERPROOF STRETCHY VELVETY SATINY PLEATED SEQUINED FASHIONABLE OVERSIZED DISHEVELLED DISHEVELED SOPHISTICATED BESPOKE FLAMBOYANT"]
+};
+for(const k in ABANK)if(k!=="Body")COLORS.forEach((c,i)=>ABANK[k][i]+=" "+c);
+const ACATS={};
+for(const k in ABANK){ACATS[k]=new Map();ABANK[k].forEach((s,i)=>s.split(" ").forEach(w=>{if(!ACATS[k].has(w))ACATS[k].set(w,i+1)}))}
+const isAdj=()=>S.mode==="adjs";
+const KIND=()=>isVerb()?"verbs":isAdj()?"adjectives":"words";
+const catLabel=k=>isVerb()?VLABEL[k]:k;
+const curMap=()=>(isVerb()?VCATS:isAdj()?ACATS:CATS)[S.cat];
+const show=w=>isVerb()?"to "+w:w;
+const LV=["","Basic","Intermediate","Advanced"];
+const FILL="AEIOURSTLNCDHMP";
+
+/* robot sprite, 16x16: 1 white, 2 grey, 3 dark, 4 mouth */
+const BOT=["................","....11111111....","...1111111111...","..111111111111..","2.111111111111.2","2.113111111311.2","2.113111111311.2","2.111111111111.2","..111114411111..","..111111111111..","...1111111111...","....11111111....",".....122221.....","....11222211....","....11....11....","....33....33...."];
+/* tint: g = speed (0..1, slight green), n = advanced words (0..1, neon cyan glow) */
+const mixC=(a,b,t)=>a.map((v,i)=>Math.round(v+(b[i]-v)*t));
+const rgb=a=>`rgb(${a[0]},${a[1]},${a[2]})`;
+function botColors(t){
+  const g=t?t.g:0,n=t?t.n:0;
+  let body=mixC([238,242,251],[170,240,190],g),trim=mixC([201,211,230],[140,214,160],g);
+  body=mixC(body,[120,250,255],n);trim=mixC(trim,[60,225,255],n);
+  return {body:rgb(body),trim:rgb(trim)};
+}
+function paintBot(x,ox,oy,s,mood,tint,run){
+  const bc=botColors(tint);
+  if(tint&&tint.n>.02){                                   // neon halo grows with advanced words
+    const cxp=ox+8*s,cyp=oy+7*s,gr=x.createRadialGradient(cxp,cyp,s,cxp,cyp,s*14);
+    gr.addColorStop(0,`rgba(90,240,255,${.42*tint.n})`);gr.addColorStop(1,"rgba(90,240,255,0)");
+    x.fillStyle=gr;x.fillRect(cxp-s*14,cyp-s*14,s*28,s*28);
+  }
+  const col={1:bc.body,2:bc.trim,3:"#5a6a8f",4:mood==="sad"?"#ff6b6b":"#0c1a3a"};
+  BOT.forEach((row,y)=>[...row].forEach((p,i)=>{if(p==="."||p==="4"||(run&&y>=14))return;x.fillStyle=col[p];x.fillRect(ox+i*s,oy+y*s,s,s)}));
+  if(run){                                                // one leg lifted, the other planted
+    const leg=(c,up)=>{if(!up){x.fillStyle=col[1];x.fillRect(ox+c*s,oy+14*s,2*s,s)}x.fillStyle=col[3];x.fillRect(ox+c*s,oy+(up?14:15)*s,2*s,s)};
+    leg(4,run===1);leg(10,run===2);
+  }
+  x.fillStyle=col[4];
+  if(mood==="open")x.fillRect(ox+7*s,oy+8*s,2*s,2*s);
+  else if(mood==="happy"){x.fillRect(ox+6*s,oy+8*s,s,s);x.fillRect(ox+9*s,oy+8*s,s,s);x.fillRect(ox+7*s,oy+9*s,2*s,s)}
+  else x.fillRect(ox+7*s,oy+8*s,2*s,s);
+}
+function miniBot(mood){const c=$("canvas.mini");if(!c)return;const x=c.getContext("2d");x.clearRect(0,0,16,16);paintBot(x,0,0,1,mood)}
+
+function heroArt(){
+  const c=$("#hero");if(!c)return;const d=Math.min(devicePixelRatio||1,2),W=220,H=110;c.width=W*d;c.height=H*d;
+  const x=c.getContext("2d");x.setTransform(d,0,0,d,0,0);
+  const coin=(cx,cy,r,ch)=>{x.shadowColor="rgba(245,197,51,.55)";x.shadowBlur=12;x.fillStyle="#f5c533";x.beginPath();x.arc(cx,cy,r,0,7);x.fill();x.shadowBlur=0;
+    x.lineWidth=r*.13;x.strokeStyle="#d9822b";x.beginPath();x.arc(cx,cy,r*.8,0,7);x.stroke();x.fillStyle="#fff3c4";x.beginPath();x.arc(cx,cy,r*.68,0,7);x.fill();
+    x.fillStyle="#0c1a3a";x.font=`${r*1.05}px "Archivo Black","Arial Black",sans-serif`;x.textAlign="center";x.textBaseline="middle";x.fillText(ch,cx,cy+r*.05)};
+  const star=(sx,sy,s)=>{x.fillStyle="rgba(245,197,51,.7)";x.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?s*.45:s;x.lineTo(sx+Math.cos(a)*rr,sy+Math.sin(a)*rr)}x.fill()};
+  star(52,30,6);star(170,22,7);star(150,58,4);star(70,64,4);
+  coin(78,32,17,"A");coin(110,18,15,"C");coin(144,34,17,"E");
+  paintBot(x,110-8*3,60,3,"open");
+}
+function setup(){
+  app.className="frame";
+  const bank=isVerb()?VCATS:isAdj()?ACATS:CATS;
+  app.innerHTML=`<div class="hero"><canvas id="hero" aria-hidden="true"></canvas><h1>ACE D WORDS</h1>
+    <p class="tag">Letters burst from the robot and float to the sky. Tap them to spell words from your category before they drift away.</p></div>
+  <div class="sec"><label>Word type</label><div class="seg" id="mode"><button class="chip" aria-pressed="${S.mode==="nouns"}" data-v="nouns">Nouns</button><button class="chip" aria-pressed="${isVerb()}" data-v="verbs">Verbs</button><button class="chip" aria-pressed="${isAdj()}" data-v="adjs">Adjectives</button></div>
+    ${isVerb()?`<p class="note">Spell the base verb. EAT scores as “to eat”; EATS, ATE and EATING don't count.</p>`:isAdj()?`<p class="note">Describing words that fit the category, colours included. Base form only: WET counts, WETTER and WETTEST don't.</p>`:""}</div>
+  <div class="sec"><label>Category</label><div class="tiles6" id="cats">${Object.keys(CATS).map(k=>`<button class="tile6" aria-pressed="${k===S.cat}" data-v="${k}"><b>${catLabel(k)}</b><small>${bank[k].size} ${KIND()}</small></button>`).join("")}</div></div>
+  <div class="sec"><label>Round length</label><div class="seg" id="mins">${[2,3,5].map(m=>`<button class="chip" aria-pressed="${m===S.mins}" data-v="${m}">${m} min</button>`).join("")}</div></div>
+  <div class="sec"><label>Players · pass the phone</label><div class="seg" id="pl">${[1,2,3,4].map(m=>`<button class="chip" aria-pressed="${m===S.players}" data-v="${m}">${m}</button>`).join("")}</div>
+    <div class="names">${S.names.slice(0,S.players).map((n,i)=>`<input type="text" id="n${i}" value="${n}" aria-label="Name of player ${i+1}">`).join("")}</div></div>
+  <div class="sec"><div class="legend"><span><i class="dot" style="background:var(--t1)"></i>Basic · 1 pt</span><span><i class="dot" style="background:var(--t2)"></i>Intermediate · 2 pts</span><span><i class="dot" style="background:var(--t3)"></i>Advanced · 3 pts</span></div>
+    <p class="sub" style="font-size:.8rem">No word limit. Words score the instant you spell them${S.mode==="nouns"?", and CAT and CATS count once":""}.</p></div>
+  <button class="btn" id="go">START GAME</button>`;
+  heroArt();
+  const pick=(id,key,num)=>$(id).onclick=e=>{const b=e.target.closest("[data-v]");if(!b)return;readNames();S[key]=num?+b.dataset.v:b.dataset.v;setup()};
+  pick("#mode","mode");pick("#cats","cat");pick("#mins","mins",1);pick("#pl","players",1);
+  $("#go").onclick=()=>{readNames();newRound()};
+}
+function readNames(){S.names.forEach((_,i)=>{const e=$("#n"+i);if(e&&e.value.trim())S.names[i]=e.value.trim().slice(0,14)})}
+function newRound(){S.seed=(Math.random()*1e9)|0;S.turn=0;S.results=[];ready()}
+
+function ready(){
+  app.className="frame";
+  app.innerHTML=`<div style="margin-top:auto"><canvas class="mini" width="16" height="16"></canvas></div><div class="say">Ready, ${S.names[S.turn]}?</div>
+  <p class="sub">Category: <b style="color:var(--gold)">${catLabel(S.cat)}${isVerb()?" verbs":isAdj()?" adjectives":""}</b> · ${S.mins} minutes${S.players>1?"<br>Everyone gets the same letter stream":""}</p>
+  <button class="btn" id="go" style="margin-bottom:auto">I'M READY</button>`;
+  miniBot();$("#go").onclick=play;
+}
+
+/* every accepted spelling of each category word -> its singular entry (CAT, CATS -> CAT) */
+function formsOf(map){
+  const F=new Map(),add=(f,l)=>{if(!F.has(f))F.set(f,l)};
+  for(const l of map.keys()){
+    add(l,l);
+    if(/(S|X|Z|CH|SH)$/.test(l))add(l+"ES",l);
+    else if(/[^AEIOU]Y$/.test(l))add(l.slice(0,-1)+"IES",l);
+    else if(/O$/.test(l)){add(l+"S",l);add(l+"ES",l)}
+    else add(l+"S",l);
+    if(/F$/.test(l))add(l.slice(0,-1)+"VES",l);
+    if(/FE$/.test(l))add(l.slice(0,-2)+"VES",l);
+  }
+  for(const k in IRR)if(map.has(IRR[k]))add(k,IRR[k]);
+  return F;
+}
+
+function play(){
+  const map=curMap(),words=[...map.keys()],FORMS=S.mode!=="nouns"?new Map([...map.keys()].map(w=>[w,w])):formsOf(map),R=rngOf(S.seed);
+  app.className="frame game";
+  app.innerHTML=`<div class="field" id="field"><canvas id="cv"></canvas>
+      <div class="clockbox"><div class="clock" id="clk"></div><div class="pts" id="sc">0</div><div class="score">POINTS</div></div></div>
+    <div class="word" id="w" aria-live="polite"></div>`;
+  const field=$("#field"),cv=$("#cv"),cx=cv.getContext("2d"),W=$("#w");
+  let w=0,h=0,dpr=1;
+  const size=()=>{dpr=Math.min(devicePixelRatio||1,2);w=field.clientWidth;h=field.clientHeight;cv.width=w*dpr;cv.height=h*dpr};
+  size();const ro=new ResizeObserver(size);ro.observe(field);
+
+  const coins=[],decor=[],puffs=[],pops=[];
+  let cur="",found=new Map(),pts=0,left=S.mins*60,over=false,pending=null,lastTap={x:w/2,y:h/2};
+  const bot={x:w/2,dir:1,t:0,y:0,mood:"",moodT:0,turn:1.2,step:0};
+  let queue=[],emitT=0,decorT=0,last=performance.now(),recent=[];
+  const PX=3;
+  const RAD=Math.max(19,Math.min(25,w/18));
+  const GAP=6;
+
+  /* Letter stream: every 20 s cycle releases all 26 letters at least once, in random order,
+     mixed with letters from real category words so words are always formable. */
+  const ABC=[..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"],CYCLE=15,RATE=.24;
+  let gt=0;const lastOut={};
+  shuffle([...ABC],R).forEach((c,i)=>lastOut[c]=-(i/26)*CYCLE*.7);          // stagger so letters aren't all due together
+  const fromWords=()=>{if(!queue.length){const t=words[R()*words.length|0];queue=shuffle([...t],R)}return queue.shift()};
+  const nextLetter=()=>{
+    const byAge=[...ABC].sort((x,y)=>lastOut[x]-lastOut[y]);
+    let ch=byAge.find((c,i)=>lastOut[c]+CYCLE-gt<=(i+3)*RATE*1.5);           // a letter is close to its 20 s deadline: send it now
+    if(!ch)ch=R()<.55?fromWords():byAge[R()*8|0];                            // otherwise mix word letters with long-unseen ones
+    lastOut[ch]=gt;return ch;
+  };
+
+  /* ---------- automatic word detection ---------- */
+  const open=f=>!found.has(FORMS.get(f));
+  const isPrefix=s=>{for(const f of FORMS.keys())if(f.startsWith(s)&&open(f))return true;return false};
+  const canGrow=s=>{const me=FORMS.get(s);for(const f of FORMS.keys())if(f.length>s.length&&f.startsWith(s)&&open(f)&&FORMS.get(f)!==me)return true;return false};  // plurals of the same word don't count as 'longer'
+  const showCur=(cls="")=>{W.className="word "+cls;W.textContent=cur};
+  function commit(s){
+    const lem=FORMS.get(s),lv=map.get(lem);
+    found.set(lem,lv);pts+=lv;$("#sc").textContent=pts;wordTimes.push(gt);if(lv===3)advCount++;
+    pops.push({x:lastTap.x,y:lastTap.y,t:0,txt:"+"+lv,col:["","#5fd38d","#58b4ff","#d58bff"][lv]});
+    $("#sc").classList.remove("bump");void $("#sc").offsetWidth;$("#sc").classList.add("bump");
+    bot.mood="happy";bot.moodT=.8;
+    cur="";W.className="word ok";W.textContent=show(lem);
+    clearTimeout(showCur.t);showCur.t=setTimeout(()=>showCur(),500);
+  }
+  /* Tapped letters stay in the row until they finish a word. The word can sit at the END of the row,
+     so stray taps before it don't matter: RRAT scores RAT, then the whole row clears. */
+  let pendingWord=null,wordTimes=[],advCount=0;
+  const MAXROW=20;
+  function wordAtEnd(){for(let i=0;i<cur.length;i++){const t=cur.slice(i);if(t.length>1&&FORMS.has(t)&&open(t))return t}return null}  // longest first
+  function armPending(word){                           // e.g. CAT could still become CATS or CATERPILLAR: wait a moment
+    pendingWord=word;const snap=cur;
+    pending=setTimeout(()=>{if(cur===snap&&pendingWord===word){pendingWord=null;commit(word)}},1100);
+  }
+  function tapLetter(ch){
+    clearTimeout(showCur.t);clearTimeout(pending);pending=null;
+    const prev=pendingWord;pendingWord=null;
+    cur=(cur+ch).slice(-MAXROW);
+    const hit=wordAtEnd();
+    if(hit){if(canGrow(hit)){armPending(hit);showCur()}else commit(hit);return}
+    if(prev){
+      if(isPrefix(prev+ch)){armPending(prev);showCur();return}               // still heading toward a longer word
+      commit(prev);cur=ch;return;                                          // that letter didn't extend it: score the word, keep the new letter
+    }
+    showCur();
+  }
+  showCur();
+
+  /* ---------- the spray ---------- */
+  function pickTarget(){                               // spread across the full width, away from recent coins
+    let best=0,bd=-1;
+    for(let k=0;k<6;k++){const x=RAD+R()*(w-2*RAD);const d=Math.min(999,...recent.map(r=>Math.abs(r-x)));if(d>bd){bd=d;best=x}}
+    recent.push(best);if(recent.length>4)recent.shift();return best;
+  }
+  function emit(){
+    const hx=bot.x,hy=h-16*PX-bot.y+3*PX;
+    if(coins.some(c=>Math.hypot(c.x-hx,c.y-hy)<RAD*2+GAP))return false;   // wait until the mouth is clear
+    coins.push({ch:nextLetter(),x:hx,y:hy,tx:pickTarget(),r:RAD,vy:-(h/9.5),ph:R()*6.28,born:0});
+    bot.mood="open";bot.moodT=.15;return true;
+  }
+  function emitDecor(){
+    const hx=bot.x,hy=h-14*PX-bot.y;
+    decor.push({star:R()<.4,x:hx,y:hy,tx:R()*w,vy:-(h/6)*(.7+R()*.6),s:R()<.4?5+R()*4:2+R()*2,ph:R()*6.28});
+  }
+  function separate(){
+    const min=RAD*2+GAP;
+    for(let it=0;it<3;it++)for(let i=0;i<coins.length;i++)for(let j=i+1;j<coins.length;j++){
+      const a=coins[i],b=coins[j];let dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy);
+      if(d<min){if(d<.01){dx=1;dy=0;d=1}const p=(min-d)/2,ux=dx/d,uy=dy/d;
+        a.x-=ux*p;a.y-=uy*p;b.x+=ux*p;b.y+=uy*p;
+        a.tx-=ux*p;b.tx+=ux*p}
+    }
+    for(const c of coins){c.x=Math.max(c.r,Math.min(w-c.r,c.x));c.tx=Math.max(c.r,Math.min(w-c.r,c.tx))}
+  }
+
+  function drawCoin(c){
+    const {x,y,r}=c;cx.globalAlpha=Math.min(1,c.born*5);
+    cx.shadowColor="rgba(245,197,51,.5)";cx.shadowBlur=12;
+    cx.fillStyle="#f5c533";cx.beginPath();cx.arc(x,y,r,0,7);cx.fill();cx.shadowBlur=0;
+    cx.lineWidth=Math.max(2,r*.12);cx.strokeStyle="#d9822b";cx.beginPath();cx.arc(x,y,r*.8,0,7);cx.stroke();
+    cx.fillStyle="#fff3c4";cx.beginPath();cx.arc(x,y,r*.68,0,7);cx.fill();
+    cx.fillStyle="#0c1a3a";cx.font=`${r*1.05}px "Archivo Black", "Arial Black", Arial, sans-serif`;cx.textAlign="center";cx.textBaseline="middle";
+    cx.fillText(c.ch,x,y+r*.05);cx.globalAlpha=1;
+  }
+  function drawStar(x,y,s){cx.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?s*.45:s;cx.lineTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr)}cx.fill()}
+
+  function frame(now){
+    if(over)return;
+    const dt=Math.min(.05,(now-last)/1000);last=now;gt+=dt;
+    const margin=8*PX+6;bot.t+=dt;
+    bot.x+=bot.dir*w*.24*dt;
+    bot.turn-=dt;if(bot.turn<=0){bot.dir*=-1;bot.turn=.6+Math.random()*1.6}            // zig-zag: turn back at random points
+    if(bot.x>w-margin){bot.x=w-margin;bot.dir=-1;bot.turn=.6+Math.random()*1.6}if(bot.x<margin){bot.x=margin;bot.dir=1;bot.turn=.6+Math.random()*1.6}
+    bot.step=(bot.t*9|0)%2+1;bot.y=bot.step===1?1:0;                      // running: legs alternate, tiny bob, feet on the ground
+    if(bot.moodT>0){bot.moodT-=dt;if(bot.moodT<=0)bot.mood=""}
+    // colour drifts slowly: green with pace (words in the last 30 s), neon with advanced words found
+    const pace=wordTimes.filter(t=>t>gt-30).length;
+    const tg=Math.min(1,pace/6)*.75,tn=Math.min(1,advCount/6)*.9;
+    bot.g=(bot.g||0)+(tg-(bot.g||0))*Math.min(1,dt*.35);bot.n=(bot.n||0)+(tn-(bot.n||0))*Math.min(1,dt*.35);
+    emitT-=dt;if(emitT<=0)emitT=emit()?RATE:.03;
+    decorT-=dt;if(decorT<=0){decorT=.16;emitDecor()}
+
+    cx.setTransform(dpr,0,0,dpr,0,0);cx.clearRect(0,0,w,h);
+    cx.fillStyle="#f5c533";
+    for(let i=decor.length-1;i>=0;i--){const d=decor[i];d.x+=(d.tx-d.x)*Math.min(1,dt*1.8);d.y+=d.vy*dt;
+      if(d.y<-10){decor.splice(i,1);continue}
+      cx.globalAlpha=d.star?.55:.35+.35*Math.sin(now/120+d.ph);
+      if(d.star)drawStar(d.x,d.y,d.s);else cx.fillRect(d.x,d.y,d.s,d.s)}
+    cx.globalAlpha=1;
+    for(const c of coins){c.born+=dt;c.x+=(c.tx-c.x)*Math.min(1,dt*(c.born<.6?4:2.4))+Math.sin(now/600+c.ph)*6*dt;c.y+=c.vy*(1+2.5*Math.exp(-c.born*5))*dt}
+    separate();
+    for(let i=coins.length-1;i>=0;i--){const c=coins[i];
+      if(c.y-c.r<=0){puffs.push({x:c.x,y:4,t:0,col:"#c9d3e6"});coins.splice(i,1);continue}   // touched the ceiling: gone
+      drawCoin(c)}
+    for(let i=puffs.length-1;i>=0;i--){const p=puffs[i];p.t+=dt;if(p.t>.35){puffs.splice(i,1);continue}
+      cx.globalAlpha=1-p.t/.35;cx.fillStyle=p.col;const d=p.t*70;
+      for(let k=0;k<8;k++){const a=k*Math.PI/4;cx.fillRect(p.x+Math.cos(a)*d-2,p.y+Math.sin(a)*d-2,4,4)}}
+    cx.globalAlpha=1;
+    paintBot(cx,Math.round(bot.x-8*PX),Math.round(h-16*PX-bot.y),PX,bot.mood,{g:bot.g,n:bot.n},bot.step);
+    for(let i=pops.length-1;i>=0;i--){const p=pops[i];p.t+=dt;if(p.t>1.1){pops.splice(i,1);continue}
+      cx.globalAlpha=Math.min(1,(1.1-p.t)*2.5);cx.font=`700 ${34+p.t*10}px "Archivo Black", "Arial Black", Arial, sans-serif`;cx.textAlign="center";
+      cx.lineWidth=5;cx.strokeStyle="#0c1a3a";cx.strokeText(p.txt,p.x,p.y-p.t*60);cx.fillStyle=p.col;cx.fillText(p.txt,p.x,p.y-p.t*60)}
+    cx.globalAlpha=1;
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(t=>{last=t;frame(t)});
+
+  cv.addEventListener("pointerdown",e=>{
+    const b=cv.getBoundingClientRect(),px=e.clientX-b.left,py=e.clientY-b.top;
+    let hit=-1,bd=1e9;
+    coins.forEach((c,i)=>{const d=Math.hypot(c.x-px,c.y-py);if(d<c.r*1.3&&d<bd){bd=d;hit=i}});
+    if(hit<0)return;
+    const c=coins.splice(hit,1)[0];lastTap={x:c.x,y:c.y};
+    puffs.push({x:c.x,y:c.y,t:0,col:"#f5c533"});
+    tapLetter(c.ch);
+  });
+
+  const tick=()=>{const m=left/60|0,s=left%60;$("#clk").textContent=`${m}:${String(s).padStart(2,"0")}`;$("#clk").classList.toggle("low",left<=15)};
+  tick();
+  const iv=setInterval(()=>{left--;tick();
+    if(left<=0){clearInterval(iv);clearTimeout(pending);
+      if(pendingWord)commit(pendingWord);
+      over=true;ro.disconnect();S.results.push({name:S.names[S.turn],pts,found:[...found]});S.turn++;S.turn<S.players?ready():results()}},1000);
+}
+
+function results(){
+  app.className="frame";
+  const r=[...S.results].sort((a,b)=>b.pts-a.pts),map=curMap();
+  const all=new Set(r.flatMap(x=>x.found.map(f=>f[0])));
+  const missed=shuffle([...map.keys()].filter(w=>!all.has(w))).slice(0,12).sort((a,b)=>map.get(a)-map.get(b));
+  const tie=S.players>1&&r[1]&&r[1].pts===r[0].pts;
+  const lv=(x,l)=>x.found.filter(f=>f[1]===l).length;
+  app.innerHTML=`<canvas class="mini" width="16" height="16"></canvas><div class="say">${S.players>1?(tie?"It's a tie!":r[0].name+" wins!"):`Time's up! ${r[0].pts} points`}</div>
+  <div class="card" style="overflow-x:auto"><table><tr><th>Player</th><th>Words</th><th class="l1">B</th><th class="l2">I</th><th class="l3">A</th><th>Pts</th></tr>
+  ${r.map((x,i)=>`<tr class="${i===0&&S.players>1&&!tie?"win":""}"><td>${x.name}</td><td>${x.found.length}</td><td>${lv(x,1)}</td><td>${lv(x,2)}</td><td>${lv(x,3)}</td><td>${x.pts}</td></tr>`).join("")}</table></div>
+  ${r.map(x=>`<div><label>${x.name}'s words</label><p class="missed">${x.found.map(([f,l])=>`<span class="l${l}">${show(f)}</span>`).join(" · ")||"None this time"}</p></div>`).join("")}
+  <div><label>Some words to try next time</label><p class="missed">${missed.map(w=>`<span class="l${map.get(w)}">${show(w)}</span>`).join(" · ")}</p></div>
+  <div class="row"><button class="btn ghost" id="menu">MENU</button><button class="btn" id="again">NEW ROUND</button></div>`;
+  miniBot("happy");
+  $("#menu").onclick=setup;$("#again").onclick=newRound;
+}
+(document.fonts?Promise.all([document.fonts.load('700 20px "Manrope"'),document.fonts.load('20px "Archivo Black"')]).catch(()=>{}):Promise.resolve()).finally(setup);
+</script>
+
+</body></html>
