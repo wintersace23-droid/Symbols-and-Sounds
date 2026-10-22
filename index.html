@@ -210,6 +210,20 @@ mark.lx{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad
 .qo.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--bg))}
 .fx{position:relative;height:clamp(220px,46vw,300px);border-radius:16px;overflow:hidden;background:radial-gradient(ellipse at 50% 115%,#3a1204 0%,#0d0604 55%,#050304 100%);cursor:pointer}
 .fx canvas{position:absolute;inset:0;width:100%;height:100%}
+.fx.subj .fx-skip{top:10px;bottom:auto}
+.fx.subj{background:radial-gradient(ellipse at 50% 120%,#6a1600 0%,#1c0703 50%,#070203 100%)}
+.fx.subj .fx-smoke{background:linear-gradient(90deg,#ff3d00,#ffb300,#ff6a00,#ffe082,#ff3d00);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:molten 2.6s linear infinite}
+.fx.subj .fx-smoke span{color:transparent}
+.fx.subj .fx-smoke.in{filter:drop-shadow(0 0 6px rgba(255,90,0,.85)) drop-shadow(0 0 18px rgba(255,40,0,.5))}
+.fx.subj .fx-smoke.out{transform:translateY(34px) scaleY(.7);filter:blur(6px)}
+@keyframes molten{to{background-position:300% 0}}
+.fx.subj .fx-word{color:#eefaff;text-shadow:0 0 4px #ffffff,0 0 12px #9be3ff,0 0 26px #3fa9ff,0 2px 0 #8cc9e6}
+.fx .fx-word.freeze{opacity:1;-webkit-mask-image:linear-gradient(to right,#000 var(--b),transparent calc(var(--b) + 12%));mask-image:linear-gradient(to right,#000 var(--b),transparent calc(var(--b) + 12%))}
+.fx-word.frozen{opacity:1;animation:shimmer 1.6s ease-in-out infinite alternate}
+.fx-word.crack{animation:crack .22s steps(2) both}
+.fx-word.shatter{opacity:0;transform:scale(1.1);filter:blur(3px);transition:opacity .2s,transform .2s,filter .2s}
+@keyframes shimmer{0%{text-shadow:0 0 4px #fff,0 0 12px #9be3ff,0 0 26px #3fa9ff,0 2px 0 #8cc9e6}100%{text-shadow:0 0 6px #fff,0 0 18px #c4f0ff,0 0 36px #5cc0ff,0 2px 0 #8cc9e6}}
+@keyframes crack{0%{transform:translate(1.5px,0)}50%{transform:translate(-1.5px,.5px)}100%{transform:none}}
 .fx.past{background:radial-gradient(ellipse at 50% 115%,#0e4458 0%,#081a22 55%,#03080b 100%)}
 .fx.future{background:radial-gradient(ellipse at 50% 115%,#124a22 0%,#06160c 55%,#020604 100%)}
 .fx.past .fx-smoke{color:#e2f2f8}.fx.past .fx-smoke span{color:#a9c6d2}
@@ -1585,6 +1599,7 @@ const usesOf=t=>{const u=(USES[S.lang]||{})[t];return u?u.split("|").map(tx):nul
 let fxStop=null;
 const reduceMotion=()=>{try{return matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){return false}};
 const FX_PAST=/^(past|pastcont|pastperf|pastperfcont|pperf|indef|imperf|plusc|pc|imp|pqp|ps|perf|prat)$/,FX_FUT=/^(fut|goingto|futcont|futperf|futperfcont|ira|fp|fa|fut1|fut2)$/;
+const SUBJ_K=/^(subj|subjpast|subjperf|subjimp|subjplusc|subjp|k1|k2|k2p)$/;
 const fxTheme=k=>FX_PAST.test(k)?"past":FX_FUT.test(k)?"future":"fire";
 function fxHTML(title,uses,theme){
   const t=dispTitle(title);
@@ -1603,7 +1618,7 @@ function playFx(body,title,instant){
   const ctx=cv.getContext("2d"),dpr=Math.min(2,window.devicePixelRatio||1);
   let W=0,H=0;const size=()=>{const r=stage.getBoundingClientRect();W=r.width;H=r.height;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)};size();
   const P=[];let raf=0,alive=true,t0=performance.now(),emit=null,water=null,flash=0;
-  const LIT={fire:1,ember:1,spark:1,bolt:1},R=Math.random,theme=stage.dataset.theme||"fire";
+  const LIT={fire:1,ember:1,spark:1,bolt:1,lava:1,glint:1,flake:1},R=Math.random,theme=stage.dataset.theme||"fire";
   const boltPts=(x1,y1,x2,y2,d)=>{let pts=[[x1,y1],[x2,y2]];for(let n=0;n<5;n++){const q=[pts[0]];for(let i=1;i<pts.length;i++){const [ax,ay]=pts[i-1],[bx,by]=pts[i];q.push([(ax+bx)/2+(R()-.5)*d,(ay+by)/2+(R()-.5)*d*.4],[bx,by])}pts=q;d*=.55}return pts};
   const bolt=(x1,y1,x2,y2,d,max)=>add({t:"bolt",pts:boltPts(x1,y1,x2,y2,d),x:0,y:0,vx:0,vy:0,life:0,max:max||9});
   const leafC=()=>`hsl(${95+R()*45},${55+R()*25}%,${30+R()*25}%)`,stoneC=()=>`hsl(205,6%,${32+R()*30}%)`;
@@ -1621,12 +1636,19 @@ function playFx(body,title,instant){
       else if(p.t==="pebble"){p.r=(p.r||0)+p.vr;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.globalAlpha=1-k*k;ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s*.8);ctx.restore()}
       else if(p.t==="ripple"){const rx=p.s+p.life*1.8;ctx.strokeStyle=`rgba(170,220,245,${.55*(1-k)})`;ctx.lineWidth=1.3;ctx.beginPath();ctx.ellipse(p.x,p.y,rx,rx*.22,0,0,7);ctx.stroke()}
       else if(p.t==="bubble"){p.x+=Math.sin(p.life*.25+p.ph)*.4;ctx.strokeStyle=`rgba(210,240,255,${.7*(1-k)})`;ctx.lineWidth=1;ctx.beginPath();ctx.arc(p.x,p.y,p.s,0,7);ctx.stroke()}
+      else if(p.t==="shard"){p.r=(p.r||0)+p.vr;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.globalAlpha=1-k;ctx.fillStyle="rgba(215,243,255,.75)";ctx.strokeStyle="rgba(255,255,255,.9)";ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(0,-p.s);ctx.lineTo(p.s*.45,p.s*.6);ctx.lineTo(-p.s*.5,p.s*.4);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore()}
       else if(p.t==="leaf"){p.r=(p.r||0)+p.vr;p.x+=Math.sin((p.life+p.ph)*.09)*.8;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.globalAlpha=Math.min(1,(1-k)*1.6);ctx.fillStyle=p.c;ctx.beginPath();ctx.ellipse(0,0,p.s,p.s*.42,0,0,7);ctx.fill();ctx.strokeStyle="rgba(10,50,15,.55)";ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(-p.s,0);ctx.lineTo(p.s,0);ctx.stroke();ctx.restore()}}
     if(water&&water.a>0){const lv=water.level;ctx.beginPath();ctx.moveTo(0,H);for(let x=0;x<=W+8;x+=8)ctx.lineTo(x,lv+Math.sin(x*.045+now*.005)*4+Math.sin(x*.12+now*.009)*2);ctx.lineTo(W,H);ctx.closePath();
-      const g=ctx.createLinearGradient(0,lv,0,H);g.addColorStop(0,`rgba(80,165,205,${.6*water.a})`);g.addColorStop(1,`rgba(8,45,75,${.9*water.a})`);ctx.fillStyle=g;ctx.fill();
-      ctx.strokeStyle=`rgba(205,240,255,${.7*water.a})`;ctx.lineWidth=1.5;ctx.beginPath();for(let x=0;x<=W+8;x+=8){const y=lv+Math.sin(x*.045+now*.005)*4+Math.sin(x*.12+now*.009)*2;x?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.stroke()}
+      const g=ctx.createLinearGradient(0,lv,0,H);if(water.lava){g.addColorStop(0,`rgba(255,170,40,${.95*water.a})`);g.addColorStop(.35,`rgba(230,70,0,${.9*water.a})`);g.addColorStop(1,`rgba(90,10,0,${.95*water.a})`)}else{g.addColorStop(0,`rgba(80,165,205,${.6*water.a})`);g.addColorStop(1,`rgba(8,45,75,${.9*water.a})`)}ctx.fillStyle=g;ctx.fill();
+      ctx.strokeStyle=water.lava?`rgba(255,235,150,${.9*water.a})`:`rgba(205,240,255,${.7*water.a})`;ctx.lineWidth=1.5;ctx.beginPath();for(let x=0;x<=W+8;x+=8){const y=lv+Math.sin(x*.045+now*.005)*4+Math.sin(x*.12+now*.009)*2;x?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.stroke()}
     ctx.globalCompositeOperation="lighter";
     for(const p of P){if(!LIT[p.t])continue;const k=p.life/p.max;
+      if(p.t==="lava"){const r=p.s*(1-k*.4),g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,r);g.addColorStop(0,`rgba(255,230,120,${.9*(1-k)})`);g.addColorStop(.45,`rgba(255,110,10,${.6*(1-k)})`);g.addColorStop(1,"rgba(160,20,0,0)");ctx.fillStyle=g;ctx.beginPath();ctx.arc(p.x,p.y,r,0,7);ctx.fill();continue}
+      if(p.t==="glint"){const a=Math.sin(k*Math.PI),r=p.s*a;ctx.strokeStyle=`rgba(235,250,255,${a})`;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(p.x-r,p.y);ctx.lineTo(p.x+r,p.y);ctx.moveTo(p.x,p.y-r);ctx.lineTo(p.x,p.y+r);ctx.stroke();continue}
+      if(p.t==="flake"){const g=Math.min(1,k*2.5),a=k<.6?.9:.9*(1-k)/.4,r=p.s*g;ctx.strokeStyle=`rgba(200,240,255,${a})`;ctx.lineWidth=1;ctx.beginPath();
+        for(let i=0;i<6;i++){const an=p.r0+i*Math.PI/3,cx=Math.cos(an),cy=Math.sin(an);ctx.moveTo(p.x,p.y);ctx.lineTo(p.x+cx*r,p.y+cy*r);
+          for(const f of [.45,.7]){const bx=p.x+cx*r*f,by=p.y+cy*r*f,l=r*.28;for(const d of [-.6,.6]){ctx.moveTo(bx,by);ctx.lineTo(bx+Math.cos(an+d)*l,by+Math.sin(an+d)*l)}}}
+        ctx.stroke();continue}
       if(p.t==="spark"){ctx.strokeStyle=`rgba(170,240,255,${1-k})`;ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x-p.vx*2.5,p.y-p.vy*2.5);ctx.stroke();continue}
       if(p.t==="bolt"){ctx.lineCap="round";ctx.lineJoin="round";for(const [w,c] of [[7,`rgba(90,200,255,${.28*(1-k)})`],[3,`rgba(160,235,255,${.6*(1-k)})`],[1.4,`rgba(255,255,255,${1-k})`]]){ctx.lineWidth=w;ctx.strokeStyle=c;ctx.beginPath();p.pts.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke()}continue}
       if(p.t==="fire"){const r=p.s*(1-k*.6);const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,r);
@@ -1639,6 +1661,7 @@ function playFx(body,title,instant){
   const stop=()=>{alive=false;cancelAnimationFrame(raf);emit=null;if(fxStop===stop)fxStop=null};
   fxStop=stop;stage.onclick=finish;
   raf=requestAnimationFrame(frame);
+  if(theme==="subj"){subjSeq();return}
   if(theme==="past"){pastSeq();return}
   if(theme==="future"){futureSeq();return}
   (async()=>{
@@ -1665,6 +1688,38 @@ function playFx(body,title,instant){
     }
     await wait(500);if(alive)finish();
   })();
+  // SUBJUNCTIVE: the sentence flows out of lava; each use freezes into ice, glints, then shatters
+  async function subjSeq(){
+    word.className="fx-word";word.textContent="";smoke.className="fx-smoke in";water={level:H-16,a:1,lava:1};
+    const sb=box(smoke);
+    emit=()=>{if(R()<.5)add({t:"lava",x:sb.x+sb.w*(.1+R()*.8),y:sb.y+sb.h*(.75+R()*.2),vx:(R()-.5)*.3,vy:.2+R()*.6,g:.07,s:5+R()*7,life:0,max:50+R()*30});
+      if(R()<.35)add({t:"lava",x:R()*W,y:H-16,vx:(R()-.5)*.8,vy:-1.5-R()*2,g:.08,s:4+R()*6,life:0,max:30+R()*20});
+      if(R()<.5)add({t:"ember",x:R()*W,y:H,vx:(R()-.5)*.6,vy:-1-R()*1.5,s:1.5+R()*1.5,life:0,max:70+R()*40})};
+    await wait(2600);if(!alive)return;
+    smoke.className="fx-smoke out";
+    for(let i=0;i<40;i++)add({t:"lava",x:sb.x+sb.w*(.05+R()*.9),y:sb.y+sb.h*(.4+R()*.5),vx:(R()-.5)*1,vy:.5+R()*1.5,g:.12,s:5+R()*8,life:0,max:40+R()*25});
+    await wait(700);emit=null;if(!alive)return;
+    for(const u of uses){
+      word.textContent=u;word.style.setProperty("--b","-10%");word.className="fx-word freeze";const b=box(word),cy=b.y+b.h*.55;
+      for(let i=0;i<10;i++)add({t:"mist",x:b.x+R()*b.w,y:cy+(R()-.5)*30,vx:(R()-.5)*.5,vy:-.2,s:14+R()*14,life:0,max:70});
+      const st=performance.now(),dur=900;
+      emit=now=>{const k=Math.min(1,(now-st)/dur);word.style.setProperty("--b",(k*110-10)+"%");const x=b.x+b.w*(k*1.1-.1);
+        if(R()<.7)add({t:"flake",x:x+(R()-.5)*16,y:cy+(R()-.5)*b.h*.35,vx:0,vy:0,r0:R(),s:6+R()*9,life:0,max:45+R()*20});
+        if(R()<.5)add({t:"mist",x,y:cy,vx:(R()-.5)*.6,vy:-.3,s:10+R()*10,life:0,max:50})};
+      await wait(dur+50);if(!alive)return;word.style.setProperty("--b","-10%");word.className="fx-word frozen";
+      emit=()=>{if(R()<.14)add({t:"glint",x:b.x+b.w*(.1+R()*.8),y:cy+(R()-.5)*b.h*.3,vx:0,vy:0,s:5+R()*6,life:0,max:24});
+        if(R()<.06)add({t:"flake",x:b.x+R()*b.w,y:cy+(R()-.5)*b.h*.5,vx:0,vy:-.1,r0:R(),s:4+R()*5,life:0,max:50})};
+      await wait(1500);if(!alive)return;emit=null;
+      // crack and shatter
+      word.className="fx-word frozen crack";await wait(220);if(!alive)return;
+      word.className="fx-word shatter";flash=.25;
+      for(let i=0;i<55;i++){const x=b.x+b.w*(.05+R()*.9),y=cy+(R()-.5)*b.h*.3;add({t:"shard",x,y,vx:(x-(b.x+b.w/2))*.02+(R()-.5)*3,vy:-1.5-R()*3,g:.18,vr:(R()-.5)*.4,s:3+R()*7,life:0,max:50+R()*25})}
+      for(let i=0;i<14;i++)add({t:"glint",x:b.x+R()*b.w,y:cy+(R()-.5)*b.h*.4,vx:(R()-.5),vy:-.5,s:4+R()*5,life:0,max:22});
+      for(let i=0;i<10;i++)add({t:"mist",x:b.x+R()*b.w,y:cy,vx:(R()-.5)*.8,vy:-.4,s:12+R()*12,life:0,max:60});
+      await wait(900);if(!alive)return;word.className="fx-word gone";await wait(250);if(!alive)return;
+    }
+    await wait(500);water=null;if(alive)finish();
+  }
   // PAST: the statement rises out of still water; each use is a stone that drops in, then the water rises and washes it away
   async function pastSeq(){
     word.className="fx-word";word.textContent="";smoke.className="fx-smoke in";
@@ -1781,7 +1836,7 @@ function grammar(openTitle){
   const exHTML=ex=>`<div class="chips">${ex.map(s=>{const e=pw(s),m=mean(e);return `<button class="chip" data-say="${esc(speakable(e.w))}">${SPK_SVG}<b lang="${S.lang}">${esc(e.w)}</b>${m?`<span>${esc(m)}</span>`:""}</button>`}).join("")}</div>`;
   const item=(it,gi,ii)=>{const [k,t,d,f,ex,tb]=it;n++;const bq=qzBest(t);
     return `<details class="gi" data-g="${gi}" data-i="${ii}" data-t="${esc(t)}"><summary><span class="rn">(${roman(n)})</span><span class="gt"${S.lang==="en"?"":` lang="${S.lang}"`}>${esc(dispTitle(t))}</span>${bq!=null?`<span class="qbadge">${bq}/${QN}</span>`:""}<span class="chev" aria-hidden="true"></span></summary>
-    <div class="gbody">${k&&usesOf(t)?fxHTML(t,usesOf(t),gi===1?"past":gi===2?"future":"fire"):""}<p>${esc(tx(d))}</p><div class="form"><span class="label">${T("How to form it")}</span><p>${esc(tx(f))}</p></div>
+    <div class="gbody">${k&&usesOf(t)?fxHTML(t,usesOf(t),SUBJ_K.test(k)?"subj":gi===1?"past":gi===2?"future":"fire"):""}<p>${esc(tx(d))}</p><div class="form"><span class="label">${T("How to form it")}</span><p>${esc(tx(f))}</p></div>
     <span class="label">${T("Examples · tap to hear")}</span>${exHTML(ex)}
     ${k?`<button class="btn ghost more" data-k="${k}" data-s="${T("Show verb conjugation")}" data-h="${T("Hide verb conjugation")}">${T("Show verb conjugation")}</button><div class="extra" hidden></div>`:tb?(()=>{const wc=/Plural|Feminine|Adjectives|Adverbs/.test(t),sh=T(wc?"Show word changes":"Show more examples"),hd=T(wc?"Hide word changes":"Hide more examples");return `<button class="btn ghost more" data-t="1" data-s="${sh}" data-h="${hd}">${sh}</button><div class="extra" hidden></div>`})():""}
     <div class="quizrow"><button class="btn quizb" data-qz="${ii}" data-qg="${gi}">${T("Take the quiz · {n} questions",{n:QN})}</button><span class="label">${bq!=null?T("Best score {b}/{n}",{b:bq,n:QN}):T("Not taken yet")}</span></div>
