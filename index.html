@@ -555,24 +555,14 @@ function home(){
   <header style="display:flex;flex-direction:column;gap:10px">
     <span class="label">Letters · Letter teams · Reading</span>
     <h1>Symbols &amp; Sounds</h1>
-    <p class="lede">Learn each letter by ear: hear it, hear it in two words, see how it changes with other letters, then say it yourself.</p>
+    <p class="lede">Tap on the letter to hear its sound and repeat in the microphone to test your pronunciation.</p>
   </header>
   <section style="display:flex;flex-direction:column;gap:10px">
     <span class="label">Choose the language you're learning</span>
     <div class="langs">${Object.entries(LANGS).map(([k,v])=>{const p=loadProg(k);
       const where=!p?"Start at A":p.ph==="reading"?`Reading practice · ${p.score} pts`:p.ph==="teams"?`Letter teams: ${esc(v.teams[Math.min(p.tidx||0,v.teams.length-1)].l)} · ${p.score} pts`:`Resume at ${up(v.letters[Math.min(p.idx,v.letters.length-1)].l)} · ${p.score} pts`;
       return `<button class="lang ${v.cls}" data-k="${k}"><span class="nm">${v.name.toUpperCase()}</span><span class="meta">${v.native} · ${v.letters.length} letters · ${v.teams.length} letter teams</span><span class="prog">${where}</span></button>`}).join("")}</div>
-  </section>
-  <section class="howto">
-    <div><b>Tap the letter</b>You hear its name and see its main sound, then two example words play one after the other.</div>
-    <div><b>Learn the changes</b>See the letter's other sounds and the letter teams that change it, each with two examples.</div>
-    <div><b>Say it: +1</b>Pronounce the letter. Each one you get right earns a point.</div>
-    <div><b>Review every 6</b>The last 5 come back in random order. A miss costs 1 point and replays the lesson.</div>
-    <div><b>Then letter teams</b>After the alphabet: digraphs, trigraphs, diphthongs and triphthongs, practised the same way.</div>
-    <div><b>Finally, read aloud</b>Learn where the stress falls, then read a short A1 text for up to 5 points.</div>
-  </section>
-  ${micNote?`<p class="note">${esc(micNote)}</p>`:""}
-  <p class="note">Works in Google Chrome on a computer or an Android phone. You need an internet connection and a microphone.</p>`;
+  </section>`;
   $(".langs").onclick=e=>{const b=e.target.closest("[data-k]");if(!b)return;
     const k=b.dataset.k,p=loadProg(k)||{};
     S={lang:k,ph:["teams","reading"].includes(p.ph)?p.ph:"letters",rbest:p.rbest||0,idx:Math.min(p.idx||0,LANGS[k].letters.length-1),tidx:Math.min(p.tidx||0,LANGS[k].teams.length-1),score:p.score||0,got:p.got||[],tgot:p.tgot||[]};
