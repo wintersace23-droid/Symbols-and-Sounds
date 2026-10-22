@@ -1170,27 +1170,30 @@ function esConj(v,k){
   const SUBJ=(ar?sp("e es e emos éis en"):sp("a as a amos áis an")).map(e=>(T?"teng":st)+e);
   const IS=INDEF[5].slice(0,-3),acc={a:"á",e:"é"};
   const SIMP=sp("ra ras ra ramos rais ran").map((e,i)=>i===3?IS.slice(0,-1)+acc[IS.slice(-1)]+e:IS+e);
-  const A={he:sp("he has ha hemos habéis han"),habia:sp("había habías había habíamos habíais habían"),habre:sp("habré habrás habrá habremos habréis habrán"),habria:sp("habría habrías habría habríamos habríais habrían"),estar:sp("estoy estás está estamos estáis están"),ir:sp("voy vas va vamos vais van")};
+  const A={he:sp("he has ha hemos habéis han"),habia:sp("había habías había habíamos habíais habían"),habre:sp("habré habrás habrá habremos habréis habrán"),habria:sp("habría habrías habría habríamos habríais habrían"),estar:sp("estoy estás está estamos estáis están"),ir:sp("voy vas va vamos vais van"),estaba:sp("estaba estabas estaba estábamos estabais estaban"),estare:sp("estaré estarás estará estaremos estaréis estarán"),hube:sp("hube hubiste hubo hubimos hubisteis hubieron"),haya:sp("haya hayas haya hayamos hayáis hayan"),hubiera:sp("hubiera hubieras hubiera hubiéramos hubierais hubieran")};
   if(k==="imper"){const f=[T?"ten":PRES[2],SUBJ[2],SUBJ[3],v.slice(0,-1)+"d",SUBJ[5]];return ["(tú)","(usted)","(nosotros)","(vosotros)","(ustedes)"].map((p,i)=>`${p} ¡${f[i][0].toUpperCase()+f[i].slice(1)}!`)}
   const f={pres:i=>PRES[i],prog:i=>A.estar[i]+" "+ger,pperf:i=>A.he[i]+" "+pp,indef:i=>INDEF[i],imperf:i=>IMPF[i],plusc:i=>A.habia[i]+" "+pp,
-    ira:i=>A.ir[i]+" a "+v,fut:i=>FUT[i],futperf:i=>A.habre[i]+" "+pp,cond:i=>COND[i],condperf:i=>A.habria[i]+" "+pp,subj:i=>SUBJ[i],subjimp:i=>SIMP[i]}[k];
-  return P.map((p,i)=>(k==="subj"||k==="subjimp"?"que ":"")+p+" "+f(i));
+    ira:i=>A.ir[i]+" a "+v,fut:i=>FUT[i],futperf:i=>A.habre[i]+" "+pp,cond:i=>COND[i],condperf:i=>A.habria[i]+" "+pp,subj:i=>SUBJ[i],subjimp:i=>SIMP[i],progpast:i=>A.estaba[i]+" "+ger,progfut:i=>A.estare[i]+" "+ger,ant:i=>A.hube[i]+" "+pp,subjperf:i=>A.haya[i]+" "+pp,subjplusc:i=>A.hubiera[i]+" "+pp}[k];
+  return P.map((p,i)=>(/^subj/.test(k)?"que ":"")+p+" "+f(i));
 }
 /* French */
 const FRV={parler:{pres:"parle parles parle parlons parlez parlent",pp:"parlé",e:0,imp:"parl",ps:"parlai parlas parla parlâmes parlâtes parlèrent",fs:"parler",subj:"parle parles parle parlions parliez parlent",imper:"parle parlons parlez"},
  finir:{pres:"finis finis finit finissons finissez finissent",pp:"fini",e:0,imp:"finiss",ps:"finis finis finit finîmes finîtes finirent",fs:"finir",subj:"finisse finisses finisse finissions finissiez finissent",imper:"finis finissons finissez"},
  aller:{pres:"vais vas va allons allez vont",pp:"allé",e:1,imp:"all",ps:"allai allas alla allâmes allâtes allèrent",fs:"ir",subj:"aille ailles aille allions alliez aillent",imper:"va allons allez"}};
 const FAV={pres:"ai as a avons avez ont",imp:"avais avais avait avions aviez avaient",fut:"aurai auras aura aurons aurez auront",cond:"aurais aurais aurait aurions auriez auraient"};
+const FAV2={ps:"eus eus eut eûmes eûtes eurent",subj:"aie aies ait ayons ayez aient"},FET2={ps:"fus fus fut fûmes fûtes furent",subj:"sois sois soit soyons soyez soient"};
 const FET={pres:"suis es est sommes êtes sont",imp:"étais étais était étions étiez étaient",fut:"serai seras sera serons serez seront",cond:"serais serais serait serions seriez seraient"};
 function frConj(v,k){
   const d=FRV[v],P=["je","tu","il/elle","nous","vous","ils/elles"],ag=["(e)","(e)","(e)","(e)s","(e)(s)","(e)s"];
   const el=(p,f)=>p==="je"&&/^[aeiouhéèêâîôy]/i.test(f)?"j'"+f:p+" "+f;
   const que=(p,f)=>{const x=el(p,f);return /^(il|elle)/.test(x)?"qu'"+x:"que "+x};
   if(k==="imper")return sp(d.imper).map((f,i)=>`(${["tu","nous","vous"][i]}) ${f[0].toUpperCase()+f.slice(1)} !`);
-  const comp=t=>i=>sp((d.e?FET:FAV)[t])[i]+" "+d.pp+(d.e?ag[i]:"");
+  const comp=t=>i=>sp((d.e?{...FET,...FET2}:{...FAV,...FAV2})[t])[i]+" "+d.pp+(d.e?ag[i]:"");
+  const de=v=>/^[aeiouhéè]/i.test(v)?"d'"+v:"de "+v;
   const f={pres:i=>sp(d.pres)[i],pc:comp("pres"),imp:i=>d.imp+sp("ais ais ait ions iez aient")[i],pqp:comp("imp"),ps:i=>sp(d.ps)[i],
-    fp:i=>sp(FRV.aller.pres)[i]+" "+v,fut:i=>d.fs+sp("ai as a ons ez ont")[i],fa:comp("fut"),cond:i=>d.fs+sp("ais ais ait ions iez aient")[i],condp:comp("cond"),subj:i=>sp(d.subj)[i]}[k];
-  return P.map((p,i)=>k==="subj"?que(p,f(i)):el(p,f(i)));
+    fp:i=>sp(FRV.aller.pres)[i]+" "+v,fut:i=>d.fs+sp("ai as a ons ez ont")[i],fa:comp("fut"),cond:i=>d.fs+sp("ais ais ait ions iez aient")[i],condp:comp("cond"),subj:i=>sp(d.subj)[i],
+    prog:i=>sp(FET.pres)[i]+" en train "+de(v),recent:i=>sp("viens viens vient venons venez viennent")[i]+" "+de(v),pa:comp("ps"),subjp:comp("subj")}[k];
+  return P.map((p,i)=>k==="subj"||k==="subjp"?que(p,f(i)):el(p,f(i)));
 }
 /* German */
 const DEV={machen:{pres:"mache machst macht machen macht machen",prat:"machte machtest machte machten machtet machten",pp:"gemacht",s:0,k1:"mache machest mache machen machet machen",imper:"Mach!|Macht!|Machen Sie!|Machen wir!"},
@@ -1201,7 +1204,8 @@ function deConj(v,k){
   const HP=sp("habe hast hat haben habt haben"),HT=sp("hatte hattest hatte hatten hattet hatten"),SP=sp(DEV.sein.pres),ST=sp(DEV.sein.prat),W=sp("werde wirst wird werden werdet werden"),WU=sp("würde würdest würde würden würdet würden");
   if(k==="imper")return d.imper.split("|").map((f,i)=>(i<2?`(${["du","ihr"][i]}) `:"")+f);
   const f={pres:i=>sp(d.pres)[i],perf:i=>(d.s?SP:HP)[i]+" "+d.pp,prat:i=>sp(d.prat)[i],pqp:i=>(d.s?ST:HT)[i]+" "+d.pp,
-    fut1:i=>W[i]+" "+v,fut2:i=>W[i]+" "+d.pp+" "+(d.s?"sein":"haben"),k2:i=>d.k2?sp(d.k2)[i]:WU[i]+" "+v,k1:i=>sp(d.k1)[i]}[k];
+    fut1:i=>W[i]+" "+v,fut2:i=>W[i]+" "+d.pp+" "+(d.s?"sein":"haben"),k2:i=>d.k2?sp(d.k2)[i]:WU[i]+" "+v,k1:i=>sp(d.k1)[i],
+    k2p:i=>(d.s?sp("wäre wärst wäre wären wärt wären"):sp("hätte hättest hätte hätten hättet hätten"))[i]+" "+d.pp}[k];
   return P.map((p,i)=>p+" "+f(i));
 }
 
@@ -1296,7 +1300,7 @@ fr:{verbs:[["parler","to speak · -er"],["finir","to finish · -ir"],["aller","t
   ["cond","Conditionnel présent","Hypothetical situations, polite requests and advice.","future stem + -ais, -ais, -ait, -ions, -iez, -aient",["Je voudrais un café.=I would like a coffee.","Si j'avais le temps, je parlerais avec lui.=If I had time, I would talk to him."]],
   ["condp","Conditionnel passé","What would have happened, but didn't.","avoir or être (conditionnel) + participe passé",["J'aurais parlé, mais j'avais peur.=I would have spoken, but I was afraid."]]]],
  ["Moods",[
-  ["pres","Indicatif","The mood for facts and certainty. All the tenses above except the conditionnel are in the indicative.","any tense above",["Elle habite à Lyon.=She lives in Lyon."]],
+  ["pres","Indicatif","The mood for facts and certainty. The present, past and future tenses above are all in the indicative.","any tense above",["Elle habite à Lyon.=She lives in Lyon."]],
   ["subj","Subjonctif présent","After expressions of wish, necessity, emotion and doubt followed by que.","ils-form stem (ils parl-ent) + -e, -es, -e, -ions, -iez, -ent",["Il faut que tu finisses.=You have to finish.","Je veux qu'elle parle.=I want her to speak."]],
   ["imper","Impératif","Orders and instructions. Only tu, nous and vous, without the pronoun. -er verbs drop the -s in the tu form.","present tense of tu, nous, vous without the pronoun",["Parle plus fort !=Speak louder!","Allons-y !=Let's go!","Ne finissez pas sans moi.=Don't finish without me."]]]],
  ["Other grammar",[
@@ -1348,6 +1352,29 @@ de:{verbs:[["machen","to make, to do · regular"],["sprechen","to speak · irreg
   ["","Feminine formation","Most nouns for people add -in, and the article becomes die. The plural ends in -innen.","+ -in · plural: -innen",["der Lehrer → die Lehrerin=the teacher (m → f)","die Lehrerinnen=the (female) teachers"],
    {h:["Maskulin","Feminin","Rule"],s:[0,1],r:[["der Lehrer","die Lehrerin","+ in"],["der Student","die Studentin","+ in"],["der Freund","die Freundin","+ in"],["der Arzt","die Ärztin","+ in, often with umlaut"],["der Koch","die Köchin","+ in, often with umlaut"],["der Kollege","die Kollegin","-e → -in"],["der Franzose","die Französin","-e → -in, with umlaut"],["der Mann","die Frau","different word"],["der Vater","die Mutter","different word"]]}]]]]}
 };
+
+const EXTRA={
+ es:[["progpast","Pretérito imperfecto continuo","An action that was in progress at a moment in the past.","estaba, estabas, estaba, estábamos, estabais, estaban + gerundio",["Estaba leyendo cuando llamaste.=I was reading when you called."]],
+  ["ant","Pretérito anterior","A literary tense for an action just before another past action, mostly after cuando, en cuanto or apenas. In speech, the pluscuamperfecto or the indefinido is used instead.","hube, hubiste, hubo, hubimos, hubisteis, hubieron + participio",["En cuanto hubo terminado, se fue.=As soon as he had finished, he left."]],
+  ["progfut","Futuro continuo","An action that will be in progress at a time in the future.","estaré, estarás, estará, estaremos, estaréis, estarán + gerundio",["Mañana a esta hora estaré viajando.=This time tomorrow I'll be travelling."]],
+  ["subjperf","Subjuntivo perfecto","Like the pretérito perfecto, but after expressions that need the subjunctive.","haya, hayas, haya, hayamos, hayáis, hayan + participio",["Espero que hayas comido.=I hope you have eaten."]],
+  ["subjplusc","Subjuntivo pluscuamperfecto","Unreal situations in the past, often with si.","hubiera, hubieras, hubiera, hubiéramos, hubierais, hubieran + participio",["Si hubiera tenido tiempo, habría venido.=If I had had time, I would have come."]]],
+ fr:[["prog","Présent progressif","To stress that an action is happening right now.","être (present) + en train de + infinitive",["Je suis en train de manger.=I am eating (right now)."]],
+  ["recent","Passé récent","Something that has only just happened.","venir (present) + de + infinitive",["Je viens de finir.=I have just finished.","Elle vient d'arriver.=She has just arrived."]],
+  ["pa","Passé antérieur","A literary tense for an action just before another action in the passé simple, mostly after quand or dès que.","avoir or être (passé simple) + participe passé",["Dès qu'il eut fini, il partit.=As soon as he had finished, he left."]],
+  ["subjp","Subjonctif passé","A finished action after expressions that need the subjunctive.","avoir or être (subjonctif) + participe passé",["Je suis content que tu sois venu.=I'm glad you came.","Il faut que tu aies fini avant midi.=You must have finished before noon."]]],
+ de:[["k2p","Konjunktiv II der Vergangenheit","Unreal situations and regrets about the past.","hätte or wäre + Partizip II",["Wenn ich Zeit gehabt hätte, wäre ich gekommen.=If I had had time, I would have come.","Ich hätte das gern gemacht.=I would have liked to do that."]]]
+};
+const LAYOUT={
+ en:[["Present tenses",["Simple present","Present continuous","Present perfect","Present perfect continuous"]],["Past tenses",["Simple past","Past continuous","Past perfect","Past perfect continuous"]],["Future tenses",["Simple future (will)","Future with going to","Future continuous","Future perfect","Future perfect continuous"]],["Moods",["Indicative","Imperative","Conditional","Conditional perfect","Present subjunctive","Past subjunctive"]]],
+ es:[["Present tenses",["Presente","Presente continuo"]],["Past tenses",["Pretérito perfecto","Pretérito indefinido","Pretérito imperfecto","Pretérito imperfecto continuo","Pretérito pluscuamperfecto","Pretérito anterior"]],["Future tenses",["Futuro próximo (ir a + infinitivo)","Futuro simple","Futuro continuo","Futuro perfecto"]],["Conditional",["Condicional simple","Condicional compuesto"]],["Moods",["Indicativo","Subjuntivo presente","Subjuntivo perfecto","Subjuntivo imperfecto","Subjuntivo pluscuamperfecto","Imperativo"]]],
+ fr:[["Present tenses",["Présent","Présent progressif"]],["Past tenses",["Passé composé","Passé récent","Imparfait","Plus-que-parfait","Passé simple","Passé antérieur"]],["Future tenses",["Futur proche","Futur simple","Futur antérieur"]],["Conditional",["Conditionnel présent","Conditionnel passé"]],["Moods",["Indicatif","Subjonctif présent","Subjonctif passé","Impératif"]]],
+ de:[["Present tense",["Präsens"]],["Past tenses",["Perfekt","Präteritum","Plusquamperfekt"]],["Future tenses",["Futur I","Futur II"]],["Moods",["Indikativ","Imperativ","Konjunktiv II","Konjunktiv II der Vergangenheit","Konjunktiv I"]]]
+};
+for(const [L,G] of Object.entries(GRAM)){
+  const pool=[...G.groups[0][1],...G.groups[1][1],...(EXTRA[L]||[])],other=G.groups[2];
+  G.groups=LAYOUT[L].map(([name,titles])=>[name,titles.map(t=>{const it=pool.find(x=>x[1]===t);if(!it)throw new Error("grammar item missing: "+t);return it})]).concat([other]);
+}
 
 /* ---------------- NEXT STEPS ---------------- */
 function hub(){
