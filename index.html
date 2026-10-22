@@ -78,6 +78,8 @@ button:focus-visible{outline:3px solid var(--acc);outline-offset:3px}
 .rail button{appearance:none;border:1.5px solid var(--line);background:var(--surface);border-radius:8px;width:34px;height:38px;cursor:pointer;font-family:var(--display);font-weight:800;position:relative;font-size:.95rem}
 .rail button.done{background:var(--soft);border-color:var(--acc)}
 .rail button.cur{background:var(--acc);color:var(--on-acc);border-color:var(--acc)}
+.rail button.miss{border-color:var(--bad);box-shadow:inset 0 -3px 0 var(--bad)}
+.chip.ok{border-color:var(--good)} .chip.miss{border-color:var(--bad);color:var(--bad)}
 .rail button.cp::after{content:"";position:absolute;bottom:-7px;left:50%;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--muted)}
 .bench{display:grid;gap:18px}
 @media(min-width:780px){.bench{grid-template-columns:minmax(0,5fr) minmax(0,6fr);align-items:start}}
@@ -517,10 +519,10 @@ function hl(word,letter){
 }
 
 /* ---------------- STATE ---------------- */
-let S={lang:null,ph:"letters",idx:0,tidx:0,score:0,got:[],tgot:[],rbest:0};
+let S={lang:null,ph:"letters",idx:0,tidx:0,score:0,got:[],tgot:[],miss:[],tmiss:[],rbest:0};
 let run=0; // cancels audio sequences
 function loadProg(lang){try{return JSON.parse(localStorage.getItem("aa-"+lang)||"null")}catch(e){return null}}
-function saveProg(){try{localStorage.setItem("aa-"+S.lang,JSON.stringify({ph:S.ph,idx:S.idx,tidx:S.tidx,score:S.score,got:S.got,tgot:S.tgot,rbest:S.rbest||0}))}catch(e){}}
+function saveProg(){try{localStorage.setItem("aa-"+S.lang,JSON.stringify({ph:S.ph,idx:S.idx,tidx:S.tidx,score:S.score,got:S.got,tgot:S.tgot,miss:S.miss,tmiss:S.tmiss,rbest:S.rbest||0}))}catch(e){}}
 const LG=()=>LANGS[S.lang];
 const isT=()=>S.ph==="teams";
 const items=()=>isT()?LG().teams:LG().letters;
@@ -530,7 +532,13 @@ const gotArr=()=>isT()?S.tgot:S.got;
 const kid=x=>x.team?x.l+"|"+x.snd:x.l;
 const disp=x=>x.team?x.l:up(x.l);
 const unitWord=()=>isT()?"team":"letter";
-function bumpScore(d){S.score+=d;saveProg();const el=$("#score");if(el){el.textContent=S.score+" pts";el.classList.remove("bump");void el.offsetWidth;el.classList.add("bump")}}
+const calcScore=p=>(p.got||[]).length+(p.tgot||[]).length-(p.miss||[]).length-(p.tmiss||[]).length+(p.rbest||0);
+const Gx=x=>x.team?S.tgot:S.got, Mx=x=>x.team?S.tmiss:S.miss;
+// +1 once per item for a correct pronunciation; −1 once per item for a mistake (and it's recorded)
+function award(x){const g=Gx(x);if(g.includes(kid(x)))return 0;g.push(kid(x));refreshScore();return 1}
+function penalise(x){const m=Mx(x);if(m.includes(kid(x)))return 0;m.push(kid(x));refreshScore();return -1}
+function refreshScore(){bumpScore(0)}
+function bumpScore(d){const before=S.score;S.score=calcScore(S);saveProg();if(S.score===before)return;const el=$("#score");if(el){el.textContent=S.score+" pts";el.classList.remove("bump");void el.offsetWidth;el.classList.add("bump")}}
 function lev(a,b){const m=a.length,n=b.length;if(!m)return n;if(!n)return m;let p=[...Array(n+1).keys()];for(let i=1;i<=m;i++){const c=[i];for(let j=1;j<=n;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c}return p[n]}
 function matchWord(target,alts){
   const t=norm(target),ts=strip(t);
@@ -560,12 +568,12 @@ function home(){
   <section style="display:flex;flex-direction:column;gap:10px">
     <span class="label">Choose the language you're learning</span>
     <div class="langs">${Object.entries(LANGS).map(([k,v])=>{const p=loadProg(k);
-      const where=!p?"Start at A":p.ph==="reading"?`Reading practice · ${p.score} pts`:p.ph==="teams"?`Letter teams: ${esc(v.teams[Math.min(p.tidx||0,v.teams.length-1)].l)} · ${p.score} pts`:`Resume at ${up(v.letters[Math.min(p.idx,v.letters.length-1)].l)} · ${p.score} pts`;
+      const where=!p?"Start at A":p.ph==="reading"?`Reading practice · ${calcScore(p)} pts`:p.ph==="teams"?`Letter teams: ${esc(v.teams[Math.min(p.tidx||0,v.teams.length-1)].l)} · ${calcScore(p)} pts`:`Resume at ${up(v.letters[Math.min(p.idx,v.letters.length-1)].l)} · ${calcScore(p)} pts`;
       return `<button class="lang ${v.cls}" data-k="${k}"><span class="nm">${v.name.toUpperCase()}</span><span class="meta">${v.native} · ${v.letters.length} letters · ${v.teams.length} letter teams</span><span class="prog">${where}</span></button>`}).join("")}</div>
   </section>`;
   $(".langs").onclick=e=>{const b=e.target.closest("[data-k]");if(!b)return;
     const k=b.dataset.k,p=loadProg(k)||{};
-    S={lang:k,ph:["teams","reading"].includes(p.ph)?p.ph:"letters",rbest:p.rbest||0,idx:Math.min(p.idx||0,LANGS[k].letters.length-1),tidx:Math.min(p.tidx||0,LANGS[k].teams.length-1),score:p.score||0,got:p.got||[],tgot:p.tgot||[]};
+    S={lang:k,ph:["teams","reading"].includes(p.ph)?p.ph:"letters",rbest:p.rbest||0,idx:Math.min(p.idx||0,LANGS[k].letters.length-1),tidx:Math.min(p.tidx||0,LANGS[k].teams.length-1),score:calcScore(p),got:p.got||[],tgot:p.tgot||[],miss:p.miss||[],tmiss:p.tmiss||[]};
     micReady?learn():micSetup()};
 }
 
@@ -649,7 +657,7 @@ function wirePhaseTabs(){
 function rail(){
   const g=gotArr();
   return `<div class="rail-wrap"><div class="rail ${isT()?"teams":""}" id="rail">${items().map((x,i)=>
-    `<button data-i="${i}" class="${i===ci()?"cur":""} ${g.includes(kid(x))?"done":""} ${(i+1)%6===0?"cp":""}" aria-label="${unitWord()} ${esc(disp(x))}${(i+1)%6===0?", review after this one":""}">${esc(disp(x))}</button>`).join("")}</div></div>`;
+    `<button data-i="${i}" class="${i===ci()?"cur":""} ${g.includes(kid(x))?"done":""} ${Mx(x).includes(kid(x))?"miss":""} ${(i+1)%6===0?"cp":""}" aria-label="${unitWord()} ${esc(disp(x))}${(i+1)%6===0?", review after this one":""}">${esc(disp(x))}</button>`).join("")}</div></div>`;
 }
 function glyph(x){return x.team?`<span class="g team" lang="${S.lang}">${esc(x.l)}</span>`:`<span class="g">${up(x.l)}${x.l!=="ß"?`<small>${x.l}</small>`:""}</span>`}
 function tileHTML(x,caption){
@@ -723,16 +731,16 @@ function learnTurn(x){
   checkUI(p,x,{
     target,
     title:x.team?`Your turn: say the word “${target}”`:`Your turn: say the letter ${up(x.l)}`,
-    sub:(x.team?`Make the ${x.l} sound ${x.snd} clearly.`:`Say its name, “${x.name}”.`)+(already?" You already earned this point.":" +1 point if you get it right."),
+    sub:(x.team?`Make the ${x.l} sound ${x.snd} clearly.`:`Say its name, “${x.name}”.`)+(already?" You already earned the point for this one.":" +1 if you get it right, −1 if you get it wrong.")+(Mx(x).includes(kid(x))?" You've struggled with this one before.":""),
     onResult(ok,heard,fb,actions){
       if(ok){
-        if(!g.includes(kid(x))){g.push(kid(x));bumpScore(1);fb("ok",`Correct! +1 point${heard?` (heard “${heard}”)`:""}`)}
-        else fb("ok",`Correct!${heard?` (heard “${heard}”)`:""}`);
+        const pt=award(x);fb("ok",`Correct!${pt?" +1 point":" (point already counted)"}${heard?` I heard “${heard}”.`:""}`);
         actions(`<button class="btn" id="nx">${nextLabel} →</button>`);
         $("#nx").onclick=advance;$("#nx").focus();
         const rb=$("#rail [data-i='"+i+"']");if(rb)rb.classList.add("done");
       }else{
-        fb("no",heard?`I heard “${heard}”. Listen again and try once more.`:"Not quite. Listen again and try once more.");
+        const pt=penalise(x);const rb2=$("#rail [data-i='"+i+"']");if(rb2)rb2.classList.add("miss");
+        fb("no",`${pt?"−1 point. ":""}${heard?`I heard “${heard}”. `:"Not quite. "}${pt?"Added to the ones you're struggling with. ":""}Listen again and try once more.`);
         actions(`<button class="btn ghost" id="again">${SPK_SVG}Hear it again</button><button class="btn ghost" id="skip">Skip for now</button>`);
         $("#again").onclick=()=>{run++;speak(x.team?target:sayOf(S.lang,x),LG().tts,.75)};
         $("#skip").onclick=advance;
@@ -784,17 +792,17 @@ function checkUI(p,x,o){
 }
 
 /* ---------------- REVIEW ---------------- */
-function review(queue){
+function review(queue,after){
   run++;
-  const lg=LG();const res=[];let pos=0;const T=isT();
+  const lg=LG();const res=[];let pos=0;const allT=queue.every(q=>q.team),allL=queue.every(q=>!q.team);
   const targets=queue.map(x=>x.team?x.w[Math.random()*2|0].w:null);
   document.body.className=lg.cls;
   const draw=()=>{
-    const x=queue[pos],target=targets[pos];
+    const x=queue[pos],target=targets[pos],T=!!x.team;
     $("#app").innerHTML=`${topbar()}
     <section style="display:flex;flex-direction:column;gap:8px">
-      <span class="label">Review stop · after ${unitWord()} ${ci()+1}</span>
-      <h2>${T?"Say these 5 words from memory":"Say these 5 letters from memory"}</h2>
+      <span class="label">${after?"Practice":`Review stop · after ${unitWord()} ${ci()+1}`}</span>
+      <h2>Say these ${queue.length} ${allT?"words":allL?"letters":"from memory"}${allT||allL?" from memory":""}</h2>
       <div class="dots">${queue.map((_,i)=>`<i class="${res[i]===true?"ok":res[i]===false?"no":i===pos?"now":""}"></i>`).join("")}</div>
     </section>
     <div class="bench">
@@ -810,17 +818,17 @@ function review(queue){
     </div>`;
     wireTop();
     const nextBtn=label=>`<button class="btn" id="nx">${label} →</button>`;
-    const go=()=>{pos++;if(pos<queue.length)draw();else reviewEnd(queue,res)};
+    const go=()=>{pos++;if(pos<queue.length)draw();else reviewEnd(queue,res,after)};
     checkUI($("#turnP"),x,{
       target,
       title:T?`Say the word “${target}”`:"Say this letter",
-      sub:"No hints this time. +1 if it's right, −1 if it's wrong.",
+      sub:Mx(x).includes(kid(x))?"No hints this time. You've already lost the point for this one, so no further deduction.":"No hints this time. Reviews add no points, but a mistake costs 1 point.",
       single:true,
       async onResult(ok,heard,fb,actions){
         res[pos]=ok;
-        if(ok){bumpScore(1);fb("ok",`Correct! +1 point${heard?` (heard “${heard}”)`:""}`);actions(nextBtn(pos<queue.length-1?"Next":"See review results"));$("#nx").onclick=go;$("#nx").focus();return}
-        bumpScore(-1);
-        fb("no",`${heard?`I heard “${heard}”. `:""}−1 point. Listen to the correct pronunciation.`);
+        if(ok){fb("ok",`Correct!${heard?` I heard “${heard}”.`:""}`);actions(nextBtn(pos<queue.length-1?"Next":"See review results"));$("#nx").onclick=go;$("#nx").focus();return}
+        const pt=penalise(x);
+        fb("no",`${heard?`I heard “${heard}”. `:""}${pt?"−1 point, added to the ones you're struggling with. ":""}Listen to the correct pronunciation.`);
         $("#fixP").classList.remove("hidden");
         if(innerWidth<780)$("#fixP").scrollIntoView({behavior:"smooth",block:"start"});
         await demo(x,"stage");
@@ -830,7 +838,7 @@ function review(queue){
   };
   draw();
 }
-function reviewEnd(queue,res){
+function reviewEnd(queue,res,after){
   const right=res.filter(Boolean).length,n=items().length,i=ci();
   const last=i>=n-1;
   const nextTxt=last?(isT()?"On to reading practice":"On to letter teams"):(isT()?"Next team: "+items()[i+1].l:"Next letter: "+up(items()[i+1].l));
@@ -838,12 +846,13 @@ function reviewEnd(queue,res){
   <section class="panel" style="align-items:flex-start">
     <span class="label">Review complete</span>
     <div class="big">${right}/${queue.length}</div>
-    <p class="lede">${right===queue.length?"All five right.":"The ones you missed were replayed with their example words."}</p>
-    <div class="chips">${queue.map((x,k)=>`<span class="chip" style="cursor:default;border-color:${res[k]?"var(--good)":"var(--bad)"}"><b>${esc(disp(x))}</b><span>${res[k]?"+1":"−1"}</span></span>`).join("")}</div>
+    <p class="lede">${right===queue.length?"All right.":"The ones you missed were replayed with their example words and added to the ones you're struggling with."}</p>
+    <div class="chips">${queue.map((x,k)=>`<span class="chip" style="cursor:default;border-color:${res[k]?"var(--good)":"var(--bad)"}"><b>${esc(disp(x))}</b><span>${res[k]?"right":"missed"}</span></span>`).join("")}</div>
     <div class="btns"><button class="btn" id="nx">${esc(nextTxt)} →</button></div>
   </section>`;
   wireTop();
-  $("#nx").onclick=()=>{if(last)endOfPhase();else{setCi(i+1);learn()}};$("#nx").focus();
+  if(after)$("#nx").textContent="Back to results →";
+  $("#nx").onclick=()=>{if(after)after();else if(last)endOfPhase();else{setCi(i+1);learn()}};$("#nx").focus();
 }
 
 /* ---------------- TEAMS INTRO ---------------- */
@@ -1053,21 +1062,27 @@ function assess(T,H,words,rawHeard,spans){
 
 /* ---------------- DONE ---------------- */
 function done(){
-  run++;const lg=LG();
+  run++;const lg=LG();S.score=calcScore(S);saveProg();
+  const hard=[...lg.letters.filter(x=>S.miss.includes(x.l)),...lg.teams.filter(x=>S.tmiss.includes(kid(x)))];
   $("#app").innerHTML=`${topbar()}
   <section class="panel" style="align-items:flex-start;gap:14px">
     <span class="label">${lg.name} complete: letters, letter teams and reading</span>
     <div class="big">${S.score} pts</div>
-    <p class="lede">You pronounced ${S.got.length} of ${lg.letters.length} letters and ${S.tgot.length} of ${lg.teams.length} letter teams correctly in the lessons. Best reading score: ${S.rbest||0}/5.</p>
-    <div class="chips">${lg.letters.map(x=>`<span class="chip" style="cursor:default;${S.got.includes(x.l)?"border-color:var(--good)":""}"><b>${up(x.l)}</b></span>`).join("")}</div>
-    <div class="chips">${lg.teams.map(x=>`<span class="chip" style="cursor:default;${S.tgot.includes(kid(x))?"border-color:var(--good)":""}"><b lang="${S.lang}">${esc(x.l)}</b></span>`).join("")}</div>
-    <div class="btns"><button class="btn" id="rvL">Review 5 random letters</button><button class="btn" id="rvT">Review 5 random teams</button><button class="btn" id="rdA">Read the text again</button><button class="btn ghost" id="restart">Start again from A</button><button class="btn ghost" id="other">Choose another language</button></div>
+    <p class="lede">+${S.got.length+S.tgot.length} for letters and letter teams said correctly, −${S.miss.length+S.tmiss.length} for the ones you struggled with, +${S.rbest||0} for reading. Each letter or letter team counts only once.</p>
+    <section style="display:flex;flex-direction:column;gap:8px;width:100%"><span class="label">Struggled with · ${hard.length}</span>
+      ${hard.length?`<div class="chips">${hard.map(x=>`<span class="chip miss" style="cursor:default"><b lang="${S.lang}">${esc(disp(x))}</b><span class="ipa">${esc(ipaTxt(x.snd))}</span></span>`).join("")}</div>`:`<p>None. You pronounced every letter and letter team correctly.</p>`}</section>
+    <span class="label">Letters · green = point earned · red = struggled</span>
+    <div class="chips">${lg.letters.map(x=>`<span class="chip ${S.miss.includes(x.l)?"miss":S.got.includes(x.l)?"ok":""}" style="cursor:default"><b>${up(x.l)}</b></span>`).join("")}</div>
+    <span class="label">Letter teams</span>
+    <div class="chips">${lg.teams.map(x=>`<span class="chip ${S.tmiss.includes(kid(x))?"miss":S.tgot.includes(kid(x))?"ok":""}" style="cursor:default"><b lang="${S.lang}">${esc(x.l)}</b></span>`).join("")}</div>
+    <div class="btns">${hard.length?`<button class="btn" id="rvH">Practise the ones I struggled with</button>`:""}<button class="btn" id="rvL">Review 5 random letters</button><button class="btn" id="rvT">Review 5 random teams</button><button class="btn" id="rdA">Read the text again</button><button class="btn ghost" id="restart">Start again from A</button><button class="btn ghost" id="other">Choose another language</button></div>
   </section>`;
   wireTop();
-  $("#rvL").onclick=()=>{S.ph="letters";S.idx=lg.letters.length-1;review(shuffle(lg.letters).slice(0,5))};
-  $("#rvT").onclick=()=>{S.ph="teams";S.tidx=lg.teams.length-1;review(shuffle(lg.teams).slice(0,5))};
+  if($("#rvH"))$("#rvH").onclick=()=>review(shuffle(hard),done);
+  $("#rvL").onclick=()=>review(shuffle(lg.letters).slice(0,5),done);
+  $("#rvT").onclick=()=>review(shuffle(lg.teams).slice(0,5),done);
   $("#rdA").onclick=()=>{S.ph="reading";saveProg();readingPage()};
-  $("#restart").onclick=()=>{S.ph="letters";S.idx=0;S.tidx=0;S.score=0;S.got=[];S.tgot=[];S.rbest=0;learn()};
+  $("#restart").onclick=()=>{S.ph="letters";S.idx=0;S.tidx=0;S.score=0;S.got=[];S.tgot=[];S.miss=[];S.tmiss=[];S.rbest=0;learn()};
   $("#other").onclick=home;
 }
 
