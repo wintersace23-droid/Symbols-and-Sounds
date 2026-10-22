@@ -231,20 +231,20 @@ mark.lx{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad
 .tc-face{container-type:inline-size;position:relative;width:100%;height:100%;border-radius:14px;display:grid;place-items:center;overflow:hidden;animation:flipin .8s cubic-bezier(.2,.8,.2,1) both}
 .tcard.neon .tc-face{animation-delay:.3s}
 .tcard.gold .tc-face{background:radial-gradient(ellipse at 50% 30%,#1f1c17,#050505 72%);box-shadow:0 10px 30px rgba(0,0,0,.45),inset 0 0 0 1px #6b5420}
-.tcard.neon .tc-face{background:radial-gradient(ellipse at 50% 30%,#1c0b33,#07030f 72%);box-shadow:0 0 18px rgba(255,61,240,.45),0 0 40px rgba(47,243,255,.25)}
-.tcard.neon .tc-orn{filter:drop-shadow(0 0 2px #ff3df0) drop-shadow(0 0 5px #2ff3ff)}
 .tc-orn{position:absolute;inset:0;width:100%;height:100%}
 .tc-mid{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px}
 .tc-num{font-family:var(--display);font-weight:900;font-size:34cqw;line-height:1;font-variant-numeric:tabular-nums}
-.gold .tc-num{background:linear-gradient(180deg,#fbeab0,#c9982f 55%,#f3d98a);-webkit-background-clip:text;background-clip:text;color:transparent}
-.neon .tc-num{color:#fff;text-shadow:0 0 6px #ff3df0,0 0 16px #ff3df0,0 0 30px #2ff3ff}
 .tc-lbl{font-size:6cqw;letter-spacing:.16em;text-transform:uppercase;font-weight:800}
-.gold .tc-lbl{color:#e3c46c} .neon .tc-lbl{color:#2ff3ff;text-shadow:0 0 6px #2ff3ff}
 .tc-c{position:absolute;font-family:var(--display);font-weight:900;font-size:8.5cqw;font-variant-numeric:tabular-nums}
 .tc-c.tl{top:9.5%;left:15%} .tc-c.br{bottom:9.5%;right:15%;transform:rotate(180deg)}
-.gold .tc-c{color:#e3c46c} .neon .tc-c{color:#ff8df7;text-shadow:0 0 6px #ff3df0}
 .tc-sub{position:absolute;bottom:12.5%;left:22%;right:22%;text-align:center;font-size:5.4cqw;letter-spacing:.06em;text-transform:uppercase;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.gold .tc-sub{color:#c9a44a} .neon .tc-sub{color:#c9b7ff}
+.tcard .tc-face{box-shadow:0 10px 30px rgba(0,0,0,.45),inset 0 0 0 1px #6b5420}
+.tcard.gold .tc-face{background:radial-gradient(ellipse at 50% 30%,#1f1c17,#050505 72%)}
+.tcard.neon .tc-face{background:radial-gradient(ellipse at 50% 42%,#2a0a5e 0%,#6a12c9 42%,#ff2bd6 82%,#ff6ae6 100%)}
+.tcard.silver .tc-face{background:linear-gradient(135deg,#dfe2e6 0%,#9fa4ad 28%,#cdd0d5 50%,#858a94 74%,#c6c9cf 100%)}
+.tc-num{background:linear-gradient(180deg,#fbeab0,#c9982f 55%,#f3d98a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tc-lbl,.tc-c{color:#e9c96b} .tc-sub{color:#e3c46c}
+.tc-mid,.tc-c,.tc-sub{filter:drop-shadow(0 1px 1px rgba(0,0,0,.8)) drop-shadow(0 0 3px rgba(0,0,0,.35))}
 .tc-num small{font-size:.38em;margin-left:.04em}
 .tcards.three{gap:8px;flex-wrap:nowrap}
 .tcards.three .tcard{width:min(27vw,190px)}
@@ -252,10 +252,6 @@ mark.lx{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad
 .tcards.three .tcard:nth-child(2) .tc-face{animation-delay:.15s}
 .tcards.three .tcard:nth-child(3) .tc-face{animation-delay:.3s}
 .strengths{display:flex;flex-direction:column;gap:8px;width:100%}
-.tcard.silver .tc-face{background:linear-gradient(135deg,#f5f6f8 0%,#c5c9d0 28%,#eef0f3 50%,#a3a8b1 74%,#e7e9ed 100%);box-shadow:0 10px 26px rgba(0,0,0,.35),inset 0 0 0 1px #8d929b}
-.silver .tc-num{background:linear-gradient(180deg,#575c66,#1f2228 60%,#626873);-webkit-background-clip:text;background-clip:text;color:transparent}
-.silver .tc-lbl,.silver .tc-c{color:#8a6516}
-.silver .tc-sub{color:#4b4f57}
 @keyframes flipin{0%{transform:rotateY(90deg) scale(.9);opacity:0}100%{transform:none;opacity:1}}
 .hidden{display:none}
 @media(max-width:779px){.tile{max-width:min(240px,64vw)}.tile .g{font-size:clamp(5rem,24vw,7rem)}.hide-sm{display:none}}
@@ -1514,12 +1510,12 @@ function playFx(body,title,instant){
 
 /* ---------------- TRUMP CARDS ---------------- */
 function cardSVG(id,neon){
-  const st=neon?`stroke="#ff3df0"`:`stroke="url(#${id})"`;
+  const st=`stroke="url(#${id})"`;
   const cor=(x,y,sx,sy)=>`<path d="M${x} ${y+sy*22} Q${x} ${y} ${x+sx*22} ${y}" fill="none" ${st} stroke-width="1.4"/>`;
   return `<svg class="tc-orn" viewBox="0 0 100 140" preserveAspectRatio="none" aria-hidden="true">
     <defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6e3a1"/><stop offset=".45" stop-color="#c9982f"/><stop offset=".7" stop-color="#f3d98a"/><stop offset="1" stop-color="#a87a1f"/></linearGradient></defs>
     <rect x="4" y="4" width="92" height="132" rx="6" fill="none" ${st} stroke-width="1.6"/>
-    <rect x="8" y="8" width="84" height="124" rx="4" fill="none" ${neon?`stroke="#2ff3ff"`:st} stroke-width=".7"/>
+    <rect x="8" y="8" width="84" height="124" rx="4" fill="none" ${st} stroke-width=".7"/>
     ${cor(8,8,1,1)}${cor(92,8,-1,1)}${cor(8,132,1,-1)}${cor(92,132,-1,-1)}
     <path d="M30 44 H45 L50 39 L55 44 H70" fill="none" ${st} stroke-width="1"/><path d="M30 96 H45 L50 101 L55 96 H70" fill="none" ${st} stroke-width="1"/>
     <path d="M50 30 l4 5 -4 5 -4 -5z" fill="none" ${st} stroke-width="1"/><path d="M50 100 l4 5 -4 5 -4 -5z" fill="none" ${st} stroke-width="1"/>
