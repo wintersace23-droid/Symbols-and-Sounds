@@ -194,6 +194,25 @@ mark.lx{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad
 .gbar{display:flex;align-items:center;gap:12px;padding:8px 12px;color:#eef2fb}
 .gbar .btn{color:#eef2fb;border-color:rgba(201,211,230,.25)}
 .gframe iframe{flex:1;width:100%;border:0;background:#081330}
+.tc-spin{position:relative;width:100%;height:100%;transform-style:preserve-3d}
+.tcard.spin .tc-spin{animation:cardspin 8s linear infinite}
+.tcards.three .tcard:nth-child(2) .tc-spin{animation-delay:-2.7s}
+.tcards.three .tcard:nth-child(3) .tc-spin{animation-delay:-5.4s}
+@keyframes cardspin{to{transform:rotateY(360deg)}}
+.tc-face,.tc-back{-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.tc-back{position:absolute;inset:0;border-radius:14px;transform:rotateY(180deg);display:grid;place-items:center;overflow:hidden;container-type:inline-size;box-shadow:0 10px 30px rgba(0,0,0,.45),inset 0 0 0 1px #6b5420;background:radial-gradient(ellipse at 50% 30%,#1f1c17,#050505 72%)}
+.tcard.neon .tc-back{background:radial-gradient(ellipse at 50% 42%,#2a0a5e 0%,#6a12c9 42%,#ff2bd6 82%,#ff6ae6 100%)}
+.tcard.silver .tc-back{background:linear-gradient(135deg,#dfe2e6 0%,#9fa4ad 28%,#cdd0d5 50%,#858a94 74%,#c6c9cf 100%)}
+.tc-back .tc-orn{position:absolute;inset:0;width:100%;height:100%}
+.tc-back .logo{position:relative;width:46%;height:auto;filter:drop-shadow(0 0 6px rgba(255,255,255,.55)) drop-shadow(0 1px 1px rgba(0,0,0,.6))}
+.tcmini{display:inline-flex;position:absolute;top:0;right:0;z-index:2}
+.top:has(.tcmini){position:relative;padding-right:56px}
+.tcmini .tcard{width:42px;perspective:500px}
+.tcmini .tc-face,.tcmini .tc-back{border-radius:6px;animation-name:none}
+.tcmini .tc-lbl,.tcmini .tc-sub,.tcmini .tc-c{display:none}
+.tcmini .tc-num{font-size:44cqw!important}
+.tcmini .tc-spin{animation-duration:6s}
+@media (prefers-reduced-motion:reduce){.tcard.spin .tc-spin{animation:none}}
 .vex{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;max-width:900px}
 .vex p{margin:0;line-height:1.5}
 .vex dl{margin:0;display:grid;gap:6px}
@@ -964,7 +983,7 @@ function voiceCheck(){
     const b=$(".bench");b&&b.parentNode.insertBefore(n,b)},1200);
 }
 function topbar(extra){
-  return `<div class="top"><div class="left"><button class="btn ghost" id="back">← ${T("Home")}</button><h2>${T(LG().name)}</h2></div>
+  return `<div class="top"><div class="left"><button class="btn ghost" id="back">← ${T("Home")}</button><h2>${T(LG().name)}</h2>${SECTION==="grammar"?miniCard("gold"):SECTION==="alphabet"?miniCard("neon"):""}</div>
   <div class="btns" style="align-items:center">${extra||""}<button class="btn ghost" id="rulesBtn">${T("Rules")}</button><span class="score" id="score">${S.score} ${T("pts")}</span></div></div>`;
 }
 function wireTop(){ $("#back").onclick=home; $("#rulesBtn").onclick=rules; }
@@ -1011,6 +1030,7 @@ function varsHTML(x){
 function wireChips(root){root.addEventListener("click",e=>{const c=e.target.closest("[data-say]");if(c){run++;speak(c.dataset.say,LG().tts)}})}
 
 function learn(){
+  SECTION="alphabet";
   if(S.ph==="reading"){readingIntro();return}
   if(S.ph==="more"){hub();return}
   run++;
@@ -1303,7 +1323,7 @@ function letterDiff(target,heard){
 }
 
 function readingIntro(){
-  run++;const lg=LG(),r=RD().rule;S.ph="reading";saveProg();document.body.className=lg.cls;
+  SECTION="alphabet";run++;const lg=LG(),r=RD().rule;S.ph="reading";saveProg();document.body.className=lg.cls;
   $("#app").innerHTML=`${topbar()}${phaseTabs()}
   <section class="panel turn" style="gap:14px">
     <span class="label">${T("Before you read · Step 1 of 2")}</span>
@@ -1914,7 +1934,7 @@ const PRO_T=["subject","dobj","iobj","stressed","reflexive","adverbial","possdet
 const PRO_N={subject:"Subject pronouns",dobj:"Direct object pronouns",iobj:"Indirect object pronouns",stressed:"Pronouns after prepositions",reflexive:"Reflexive and reciprocal pronouns",adverbial:"Adverbial pronouns: y and en",possdet:"Possessive adjectives",possessive:"Possessive pronouns",demonstrative:"Demonstrative pronouns",interrogative:"Interrogative pronouns",relative:"Relative pronouns",indefinite:"Indefinite pronouns",pronominal:"Pronominal adverbs: da- and wo- words"};
 const proName=t=>S.lang==="en"&&t==="dobj"?"Object pronouns":S.lang==="fr"&&t==="stressed"?"Stressed pronouns":S.lang==="de"&&t==="subject"?"Subject pronouns (Nominativ)":S.lang==="de"&&t==="dobj"?"Direct object pronouns (Akkusativ)":S.lang==="de"&&t==="iobj"?"Indirect object pronouns (Dativ)":PRO_N[t];
 const vocabCount=id=>id==="nouns"?VOCAB.nouns.reduce((a,[k])=>a+VOCAB.w[k].length,0):id==="idioms"?VOCAB.id[S.lang].length:id==="pronouns"?VOCAB.pr[S.lang].length:VOCAB.w[id].length;
-function vocabHead(back){return `<div class="top"><div class="left"><button class="btn ghost" id="vback">← ${back}</button><h2>${T(LG().name)}</h2></div></div>`}
+function vocabHead(back){return `<div class="top"><div class="left"><button class="btn ghost" id="vback">← ${back}</button><h2>${T(LG().name)}</h2></div>${miniCard("silver")}</div>`}
 function vocabExplain(cat,open){
   const X=VOCAB.ex,k=S.lang+"."+cat+".";if(!X[k+"d"])return "";
   const b=[["s","In statements"],["q","In questions"],["n","In negative sentences"]].filter(([f])=>X[k+f]);
@@ -2001,16 +2021,25 @@ function cardSVG(id,neon){
     <path d="M50 30 l4 5 -4 5 -4 -5z" fill="none" ${st} stroke-width="1"/><path d="M50 100 l4 5 -4 5 -4 -5z" fill="none" ${st} stroke-width="1"/>
   </svg>`;
 }
-function trumpCard(kind,num,label,sub,unit){
-  const neon=kind==="neon",id="g"+Math.random().toString(36).slice(2,8);
-  return `<div class="tcard ${kind}"><div class="tc-face">${cardSVG(id,neon)}
+function trumpCard(kind,num,label,sub,unit,spin){
+  const neon=kind==="neon",id="g"+Math.random().toString(36).slice(2,8),big=String(num).length;
+  return `<div class="tcard ${kind}${spin?" spin":""}"><div class="tc-spin"><div class="tc-face">${cardSVG(id,neon)}
     <span class="tc-c tl">${num}</span><span class="tc-c br">${num}</span>
-    <div class="tc-mid"><span class="tc-num"${String(num).length>3?' style="font-size:20cqw"':String(num).length>2?' style="font-size:26cqw"':""}>${num}${unit?`<small>${unit}</small>`:""}</span><span class="tc-lbl">${esc(label)}</span></div>
-    <span class="tc-sub">${esc(sub)}</span></div></div>`;
+    <div class="tc-mid"><span class="tc-num"${big>3?' style="font-size:20cqw"':big>2?' style="font-size:26cqw"':""}>${num}${unit?`<small>${unit}</small>`:""}</span><span class="tc-lbl">${esc(label)}</span></div>
+    <span class="tc-sub">${esc(sub)}</span></div>
+    <div class="tc-back" aria-hidden="true">${cardSVG(id+"b",neon)}${LOGO_SVG(id+"l")}</div></div></div>`;
 }
 /* strength cards: pronunciation (neon), grammar (black and gold), vocabulary (silver) */
 const LEVELS=[[90,"Master"],[75,"Strong"],[50,"Good"],[25,"Developing"],[0,"Starting"]];
 const levelOf=pc=>T(LEVELS.find(l=>pc>=l[0])[1]);
+function strengthVals(){
+  const lg=LG(),pronMax=lg.letters.length+lg.teams.length+RD().texts.length*5;
+  const pron=Math.max(0,S.got.length+S.tgot.length-S.miss.length-S.tmiss.length+rbSum());
+  const gram=qzSum(S);return {pron,pronMax,gram};
+}
+let SECTION="";
+function miniCard(kind){const v=strengthVals(),n=kind==="neon"?v.pron:kind==="gold"?v.gram:"—",l=kind==="neon"?"Pronunciation":kind==="gold"?"Grammar":"Vocabulary";
+  return `<span class="tcmini" title="${esc(T(l))}">${trumpCard(kind,n,T(l),"","",1)}</span>`}
 function strengths(){
   const lg=LG(),pronMax=lg.letters.length+lg.teams.length+RD().texts.length*5;
   const pron=Math.max(0,S.got.length+S.tgot.length-S.miss.length-S.tmiss.length+rbSum());
@@ -2019,15 +2048,15 @@ function strengths(){
   const pp=pc(pron,pronMax),gp=pc(gram,gramMax);
   return `<section class="strengths"><span class="label">${T("Your strengths · {lang}",{lang:T(lg.name)})}</span>
     <div class="tcards three">
-      ${trumpCard("neon",pron,T("Pronunciation"),`${levelOf(pp)}\n${T("out of {n}",{n:pronMax})} ${T("pts")}`)}
-      ${trumpCard("gold",gram,T("Grammar"),`${levelOf(gp)}\n${T("out of {n}",{n:gramMax})} ${T("pts")}`)}
-      ${trumpCard("silver","—",T("Vocabulary"),T("Coming soon"))}
+      ${trumpCard("neon",pron,T("Pronunciation"),`${levelOf(pp)}\n${T("out of {n}",{n:pronMax})} ${T("pts")}`,"",1)}
+      ${trumpCard("gold",gram,T("Grammar"),`${levelOf(gp)}\n${T("out of {n}",{n:gramMax})} ${T("pts")}`,"",1)}
+      ${trumpCard("silver","—",T("Vocabulary"),T("Coming soon"),"",1)}
     </div></section>`;
 }
 
 /* ---------------- NEXT STEPS ---------------- */
 function hub(){
-  run++;const lg=LG();S.ph="more";saveProg();document.body.className=lg.cls;
+  SECTION="alphabet";run++;const lg=LG();S.ph="more";saveProg();document.body.className=lg.cls;
   const opts=[["Master Grammar","Tenses, moods and the main rules, with full conjugations.",1],["Build vocabulary","Learn new words by topic.",1],["Practice vocabulary","Test yourself on the words you've learned.",0],["Practice speaking and listening","Short conversations to listen to and answer.",0]];
   $("#app").innerHTML=`${topbar()}${phaseTabs()}
   ${strengths()}
@@ -2038,7 +2067,7 @@ function hub(){
 }
 
 function grammar(openTitle){
-  run++;const lg=LG(),G=GRAM[S.lang];document.body.className=lg.cls;
+  SECTION="grammar";run++;const lg=LG(),G=GRAM[S.lang];document.body.className=lg.cls;
   let n=0;
   const exHTML=ex=>`<div class="chips">${ex.map(s=>{const e=pw(s),m=mean(e);return `<button class="chip" data-say="${esc(speakable(e.w))}">${SPK_SVG}<b lang="${S.lang}">${esc(e.w)}</b>${m?`<span>${esc(m)}</span>`:""}</button>`}).join("")}</div>`;
   const item=(it,gi,ii)=>{const [k,t,d,f,ex,tb]=it;n++;const bq=qzBest(t);
