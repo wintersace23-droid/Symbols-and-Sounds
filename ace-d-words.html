@@ -96,6 +96,32 @@ th{font-size:.66rem;color:var(--muted);letter-spacing:.12em;text-transform:upper
 .wm .ls-logo{width:min(46%,220px);height:auto}
 .wm span{font-family:"Sora",var(--body);font-size:clamp(1.4rem,7vw,2.4rem);color:#fff;letter-spacing:-.01em}
 .wm b{font-weight:800}.wm i{font-style:normal;font-weight:300}
+
+.sapi-intro{position:absolute;inset:0;z-index:5;pointer-events:none}
+.sapi-intro.out{opacity:0;transition:opacity .45s}
+.si-count{position:absolute;left:0;right:0;top:34%;text-align:center;font:900 clamp(3rem,18vw,6rem)/1 "Archivo Black","Arial Black",sans-serif;color:#fff3c4;text-shadow:0 0 12px rgba(245,197,51,.85),0 0 34px rgba(245,197,51,.5),0 4px 0 #0c1a3a}
+.si-count.beat{animation:siBeat .9s ease-out}.si-count.go{color:#f5c533}
+@keyframes siBeat{0%{opacity:0;transform:scale(1.9)}25%{opacity:1;transform:scale(1)}85%{opacity:1}100%{opacity:.25;transform:scale(.9)}}
+.si-bot{position:absolute;width:96px;height:120px;transform:translate(-50%,-92%);transform-origin:50% 92%;filter:drop-shadow(0 0 10px rgba(255,255,255,.45))}
+.si-bot.morph{animation:siMorph .62s cubic-bezier(.5,0,.8,.4) forwards}
+@keyframes siMorph{0%{transform:translate(-50%,-92%) scale(1)}35%{transform:translate(-50%,-92%) scale(1.15) rotate(-6deg);filter:drop-shadow(0 0 18px #fff) brightness(2.2)}70%{transform:translate(-50%,-92%) scale(.6) rotate(8deg);filter:drop-shadow(0 0 22px #fff) brightness(3) blur(1px)}100%{transform:translate(-50%,-92%) scale(.42);opacity:0;filter:brightness(4) blur(3px)}}
+.si-flash{position:absolute;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;background:radial-gradient(circle,#fff,rgba(255,255,255,.6) 40%,rgba(255,255,255,0) 70%);opacity:0;transform:translateY(-30px)}
+.si-flash.on{animation:siFlash .7s ease-out .25s}
+@keyframes siFlash{0%{opacity:0;transform:translateY(-30px) scale(.5)}40%{opacity:1;transform:translateY(-30px) scale(7)}100%{opacity:0;transform:translateY(-30px) scale(10)}}
+.sapi-svg{width:100%;height:100%;overflow:visible}
+.sapi-bob{animation:sapiBob 3.2s ease-in-out infinite;transform-origin:60px 80px}.sapi-shadow{animation:sapiShadow 3.2s ease-in-out infinite;transform-origin:60px 145px}
+.sapi-jet{animation:sapiJet .35s ease-in-out infinite alternate;transform-origin:60px 130px}.sapi-tip{animation:sapiTip 2.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.sapi-ant{transform-origin:60px 24px;animation:sapiAnt 4s ease-in-out infinite}.sapi-eye{animation:sapiBlink 4.6s infinite;transform-box:fill-box;transform-origin:center}
+.sapi-happy,.sapi-mouth,.sapi-mic,.sapi-micring,.sapi-thumb{opacity:0}.sapi.talk .sapi-mouth{opacity:1}.sapi.talk .sapi-smile{opacity:0}
+.sapi-mouth rect{transform-box:fill-box;transform-origin:center}.sapi.talk .sapi-mouth rect{animation:sapiTalk .18s ease-in-out infinite alternate}
+.sapi-arm{transform-box:fill-box;animation:sapiFloatArm 3.2s ease-in-out infinite}.sapi-armr{transform-origin:0% 50%;animation-delay:-1.6s}.sapi-arml{transform-origin:100% 50%}
+.sapi.wave .sapi-armr{animation:sapiWave .5s ease-in-out 3 alternate}
+.sapi-ringl{font:800 11px "Archivo Black",sans-serif;fill:#fff;fill-opacity:calc(.2 + var(--rg,0)*.75)}.sapi-ringf .sapi-ringl{paint-order:stroke;stroke:rgba(42,49,96,.5);stroke-width:1.1px}.sapi-ringb .sapi-ringl{fill-opacity:calc(.08 + var(--rg,0)*.38)}
+@keyframes sapiBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}@keyframes sapiShadow{0%,100%{transform:scaleX(1);opacity:.2}50%{transform:scaleX(.8);opacity:.12}}
+@keyframes sapiJet{from{transform:scale(.85);opacity:.6}to{transform:scale(1.1);opacity:1}}@keyframes sapiTip{0%,100%{transform:scale(1)}50%{transform:scale(1.35)}}
+@keyframes sapiAnt{0%,100%{transform:rotate(0)}50%{transform:rotate(-6deg)}}@keyframes sapiBlink{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+@keyframes sapiTalk{from{transform:scaleY(.6)}to{transform:scaleY(2.4)}}@keyframes sapiFloatArm{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes sapiWave{from{transform:rotate(0) translate(0,0)}to{transform:rotate(-40deg) translate(4px,-10px)}}
 </style>
 
 <div class="cab"><div class="frame" id="app"></div></div>
@@ -308,6 +334,76 @@ function heroArt(){
   coin(78,32,17,"A");coin(110,18,15,"C");coin(144,34,17,"E");
   paintBot(x,110-8*3,60,3,"open");
 }
+/* ---------- Sapi opens every round: he counts 3-2-1, then turns into the little running robot ---------- */
+const SAPI_SVG=id=>`<svg class="sapi-svg" viewBox="0 0 120 150" aria-hidden="true">
+<defs>
+ <linearGradient id="${id}g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".42" stop-color="#eef2f9"/><stop offset=".5" stop-color="#ffffff"/><stop offset=".62" stop-color="#c3cce0"/><stop offset="1" stop-color="#ffffff"/></linearGradient>
+ <linearGradient id="${id}s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a3160"/><stop offset="1" stop-color="#0b0d1c"/></linearGradient>
+ <radialGradient id="${id}j" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffffff" stop-opacity=".95"/><stop offset=".5" stop-color="#d6e2ff" stop-opacity=".45"/><stop offset="1" stop-color="#d6e2ff" stop-opacity="0"/></radialGradient>
+</defs>
+<ellipse class="sapi-shadow" cx="60" cy="145" rx="16" ry="3.5" fill="#0b0d1c" opacity=".18"/>
+<g class="sapi-bob">
+ <ellipse class="sapi-jet" cx="60" cy="130" rx="9" ry="7" fill="url(#${id}j)"/>
+ <g class="sapi-ringb"></g>
+ 
+ <g class="sapi-ant"><path d="M60 24 C60 16 67 15 67 9.5 C67 5.5 63.5 4 60.5 5" fill="none" stroke="url(#${id}g)" stroke-width="2.8" stroke-linecap="round"/><circle class="sapi-tip" cx="58.5" cy="5.6" r="3.6" fill="url(#${id}g)"/></g>
+ <g class="sapi-arm sapi-arml"><ellipse cx="13" cy="82" rx="6.5" ry="9" transform="rotate(20 13 82)" fill="url(#${id}g)" stroke="#c3cce0" stroke-width=".7"/></g>
+ <g class="sapi-arm sapi-armr"><g class="sapi-thumb"><rect x="100.5" y="68" width="13" height="11" rx="4.5" fill="url(#${id}g)" stroke="#9aa6c2" stroke-width=".8"/><path d="M103 72.5h8.5M103 75.5h8.5" stroke="#9aa6c2" stroke-width=".6"/><rect x="103.2" y="57.5" width="5.6" height="12.5" rx="2.8" fill="url(#${id}g)" stroke="#9aa6c2" stroke-width=".8"/></g><g transform="rotate(32 107 82)"><g class="sapi-mic"><rect x="104.1" y="61" width="5.8" height="22" rx="2.8" fill="url(#${id}g)" stroke="#8b96b3" stroke-width=".9"/><rect x="104.1" y="61" width="5.8" height="3.2" fill="#2a3160"/><rect x="99" y="46" width="16" height="17" rx="8" fill="url(#${id}g)" stroke="#9aa6c2" stroke-width="1"/><path d="M101.2 51.5h11.6M100.4 55h13.2M101.2 58.5h11.6" stroke="#9aa6c2" stroke-width=".9"/><path d="M104 46.5v16M110 46.5v16" stroke="#9aa6c2" stroke-width=".6" opacity=".7"/><circle class="sapi-micring" cx="107" cy="54.5" r="12" fill="none" stroke="#fff" stroke-width="1.6"/></g></g><ellipse cx="107" cy="82" rx="6.5" ry="9" transform="rotate(-20 107 82)" fill="url(#${id}g)" stroke="#c3cce0" stroke-width=".7"/></g>
+ <path d="M60 22 C88 22 100 42 100 64 C100 93 82 117 60 125 C38 117 20 93 20 64 C20 42 32 22 60 22Z" fill="url(#${id}g)" stroke="#c3cce0" stroke-width=".8"/>
+ <path d="M30 50 Q60 37 90 50 Q93 72 75 78 Q60 82 45 78 Q27 72 30 50Z" fill="url(#${id}s)"/>
+ <path d="M37 50 Q50 44 63 44.5" fill="none" stroke="#fff" stroke-opacity=".2" stroke-width="2.2" stroke-linecap="round"/>
+ <g class="sapi-eyes"><g class="sapi-eye"><rect x="44" y="54" width="10" height="13" rx="5" fill="#fff"/><circle cx="51.5" cy="57.5" r="1.6" fill="#141834" opacity=".35"/></g><g class="sapi-eye"><rect x="66" y="54" width="10" height="13" rx="5" fill="#fff"/><circle cx="73.5" cy="57.5" r="1.6" fill="#141834" opacity=".35"/></g></g>
+ <g class="sapi-happy"><path d="M44 63 Q49.5 55 55 63" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/><path d="M65 63 Q70.5 55 76 63" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/></g>
+ <path class="sapi-smile" d="M54 71.5 Q60 76.5 66 71.5" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
+ <g class="sapi-mouth"><rect x="55" y="71" width="2" height="3" rx="1" fill="#fff"/><rect x="59" y="70" width="2" height="5" rx="1" fill="#fff"/><rect x="63" y="71" width="2" height="3" rx="1" fill="#fff"/></g>
+ <g transform="translate(53 92) scale(.22)"><circle cx="15" cy="10" r="3.6" fill="#9aa6c2"/><path d="M11.4 10V41Q11.4 53.6 24 53.6C31 53.6 35 51.6 41 51.6V48.4C35 48.4 31 46.4 24 46.4Q18.6 46.4 18.6 41V10Z" fill="#9aa6c2"/><path d="M40.5 50C46 50 49.5 46 49.5 41.5C49.5 37 46 34.5 41 33.5L33 32C28 31 25 28 25 23.5C25 18 29 14.5 35 14.5H45" fill="none" stroke="#9aa6c2" stroke-width="3.6" stroke-linecap="round"/><circle cx="51" cy="10.5" r="3.4" fill="#9aa6c2"/></g>
+<g class="sapi-ringf"></g>
+</g></svg>`;
+const RING_CHARS=["ฎ","Ω","ß","ø","ñ","þ","a","Э","क्ष","ł","ğ"];   // listed one by one: क्ष is a single letter made of three code points
+const RING_FULL=2000;   // total points (all languages) at which the ring is at full brightness
+function ringGlow(){return .55}
+const ringStill=matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+let ringG=-1,ringGAt=-1e9;const ringT0=performance.now();
+/* a fresh random order each time; letters that sit next to each other in the original list never sit next to each other in the ring */
+function ringOrder(){const N=RING_CHARS.length,nb=(x,y)=>{const i=RING_CHARS.indexOf(x),j=RING_CHARS.indexOf(y);return Math.abs(i-j)===1||Math.abs(i-j)===N-1};
+  let o;for(let t=0;t<500;t++){o=shuffle(RING_CHARS.slice());if(o.every((c,i)=>!nb(c,o[(i+1)%N])))break}return o}
+function ringBuild(svg){const n=RING_CHARS.length,NS="http://www.w3.org/2000/svg";let a=Math.random()*6.28;
+  const gaps=Array.from({length:n},()=>.6+Math.random()*.8),tot=gaps.reduce((x,y)=>x+y,0);
+  return ringOrder().map((c,i)=>{const e=document.createElementNS(NS,"text");e.textContent=c;e.setAttribute("class","sapi-ringl");e.setAttribute("text-anchor","middle");e.setAttribute("dominant-baseline","central");
+    const L={e,a,dy:(Math.random()-.5)*4,r:(Math.random()-.5)*36,z:.85+Math.random()*.35,front:null};a+=gaps[i]/tot*6.283;return L})}
+function ringTick(now){
+  if(now-ringGAt>2500){ringG=ringGlow();ringGAt=now}
+  const th=ringStill?0:(now-ringT0)/1000*.5;
+  document.querySelectorAll(".sapi-svg").forEach(svg=>{const b=svg.querySelector(".sapi-ringb"),f=svg.querySelector(".sapi-ringf");if(!b||!f)return;
+    if(!svg._ring)svg._ring=ringBuild(svg);
+    svg.style.setProperty("--rg",ringG.toFixed(3));
+    for(const L of svg._ring){const a=L.a+th,sn=Math.sin(a),front=sn>0,x=60+63*Math.cos(a),y=84+17*sn+L.dy,sc=L.z*(.72+.38*(sn+1)/2);
+      if(L.front!==front){(front?f:b).appendChild(L.e);L.front=front}
+      L.e.setAttribute("transform",`translate(${x.toFixed(2)} ${y.toFixed(2)}) rotate(${L.r.toFixed(1)}) scale(${sc.toFixed(3)})`)}});
+  requestAnimationFrame(ringTick)}
+requestAnimationFrame(ringTick);
+
+const SAPI_MALE=/\b(male|man|guy|daniel|thomas|oliver|arthur|george|james|fred|alex|aaron|tom|ralph|david|mark|andrew|brian|christopher|eric|roger|steffan|davis|ryan|jorge|diego|carlos|enrique|pablo|juan|alvaro|raul|henri|nicolas|mathieu|claude|antoine|remy|markus|martin|hans|stefan|conrad|killian|florian|reed)\b|x-(iol|iom|tpd|gbb|gbd|rjs|eed|eef|esd|frb|frd|vlf|deb|deg|end)/i;
+const SAPI_FEMALE=/\b(female|woman|samantha|karen|moira|tessa|kate|serena|susan|hazel|zira|monica|paulina|helena|laura|elvira|amelie|audrey|julie|marie|celine|anna|petra|katja|hedda|aria|jenny|emma|ava|michelle|sonia|libby|denise)\b/i;
+const SAPI_TAG={en:"en-US",es:"es-ES",fr:"fr-FR",de:"de-DE"};
+function sapiSay(text){try{if(!window.speechSynthesis)return;const tag=SAPI_TAG[UI]||"en-US",vs=speechSynthesis.getVoices().filter(v=>v.lang&&v.lang.toLowerCase().replace("_","-").startsWith(tag.slice(0,2)));
+  const id=v=>(v.name||"")+" "+(v.voiceURI||""),nat=v=>/natural|neural|online|enhanced|premium/i.test(id(v))?1:0;
+  const m=vs.filter(v=>SAPI_MALE.test(id(v))&&!SAPI_FEMALE.test(id(v))).sort((a,b)=>nat(b)-nat(a))[0];
+  const u=new SpeechSynthesisUtterance(text);u.lang=tag;try{if(m)u.voice=m;else if(vs[0])u.voice=vs[0]}catch(e){}u.pitch=m?1:.74;u.rate=1;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+try{speechSynthesis&&speechSynthesis.getVoices()}catch(e){}
+const COUNT={en:["Three","Two","One","Go!"],es:["Tres","Dos","Uno","¡Ya!"],fr:["Trois","Deux","Un","Partez !"],de:["Drei","Zwei","Eins","Los!"]};
+function sapiIntro(field,bx,by,done){
+  const o=document.createElement("div");o.className="sapi-intro";
+  o.innerHTML=`<div class="si-count" aria-live="assertive"></div><div class="si-bot sapi" style="left:${bx}px;top:${by}px">${SAPI_SVG("gs")}</div><div class="si-flash" style="left:${bx}px;top:${by}px"></div>`;
+  field.appendChild(o);const c=o.querySelector(".si-count"),bot=o.querySelector(".si-bot"),words=COUNT[UI]||COUNT.en;let n=0;
+  const step=()=>{if(!document.body.contains(o))return;
+    if(n<3){c.textContent=3-n;c.classList.remove("beat");void c.offsetWidth;c.classList.add("beat");bot.classList.add("talk");sapiSay(words[n]);setTimeout(()=>bot.classList.remove("talk"),520);n++;return setTimeout(step,1000)}
+    c.textContent=words[3].replace(/[¡!]/g,"").trim().toUpperCase()+"!";c.classList.remove("beat");void c.offsetWidth;c.classList.add("beat","go");sapiSay(words[3]);
+    bot.classList.add("morph");o.querySelector(".si-flash").classList.add("on");        // the transformation
+    setTimeout(()=>{o.classList.add("out");done()},620);setTimeout(()=>o.remove(),1100)};
+  bot.classList.add("wave");setTimeout(step,500);
+}
+
 function setup(){
   app.className="frame";
   if(!catKeys().includes(S.cat))S.cat=catKeys()[0];
@@ -514,7 +610,7 @@ function play(){
     cx.globalAlpha=1;
     requestAnimationFrame(frame);
   }
-  requestAnimationFrame(t=>{last=t;frame(t)});
+  let started=false;const begin=()=>{started=true;for(let k=0;k<3;k++)puffs.push({x:bot.x,y:h-8*PX,t:-k*.08,col:k?"#c9d3e6":"#ffffff"});requestAnimationFrame(t=>{last=t;frame(t)})};
 
   cv.addEventListener("pointerdown",e=>{
     const b=cv.getBoundingClientRect(),px=e.clientX-b.left,py=e.clientY-b.top;
@@ -526,12 +622,13 @@ function play(){
     tapLetter(c.ch);
   });
 
-  const tick=()=>{const m=left/60|0,s=left%60;$("#clk").textContent=`${m}:${String(s).padStart(2,"0")}`;$("#clk").classList.toggle("low",left<=15)};
+  const tick=()=>{if(!$("#clk"))return;const m=left/60|0,s=left%60;$("#clk").textContent=`${m}:${String(s).padStart(2,"0")}`;$("#clk").classList.toggle("low",left<=15)};
   tick();
-  const iv=setInterval(()=>{left--;tick();
+  let iv=0;const runClock=()=>{iv=setInterval(()=>{left--;tick();
     if(left<=0){clearInterval(iv);clearTimeout(pending);
       if(pendingWord)commit(pendingWord);
-      over=true;ro.disconnect();S.results.push({name:S.names[S.turn],pts,found:[...found]});S.turn++;S.turn<S.players?ready():results()}},1000);
+      over=true;ro.disconnect();S.results.push({name:S.names[S.turn],pts,found:[...found]});S.turn++;S.turn<S.players?ready():results()}},1000)};
+  sapiIntro(field,bot.x,h-8*PX,()=>{begin();runClock()});
 }
 
 function results(){
