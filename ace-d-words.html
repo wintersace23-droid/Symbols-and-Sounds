@@ -97,6 +97,19 @@ th{font-size:.66rem;color:var(--muted);letter-spacing:.12em;text-transform:upper
 .wm span{font-family:"Sora",var(--body);font-size:clamp(1.4rem,7vw,2.4rem);color:#fff;letter-spacing:-.01em}
 .wm b{font-weight:800}.wm i{font-style:normal;font-weight:300}
 
+
+.si-cv{position:absolute;inset:0;width:100%;height:100%}
+.si-bot .sapi-eye rect{fill:#f5c533}.si-bot .sapi-eye circle{fill:#fff3c4;opacity:.9}.si-bot .sapi-happy path{stroke:#f5c533}
+.si-bot .sapi-eyes,.si-bot .sapi-happy{filter:drop-shadow(0 0 2px #fff3c4) drop-shadow(0 0 6px #f5c533) drop-shadow(0 0 12px rgba(217,130,43,.85))}
+.si-bot.tf .sapi-bob{animation:none;transform:translateY(4px)}
+.si-bot.tf .sapi-ant{animation:none;transform:translateY(16px) scaleY(.15);transition:transform .2s steps(4)}
+.si-bot.tf .sapi-arml{animation:none;transform:translate(9px,-6px) rotate(-90deg) scale(.7);transition:transform .2s steps(4)}
+.si-bot.tf .sapi-armr{animation:none;transform:translate(-9px,-6px) rotate(90deg) scale(.7);transition:transform .2s steps(4)}
+.si-bot.tf .sapi-eyes{transform:scaleY(.25);transform-box:fill-box;transform-origin:center;transition:transform .12s steps(2)}
+.si-bot.tf{animation:siJolt .23s steps(3)}@keyframes siJolt{0%{transform:translate(-50%,-92%)}33%{transform:translate(calc(-50% - 3px),-92%)}66%{transform:translate(calc(-50% + 3px),calc(-92% + 2px))}100%{transform:translate(-50%,-92%)}}
+.si-panel{position:absolute;inset:0;transform-origin:50% 60%;filter:drop-shadow(0 0 6px rgba(245,197,51,.55))}
+.si-lock{position:absolute;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:radial-gradient(circle,#fff,rgba(255,243,196,.7) 40%,rgba(245,197,51,0) 70%);animation:siLock .45s ease-out forwards}
+@keyframes siLock{0%{transform:scale(.3);opacity:1}100%{transform:scale(6);opacity:0}}
 .sapi-intro{position:absolute;inset:0;z-index:5;pointer-events:none}
 .sapi-intro.out{opacity:0;transition:opacity .45s}
 .si-count{position:absolute;left:0;right:0;top:34%;text-align:center;font:900 clamp(3rem,18vw,6rem)/1 "Archivo Black","Arial Black",sans-serif;color:#fff3c4;text-shadow:0 0 12px rgba(245,197,51,.85),0 0 34px rgba(245,197,51,.5),0 4px 0 #0c1a3a}
@@ -392,15 +405,57 @@ function sapiSay(text){try{if(!window.speechSynthesis)return;const tag=SAPI_TAG[
   const u=new SpeechSynthesisUtterance(text);u.lang=tag;try{if(m)u.voice=m;else if(vs[0])u.voice=vs[0]}catch(e){}u.pitch=m?1:.74;u.rate=1;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
 try{speechSynthesis&&speechSynthesis.getVoices()}catch(e){}
 const COUNT={en:["Three","Two","One","Go!"],es:["Tres","Dos","Uno","¡Ya!"],fr:["Trois","Deux","Un","Partez !"],de:["Drei","Zwei","Eins","Los!"]};
+/* mechanical sounds, made on the fly (no recordings) */
+let tfAC=null;const tfCtx=()=>{try{tfAC=tfAC||new (window.AudioContext||window.webkitAudioContext)();if(tfAC.state==="suspended")tfAC.resume()}catch(e){}return tfAC};
+function tfSnd(kind,when=0){const ac=tfCtx();if(!ac)return;const t=ac.currentTime+when,out=ac.createGain();out.gain.value=.5;out.connect(ac.destination);
+  const noise=(d,f,q,v)=>{const b=ac.createBuffer(1,ac.sampleRate*d|0,ac.sampleRate),c=b.getChannelData(0);for(let i=0;i<c.length;i++)c[i]=(Math.random()*2-1)*Math.pow(1-i/c.length,3);
+    const s=ac.createBufferSource(),bp=ac.createBiquadFilter(),gn=ac.createGain();s.buffer=b;bp.type="bandpass";bp.frequency.value=f;bp.Q.value=q;gn.gain.value=v;s.connect(bp);bp.connect(gn);gn.connect(out);s.start(t)};
+  const tone=(type,f0,f1,d,v)=>{const o=ac.createOscillator(),gn=ac.createGain();o.type=type;o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+d);gn.gain.setValueAtTime(v,t);gn.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(gn);gn.connect(out);o.start(t);o.stop(t+d+.02)};
+  if(kind==="clack"){noise(.06,2400,6,.9);tone("square",180,70,.07,.18)}
+  else if(kind==="unlock"){noise(.09,1200,3,.8);tone("square",90,45,.12,.25);noise(.05,3800,8,.5)}
+  else if(kind==="whirr"){tone("sawtooth",110,620,.55,.12);tone("square",55,220,.55,.06)}
+  else if(kind==="lock"){tone("square",320,160,.09,.2);noise(.08,1800,5,.9);tone("sine",880,1320,.18,.12)}}
+/* Sapi counts 3-2-1, then transforms, panel by panel, into the little pixel robot */
 function sapiIntro(field,bx,by,done){
   const o=document.createElement("div");o.className="sapi-intro";
-  o.innerHTML=`<div class="si-count" aria-live="assertive"></div><div class="si-bot sapi" style="left:${bx}px;top:${by}px">${SAPI_SVG("gs")}</div><div class="si-flash" style="left:${bx}px;top:${by}px"></div>`;
-  field.appendChild(o);const c=o.querySelector(".si-count"),bot=o.querySelector(".si-bot"),words=COUNT[UI]||COUNT.en;let n=0;
+  o.innerHTML=`<canvas class="si-cv"></canvas><div class="si-count" aria-live="assertive"></div><div class="si-bot sapi" style="left:${bx}px;top:${by}px">${SAPI_SVG("gs")}</div>`;
+  field.appendChild(o);tfCtx();
+  const c=o.querySelector(".si-count"),bot=o.querySelector(".si-bot"),words=COUNT[UI]||COUNT.en;let n=0;
   const step=()=>{if(!document.body.contains(o))return;
     if(n<3){c.textContent=3-n;c.classList.remove("beat");void c.offsetWidth;c.classList.add("beat");bot.classList.add("talk");sapiSay(words[n]);setTimeout(()=>bot.classList.remove("talk"),520);n++;return setTimeout(step,1000)}
     c.textContent=words[3].replace(/[¡!]/g,"").trim().toUpperCase()+"!";c.classList.remove("beat");void c.offsetWidth;c.classList.add("beat","go");sapiSay(words[3]);
-    bot.classList.add("morph");o.querySelector(".si-flash").classList.add("on");        // the transformation
-    setTimeout(()=>{o.classList.add("out");done()},620);setTimeout(()=>o.remove(),1100)};
+    transform()};
+  const transform=()=>{
+    /* 1. lock-down: antenna folds into the head, arms swing up and lock against the body */
+    bot.classList.add("tf");tfSnd("unlock");tfSnd("clack",.16);
+    /* 2. the body splits into panels that slide out, twist and fold down towards the floor */
+    setTimeout(()=>{const svg=bot.innerHTML;bot.innerHTML="";bot.classList.add("split");
+      const cuts=[[0,62],[38,30],[70,0]];
+      cuts.forEach(([t,b2],i)=>{const p=document.createElement("div");p.className="si-panel";p.style.clipPath=`inset(${t}% 0 ${b2}% 0)`;p.innerHTML=svg;bot.appendChild(p);
+        const dir=i===1?-1:1;
+        p.animate([{transform:"none"},{transform:`translateX(${dir*18}px) rotate(${dir*12}deg)`,offset:.3},{transform:`translateX(${dir*22}px) translateY(${18+i*10}px) rotate(${dir*90}deg) scale(.7)`,offset:.65},{transform:`translateY(${40+i*6}px) scale(.22) rotate(${dir*180}deg)`,opacity:0}],
+          {duration:620,delay:i*60,easing:"cubic-bezier(.6,0,.4,1)",fill:"forwards"})});
+      tfSnd("whirr");tfSnd("clack",.18);tfSnd("clack",.32)},230);
+    /* 3. the pixel robot is built block by block, from the feet up, out of the flying parts */
+    const cv=o.querySelector(".si-cv"),W=field.clientWidth,H=field.clientHeight,d=Math.min(devicePixelRatio||1,2);cv.width=W*d;cv.height=H*d;
+    const x=cv.getContext("2d");x.setTransform(d,0,0,d,0,0);
+    const S3=3,ox=Math.round(bx-8*S3),oy=Math.round(H-16*S3),bc=botColors(),col={1:bc.body,2:bc.trim,3:"#5a6a8f"};
+    const blocks=[];BOT.forEach((row,yy)=>[...row].forEach((p,i)=>{if(p==="."||p==="4")return;
+      const sx=bx+(Math.random()-.5)*80,sy=by-20-Math.random()*90;
+      blocks.push({c:col[p],sx,sy,tx:ox+i*S3,ty:oy+yy*S3,del:.45+(15-yy)*.045+Math.random()*.05,dur:.3,rot:(Math.random()<.5?-1:1)*(1+Math.random()*2|0)*Math.PI/2})}));
+    let t0=performance.now(),lastRow=-1,fin=false;
+    const ease=k=>1-Math.pow(1-k,3);
+    const draw=now=>{if(!document.body.contains(o))return;const t=(now-t0)/1000;x.clearRect(0,0,W,H);let all=true;
+      for(const b of blocks){const k=(t-b.del)/b.dur;if(k<=0){all=false;continue}const e=ease(Math.min(1,k));if(k<1)all=false;
+        const px=b.sx+(b.tx-b.sx)*e,py=b.sy+(b.ty-b.sy)*e-Math.sin(Math.PI*Math.min(1,k))*18,sz=S3*(2.2-1.2*e);
+        x.save();x.translate(px+S3/2,py+S3/2);x.rotate(b.rot*(1-e));x.fillStyle=b.c;
+        if(k<1){x.shadowColor="rgba(245,197,51,.9)";x.shadowBlur=8}x.fillRect(-sz/2,-sz/2,sz,sz);x.restore()}
+      const row=Math.floor((t-.45)/.045/3);if(row>lastRow&&row>=0&&row<=5){lastRow=row;tfSnd("clack")}
+      if(all&&!fin){fin=true;x.fillStyle="#0c1a3a";x.fillRect(ox+7*S3,oy+8*S3,2*S3,S3);tfSnd("lock");
+        const fl=document.createElement("div");fl.className="si-lock";fl.style.left=bx+"px";fl.style.top=(oy+8*S3)+"px";o.appendChild(fl);
+        setTimeout(()=>{done();o.classList.add("out");setTimeout(()=>o.remove(),450)},140);return}
+      requestAnimationFrame(draw)};
+    setTimeout(()=>{t0=performance.now();requestAnimationFrame(draw)},230)};
   bot.classList.add("wave");setTimeout(step,500);
 }
 
