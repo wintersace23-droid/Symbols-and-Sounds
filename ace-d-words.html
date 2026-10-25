@@ -131,6 +131,9 @@ th{font-size:.66rem;color:var(--muted);letter-spacing:.12em;text-transform:upper
 .si-bot.tf4 .sapi-shadow{opacity:.35}
 .si-bot.tf5 .sapi-svg{transform:translateY(5%) scale(.5);transform-origin:50% 100%;transition:transform .42s cubic-bezier(.6,0,.3,1.2)}
 .si-bot.tf6{animation:siGlitch .26s steps(1) forwards}
+.si-bot.nm1 .sapi-solo{filter:drop-shadow(0 0 6px #9fd8ff) brightness(1.25);transition:filter .3s}
+.si-bot.nm2 .sapi-solo{filter:drop-shadow(0 0 14px #bfe6ff) drop-shadow(0 0 28px #7cc8ff) brightness(1.9);transition:filter .5s}
+.si-bot.nm2 .sapi-solo .sapi-glow{opacity:1!important}
 @keyframes siGlitch{0%{opacity:1;filter:brightness(2)}25%{opacity:.2}50%{opacity:1;filter:brightness(3) contrast(2)}75%{opacity:.1}100%{opacity:0}}
 .si-bot{filter:drop-shadow(0 0 10px rgba(255,255,255,.35))}
 .sapi-intro{position:absolute;inset:0;z-index:5;pointer-events:none}
@@ -375,7 +378,9 @@ function heroArt(){
   paintBot(x,110-8*3,60,3,"open");
 }
 /* ---------- Sapi opens every round: he counts 3-2-1, then turns into the little running robot ---------- */
-const SAPI_SVG=id=>`<svg class="sapi-svg" viewBox="0 0 120 150" aria-hidden="true">
+/* the app's Sapi (the graphite robot with the glowing eyes) when the game runs inside LingoSapien; the drawn one otherwise */
+const SAPI_SVG=id=>{try{if(parent&&parent!==window&&parent.SAPI_STANDALONE)return parent.SAPI_STANDALONE("ad"+id)}catch(e){}return SAPI_SVG0(id)};
+const SAPI_SVG0=id=>`<svg class="sapi-svg" viewBox="0 0 120 150" aria-hidden="true">
 <defs>
  <linearGradient id="${id}g" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#aab4cc"/><stop offset=".3" stop-color="#ffffff"/><stop offset=".55" stop-color="#eef2f9"/><stop offset=".75" stop-color="#ffffff"/><stop offset="1" stop-color="#97a2bd"/></linearGradient>
  <linearGradient id="${id}s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b3470"/><stop offset="1" stop-color="#070915"/></linearGradient>
@@ -459,6 +464,14 @@ function sapiIntro(field,bx,by,done){
     transform()};
   /* Transformers-style: every part of Sapi moves on its own hinge, in steps, until his shape IS the little robot */
   const transform=()=>{
+    const svg0=bot.querySelector("svg");
+    if(svg0&&svg0.classList.contains("sapi-solo")){   // the new Sapi: he lights up, shrinks into the launcher and becomes the pixel robot
+      const at=(ms,f)=>setTimeout(()=>{if(document.body.contains(o))f()},ms);
+      svg0.dataset.ex="happy";bot.classList.add("talk","nm1");tfSnd("unlock");
+      at(380,()=>{tfSnd("whirr");bot.classList.add("nm2")});
+      at(1000,()=>{bot.classList.add("tf5");tfSnd("clack");tfSnd("clack",.12)});
+      at(1500,()=>{bot.classList.add("tf6");tfSnd("lock")});
+      at(1760,()=>{done();o.classList.add("out");setTimeout(()=>o.remove(),450)});return}
     const NS="http://www.w3.org/2000/svg",svg=bot.querySelector("svg"),rig=svg.querySelector(".sapi-bob");
     const body=svg.querySelector(".sapi-torso"),head=svg.querySelector(".sapi-head"),visor=svg.querySelector(".sapi-visor"),shine=svg.querySelector(".sapi-shine");
     body.classList.add("tf-body");head.classList.add("tf-body");visor.classList.add("tf-visor");if(shine)shine.classList.add("tf-gone");svg.querySelectorAll(".sapi-mag").forEach(m=>m.classList.add("tf-gone"));
