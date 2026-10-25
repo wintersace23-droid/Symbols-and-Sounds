@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Memory Palace</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Sora:wght@300;600;800&display=swap">
+<style>
+:root{--sky:#0a0a1f;--panel:#151233;--raise:#1e1a45;--line:rgba(216,180,254,.2);--ink:#f3eefe;--muted:#a99cc9;--violet:#c084fc;--violet-hi:#e9d5ff;--gold:#f5c533;--good:#3ee8a8;--bad:#ff5d7a;
+  --ice:#38bdf8;--fire:#fb7185;--leaf:#4ade80;--neutral:#fbbf24;--display:"Sora",system-ui,sans-serif;--body:"Manrope",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color-scheme:dark}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}
+body{background:radial-gradient(120% 80% at 50% 0%,#1c1440 0%,var(--sky) 60%) fixed,var(--sky);color:var(--ink);font-family:var(--body);font-size:15px;font-weight:500;line-height:1.45}
+button{font-family:inherit;color:inherit}
+.wrap{max-width:720px;margin:0 auto;padding:14px 16px 90px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.top h1{font:800 1.25rem var(--display);margin:0;letter-spacing:.01em}
+.top .r{display:flex;gap:6px}
+.icon{background:var(--raise);border:1px solid var(--line);border-radius:10px;padding:7px 10px;cursor:pointer;font-weight:800;font-size:.9rem}
+.icon.off{opacity:.55}
+.steps{display:flex;gap:4px;margin:4px 0 12px}.steps i{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.12)}.steps i.on{background:var(--violet)}.steps i.done{background:var(--good)}
+/* Sapi's instruction panel */
+.guide{display:flex;gap:12px;align-items:flex-start;background:linear-gradient(160deg,rgba(192,132,252,.16),rgba(192,132,252,.05));border:1px solid rgba(216,180,254,.35);border-radius:14px;padding:12px;margin-bottom:14px}
+.guide .bot{flex:0 0 54px;height:64px}.guide .bot svg{width:54px;height:64px}
+.guide .gx{flex:1;min-width:0}
+.guide .st{font:700 .68rem var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--violet)}
+.guide h2{font:800 1.12rem var(--display);margin:2px 0 6px}
+.guide .what,.guide .how{margin:0 0 6px}
+.guide b.l{display:block;font:800 .72rem var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--violet-hi);margin-top:6px}
+.guide ul{margin:2px 0 0;padding-left:18px}.guide li{margin:2px 0}
+.guide .read{margin-top:6px;background:none;border:1px solid var(--line);border-radius:8px;padding:4px 9px;font-weight:700;font-size:.8rem;cursor:pointer;color:var(--violet-hi)}
+.guide.talk .bot svg{animation:bob .5s ease-in-out infinite alternate}@keyframes bob{to{transform:translateY(-3px)}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:12px;padding:13px 18px;font:800 1rem var(--display);letter-spacing:.02em;cursor:pointer;background:linear-gradient(180deg,#a855f7,#7c3aed);color:#fff;box-shadow:0 6px 18px rgba(124,58,237,.35)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:transparent;border:1px solid var(--line);box-shadow:none;color:var(--ink)}
+.btn.gold{background:linear-gradient(180deg,#fcd34d,#f59e0b);color:#221500}
+.acts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}
+.muted{color:var(--muted)}
+/* town */
+.town{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.bld{position:relative;text-align:left;background:var(--raise);border:1px solid var(--line);border-radius:14px;padding:12px;cursor:pointer;min-height:118px;display:flex;flex-direction:column;gap:4px}
+.bld .e{font-size:2rem;line-height:1}.bld b{font:800 1rem var(--display)}.bld small{color:var(--muted);font-size:.8rem}
+.bld.locked{opacity:.5;cursor:not-allowed}.bld .lk{position:absolute;top:10px;right:10px;font-size:.95rem}
+.bld .stars{color:var(--gold);font-size:.9rem;letter-spacing:2px}
+.bld.special{background:linear-gradient(160deg,rgba(245,197,51,.12),var(--raise))}
+.sec{font:800 .74rem var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--violet);margin:18px 0 8px}
+.how3{display:grid;gap:8px}.how3 div{display:flex;gap:10px;align-items:flex-start}.how3 .n{flex:0 0 26px;height:26px;border-radius:50%;background:var(--violet);color:#1a0b2e;font:800 .85rem var(--display);display:grid;place-items:center}
+.rev{display:flex;flex-direction:column;gap:8px}
+.revrow{display:flex;align-items:center;gap:10px;background:var(--raise);border:1px solid var(--line);border-radius:12px;padding:10px}
+.revrow .t{flex:1;min-width:0}.revrow .due{font:700 .72rem var(--display);letter-spacing:.06em;text-transform:uppercase}.due.now{color:var(--gold)}
+.games4{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:8px}
+.games4 button{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px;font-weight:800;font-size:.84rem;cursor:pointer;text-align:left}
+.pts{font:800 .9rem var(--display);color:var(--gold)}
+/* spots / palace */
+.spots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.spot{position:relative;background:var(--raise);border:1px dashed rgba(216,180,254,.35);border-radius:12px;padding:8px 10px 8px 34px;min-height:62px;display:flex;flex-direction:column;justify-content:center;cursor:pointer;transition:background .2s,border-color .2s,box-shadow .2s}
+.spot .no{position:absolute;left:8px;top:8px;width:20px;height:20px;border-radius:50%;background:rgba(192,132,252,.25);font:800 .7rem var(--display);display:grid;place-items:center}
+.spot .nm{font-weight:800;font-size:.86rem;color:var(--violet-hi)}
+.spot .it{font-weight:800;font-size:1rem;margin-top:2px}
+.spot.full{border-style:solid}
+.spot.hot{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.4)}
+.spot.lit{background:rgba(192,132,252,.25);border-color:#fff;box-shadow:0 0 16px rgba(192,132,252,.5)}
+.spot.dark{background:#060510;border-color:#111;color:#333}.spot.dark .nm{color:#333}
+.spot.ok{border-color:var(--good);box-shadow:0 0 10px rgba(62,232,168,.35)}.spot.bad{border-color:var(--bad);box-shadow:0 0 10px rgba(255,93,122,.35)}
+.spot.pick{border-color:var(--gold);box-shadow:0 0 12px rgba(245,197,51,.45)}
+.spot input{margin-top:4px}
+.edit{display:grid;gap:6px}.edit label{display:flex;align-items:center;gap:8px}.edit label span{flex:0 0 22px;height:22px;border-radius:50%;background:rgba(192,132,252,.25);font:800 .72rem var(--display);display:grid;place-items:center}
+input[type=text],textarea{width:100%;background:rgba(10,6,28,.75);border:1px solid rgba(216,180,254,.45);border-radius:9px;color:#fff;font:700 .98rem var(--body);padding:9px 11px;outline:none}
+input[type=text]:focus,textarea:focus{border-color:#fff;box-shadow:0 0 10px rgba(192,132,252,.5)}
+textarea{min-height:64px;resize:vertical;font-weight:600}
+/* words */
+.wl{display:grid;gap:8px}
+.wrow{display:flex;align-items:center;gap:10px;background:var(--raise);border:1px solid var(--line);border-left:5px solid var(--gc,var(--neutral));border-radius:10px;padding:9px 10px}
+.wrow .tw{font:800 1.08rem var(--display)}.wrow .mn{color:var(--muted);font-size:.86rem}.wrow .g{margin-left:auto;font-size:1.1rem}
+.spk{background:none;border:1px solid var(--line);border-radius:8px;padding:5px 8px;cursor:pointer;font-size:.95rem}
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}.legend span{font:700 .74rem var(--display);padding:3px 8px;border-radius:6px;border:1px solid var(--gc);color:var(--ink);background:color-mix(in srgb,var(--gc) 22%,transparent)}
+.g-m{--gc:var(--ice)}.g-f{--gc:var(--fire)}.g-n{--gc:var(--leaf)}.g-{--gc:var(--neutral)}
+/* forge */
+.forge .big{text-align:center;padding:10px 0}
+.forge .big .tw{font:800 2rem var(--display);color:var(--gc);text-shadow:0 0 14px color-mix(in srgb,var(--gc) 60%,transparent)}
+.forge .big .mn{color:var(--muted)}
+.sug{background:rgba(245,197,51,.08);border:1px solid rgba(245,197,51,.35);border-radius:10px;padding:8px 10px;margin:8px 0}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.chip{background:var(--raise);border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-weight:800;font-size:.85rem;cursor:pointer}
+.chip.on{background:var(--violet);color:#1a0b2e;border-color:var(--violet)}
+.img{border:1px solid var(--gc);border-radius:12px;padding:12px;background:color-mix(in srgb,var(--gc) 12%,transparent);font-weight:700;margin-top:8px}
+.img .to{display:block;margin-top:6px;font:800 1.1rem var(--display);color:var(--gc)}
+.lab{font:800 .72rem var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--violet-hi);margin:10px 0 4px;display:block}
+.cnt{font:700 .78rem var(--display);color:var(--muted);text-align:center}
+/* tray */
+.tray{display:flex;flex-wrap:wrap;gap:6px;min-height:46px;padding:8px;border:1px dashed var(--line);border-radius:12px;margin-bottom:10px}
+.wc{touch-action:none;user-select:none;-webkit-user-select:none;background:var(--raise);border:1px solid var(--gc);border-left:5px solid var(--gc);border-radius:9px;padding:7px 10px;font:800 .92rem var(--display);cursor:grab}
+.wc.sel{background:var(--gc);color:#0b0718}
+.ghost-drag{position:fixed;pointer-events:none;z-index:50;opacity:.9;transform:translate(-50%,-50%)}
+/* walk */
+.ring{position:relative;width:88px;height:88px;margin:0 auto 8px}.ring svg{width:88px;height:88px;transform:rotate(-90deg)}.ring circle{fill:none;stroke-width:3}.ring .bg{stroke:rgba(255,255,255,.14)}.ring .fg{stroke:var(--violet);stroke-linecap:round;transition:stroke-dashoffset .25s linear}
+.ring span{position:absolute;inset:0;display:grid;place-items:center;font:800 1.05rem var(--display)}
+.scene{min-height:96px;text-align:center;font-weight:700;font-size:1.02rem;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--raise);margin-bottom:10px}
+.scene .w{display:block;font:800 1.4rem var(--display);color:var(--gc);margin-top:4px}
+/* recall */
+.room{text-align:center}.room .where{font:800 1.3rem var(--display);margin:4px 0}.room .q{color:var(--muted)}
+.fb{margin-top:8px;font-weight:800;min-height:1.4em;text-align:center}.fb.ok{color:var(--good)}.fb.bad{color:var(--bad)}
+.fix{border:1px solid var(--gold);background:rgba(245,197,51,.08);border-radius:12px;padding:12px;margin-top:10px}
+.score{text-align:center}.score .big{font:800 3rem var(--display)}.score .stars{font-size:2rem;color:var(--gold);letter-spacing:6px}
+.tbl{width:100%;border-collapse:collapse;font-size:.88rem;margin-top:8px}.tbl td{border-top:1px solid var(--line);padding:6px 4px;vertical-align:top}.tbl td.r{text-align:right}
+.house{display:grid;gap:8px}.floor{border:1px solid var(--line);border-radius:12px;padding:8px;background:var(--raise)}.floor>b{display:block;font:800 .74rem var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--violet-hi);margin-bottom:6px}
+.floor .rooms{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.floor .rm{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:6px;font-size:.78rem;min-height:52px}.floor .rm i{font-style:normal;color:var(--muted);display:block}.floor .rm em{font-style:normal;font-weight:800;font-size:.92rem}
+.floor .rm.lit{border-color:#fff;background:rgba(192,132,252,.25)}
+.street{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.street .hs{background:var(--raise);border:1px solid var(--line);border-radius:10px;padding:6px;text-align:center;font-size:.78rem}.street .hs .pg{font-size:1.6rem;display:block}.street .hs b{font:800 1rem var(--display)}.street .hs.lit{border-color:#fff;background:rgba(192,132,252,.25)}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#2a1f55;border:1px solid var(--violet);border-radius:12px;padding:10px 14px;font-weight:800;z-index:60;max-width:90%}
+@media (max-width:420px){.spots{grid-template-columns:1fr 1fr}.floor .rooms{grid-template-columns:1fr 1fr}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+const DATA={"sets":[{"id":"home","icon":"🏠","words":[{"en":{"w":"key","g":"","a":"key"},"es":{"w":"llave","g":"f","a":"la llave"},"fr":{"w":"clé","g":"f","a":"la clé"},"de":{"w":"Schlüssel","g":"m","a":"der Schlüssel"}},{"en":{"w":"cat","g":"","a":"cat"},"es":{"w":"gato","g":"m","a":"el gato"},"fr":{"w":"chat","g":"m","a":"le chat"},"de":{"w":"Katze","g":"f","a":"die Katze"}},{"en":{"w":"dog","g":"","a":"dog"},"es":{"w":"perro","g":"m","a":"el perro"},"fr":{"w":"chien","g":"m","a":"le chien"},"de":{"w":"Hund","g":"m","a":"der Hund"}},{"en":{"w":"bread","g":"","a":"bread"},"es":{"w":"pan","g":"m","a":"el pan"},"fr":{"w":"pain","g":"m","a":"le pain"},"de":{"w":"Brot","g":"n","a":"das Brot"}},{"en":{"w":"milk","g":"","a":"milk"},"es":{"w":"leche","g":"f","a":"la leche"},"fr":{"w":"lait","g":"m","a":"le lait"},"de":{"w":"Milch","g":"f","a":"die Milch"}},{"en":{"w":"book","g":"","a":"book"},"es":{"w":"libro","g":"m","a":"el libro"},"fr":{"w":"livre","g":"m","a":"le livre"},"de":{"w":"Buch","g":"n","a":"das Buch"}},{"en":{"w":"apple","g":"","a":"apple"},"es":{"w":"manzana","g":"f","a":"la manzana"},"fr":{"w":"pomme","g":"f","a":"la pomme"},"de":{"w":"Apfel","g":"m","a":"der Apfel"}},{"en":{"w":"chair","g":"","a":"chair"},"es":{"w":"silla","g":"f","a":"la silla"},"fr":{"w":"chaise","g":"f","a":"la chaise"},"de":{"w":"Stuhl","g":"m","a":"der Stuhl"}},{"en":{"w":"door","g":"","a":"door"},"es":{"w":"puerta","g":"f","a":"la puerta"},"fr":{"w":"porte","g":"f","a":"la porte"},"de":{"w":"Tür","g":"f","a":"die Tür"}},{"en":{"w":"window","g":"","a":"window"},"es":{"w":"ventana","g":"f","a":"la ventana"},"fr":{"w":"fenêtre","g":"f","a":"la fenêtre"},"de":{"w":"Fenster","g":"n","a":"das Fenster"}}],"key":{"es":{"en":["Java","got a","pear","pan","let chef","Libra","man's Anna","see ya","Puerto Rico","vent"],"fr":["laver","gâteau","perroquet","panne","lèche","libre","mangeons","scie-là","porte","vent"],"de":["Lava","Kater","Peru","Pfanne","lecken","Liebe","Mann mit Sahne","Silo","Pforte","Ventil"]},"fr":{"en":["clay","shah","shy-an","pan","lay","leave","pom-pom","chase","port","fennel"],"es":["clave","chal","cien","pan","ley","libre","pompón","Che","portero","fenómeno"],"de":["Klee","Schach","Schienen","Pinsel","leer","liefern","Pommes","Chaiselongue","Pforte","Fenster"]},"de":{"en":["slush shell","cats","hound","broth","milk","book","apple","stool","tour","fan stir"],"es":["chisme","caza","hundir","brote","mil","búho","apio","estuche","turrón","fénix"],"fr":["chou-sel","quatre","honte","brosse","mille","bouche","appel","stylo","tour","fenêtre"]},"en":{"es":["kiwi","cata","dogo","brea","milagro","buque","Apolo","Che","dorado","guindilla"],"fr":["qui","catastrophe","dogue","brebis","mille","bouc","appel","chaire","dort","Windows"],"de":["Kiwi","Kater","Dogge","Brett","Milch","Buch","Apfel","Schere","Tor","Wind"]}}},{"id":"market","icon":"🛒","words":[{"en":{"w":"cheese","g":"","a":"cheese"},"es":{"w":"queso","g":"m","a":"el queso"},"fr":{"w":"fromage","g":"m","a":"le fromage"},"de":{"w":"Käse","g":"m","a":"der Käse"}},{"en":{"w":"egg","g":"","a":"egg"},"es":{"w":"huevo","g":"m","a":"el huevo"},"fr":{"w":"œuf","g":"m","a":"l'œuf"},"de":{"w":"Ei","g":"n","a":"das Ei"}},{"en":{"w":"fish","g":"","a":"fish"},"es":{"w":"pescado","g":"m","a":"el pescado"},"fr":{"w":"poisson","g":"m","a":"le poisson"},"de":{"w":"Fisch","g":"m","a":"der Fisch"}},{"en":{"w":"meat","g":"","a":"meat"},"es":{"w":"carne","g":"f","a":"la carne"},"fr":{"w":"viande","g":"f","a":"la viande"},"de":{"w":"Fleisch","g":"n","a":"das Fleisch"}},{"en":{"w":"rice","g":"","a":"rice"},"es":{"w":"arroz","g":"m","a":"el arroz"},"fr":{"w":"riz","g":"m","a":"le riz"},"de":{"w":"Reis","g":"m","a":"der Reis"}},{"en":{"w":"tomato","g":"","a":"tomato"},"es":{"w":"tomate","g":"m","a":"el tomate"},"fr":{"w":"tomate","g":"f","a":"la tomate"},"de":{"w":"Tomate","g":"f","a":"die Tomate"}},{"en":{"w":"potato","g":"","a":"potato"},"es":{"w":"patata","g":"f","a":"la patata"},"fr":{"w":"pomme de terre","g":"f","a":"la pomme de terre"},"de":{"w":"Kartoffel","g":"f","a":"die Kartoffel"}},{"en":{"w":"orange","g":"","a":"orange"},"es":{"w":"naranja","g":"f","a":"la naranja"},"fr":{"w":"orange","g":"f","a":"l'orange"},"de":{"w":"Orange","g":"f","a":"die Orange"}},{"en":{"w":"banana","g":"","a":"banana"},"es":{"w":"plátano","g":"m","a":"el plátano"},"fr":{"w":"banane","g":"f","a":"la banane"},"de":{"w":"Banane","g":"f","a":"die Banane"}},{"en":{"w":"salt","g":"","a":"salt"},"es":{"w":"sal","g":"f","a":"la sal"},"fr":{"w":"sel","g":"m","a":"le sel"},"de":{"w":"Salz","g":"n","a":"das Salz"}}]},{"id":"school","icon":"🏫","words":[{"en":{"w":"pen","g":"","a":"pen"},"es":{"w":"bolígrafo","g":"m","a":"el bolígrafo"},"fr":{"w":"stylo","g":"m","a":"le stylo"},"de":{"w":"Kuli","g":"m","a":"der Kuli"}},{"en":{"w":"pencil","g":"","a":"pencil"},"es":{"w":"lápiz","g":"m","a":"el lápiz"},"fr":{"w":"crayon","g":"m","a":"le crayon"},"de":{"w":"Bleistift","g":"m","a":"der Bleistift"}},{"en":{"w":"paper","g":"","a":"paper"},"es":{"w":"papel","g":"m","a":"el papel"},"fr":{"w":"papier","g":"m","a":"le papier"},"de":{"w":"Papier","g":"n","a":"das Papier"}},{"en":{"w":"bag","g":"","a":"bag"},"es":{"w":"mochila","g":"f","a":"la mochila"},"fr":{"w":"sac","g":"m","a":"le sac"},"de":{"w":"Tasche","g":"f","a":"die Tasche"}},{"en":{"w":"teacher","g":"","a":"teacher"},"es":{"w":"profesor","g":"m","a":"el profesor"},"fr":{"w":"professeur","g":"m","a":"le professeur"},"de":{"w":"Lehrer","g":"m","a":"der Lehrer"}},{"en":{"w":"student","g":"","a":"student"},"es":{"w":"estudiante","g":"m","a":"el estudiante"},"fr":{"w":"étudiant","g":"m","a":"l'étudiant"},"de":{"w":"Student","g":"m","a":"der Student"}},{"en":{"w":"map","g":"","a":"map"},"es":{"w":"mapa","g":"m","a":"el mapa"},"fr":{"w":"carte","g":"f","a":"la carte"},"de":{"w":"Karte","g":"f","a":"die Karte"}},{"en":{"w":"clock","g":"","a":"clock"},"es":{"w":"reloj","g":"m","a":"el reloj"},"fr":{"w":"horloge","g":"f","a":"l'horloge"},"de":{"w":"Uhr","g":"f","a":"die Uhr"}},{"en":{"w":"desk","g":"","a":"desk"},"es":{"w":"escritorio","g":"m","a":"el escritorio"},"fr":{"w":"bureau","g":"m","a":"le bureau"},"de":{"w":"Schreibtisch","g":"m","a":"der Schreibtisch"}},{"en":{"w":"notebook","g":"","a":"notebook"},"es":{"w":"cuaderno","g":"m","a":"el cuaderno"},"fr":{"w":"cahier","g":"m","a":"le cahier"},"de":{"w":"Heft","g":"n","a":"das Heft"}}]},{"id":"park","icon":"🌳","words":[{"en":{"w":"tree","g":"","a":"tree"},"es":{"w":"árbol","g":"m","a":"el árbol"},"fr":{"w":"arbre","g":"m","a":"l'arbre"},"de":{"w":"Baum","g":"m","a":"der Baum"}},{"en":{"w":"flower","g":"","a":"flower"},"es":{"w":"flor","g":"f","a":"la flor"},"fr":{"w":"fleur","g":"f","a":"la fleur"},"de":{"w":"Blume","g":"f","a":"die Blume"}},{"en":{"w":"bird","g":"","a":"bird"},"es":{"w":"pájaro","g":"m","a":"el pájaro"},"fr":{"w":"oiseau","g":"m","a":"l'oiseau"},"de":{"w":"Vogel","g":"m","a":"der Vogel"}},{"en":{"w":"sun","g":"","a":"sun"},"es":{"w":"sol","g":"m","a":"el sol"},"fr":{"w":"soleil","g":"m","a":"le soleil"},"de":{"w":"Sonne","g":"f","a":"die Sonne"}},{"en":{"w":"rain","g":"","a":"rain"},"es":{"w":"lluvia","g":"f","a":"la lluvia"},"fr":{"w":"pluie","g":"f","a":"la pluie"},"de":{"w":"Regen","g":"m","a":"der Regen"}},{"en":{"w":"grass","g":"","a":"grass"},"es":{"w":"hierba","g":"f","a":"la hierba"},"fr":{"w":"herbe","g":"f","a":"l'herbe"},"de":{"w":"Gras","g":"n","a":"das Gras"}},{"en":{"w":"bench","g":"","a":"bench"},"es":{"w":"banco","g":"m","a":"el banco"},"fr":{"w":"banc","g":"m","a":"le banc"},"de":{"w":"Bank","g":"f","a":"die Bank"}},{"en":{"w":"lake","g":"","a":"lake"},"es":{"w":"lago","g":"m","a":"el lago"},"fr":{"w":"lac","g":"m","a":"le lac"},"de":{"w":"See","g":"m","a":"der See"}},{"en":{"w":"horse","g":"","a":"horse"},"es":{"w":"caballo","g":"m","a":"el caballo"},"fr":{"w":"cheval","g":"m","a":"le cheval"},"de":{"w":"Pferd","g":"n","a":"das Pferd"}},{"en":{"w":"cloud","g":"","a":"cloud"},"es":{"w":"nube","g":"f","a":"la nube"},"fr":{"w":"nuage","g":"m","a":"le nuage"},"de":{"w":"Wolke","g":"f","a":"die Wolke"}}]}],"conj":{"en":{"be":[["am","are","is","are","are","are"],["was","were","was","were","were","were"],["will be","will be","will be","will be","will be","will be"]],"have":[["have","have","has","have","have","have"],["had","had","had","had","had","had"],["will have","will have","will have","will have","will have","will have"]],"do":[["do","do","does","do","do","do"],["did","did","did","did","did","did"],["will do","will do","will do","will do","will do","will do"]],"go":[["go","go","goes","go","go","go"],["went","went","went","went","went","went"],["will go","will go","will go","will go","will go","will go"]],"see":[["see","see","sees","see","see","see"],["saw","saw","saw","saw","saw","saw"],["will see","will see","will see","will see","will see","will see"]]},"es":{"ser":[["soy","eres","es","somos","sois","son"],["fui","fuiste","fue","fuimos","fuisteis","fueron"],["seré","serás","será","seremos","seréis","serán"]],"estar":[["estoy","estás","está","estamos","estáis","están"],["estuve","estuviste","estuvo","estuvimos","estuvisteis","estuvieron"],["estaré","estarás","estará","estaremos","estaréis","estarán"]],"have":[["tengo","tienes","tiene","tenemos","tenéis","tienen"],["tuve","tuviste","tuvo","tuvimos","tuvisteis","tuvieron"],["tendré","tendrás","tendrá","tendremos","tendréis","tendrán"]],"do":[["hago","haces","hace","hacemos","hacéis","hacen"],["hice","hiciste","hizo","hicimos","hicisteis","hicieron"],["haré","harás","hará","haremos","haréis","harán"]],"go":[["voy","vas","va","vamos","vais","van"],["fui","fuiste","fue","fuimos","fuisteis","fueron"],["iré","irás","irá","iremos","iréis","irán"]],"see":[["veo","ves","ve","vemos","veis","ven"],["vi","viste","vio","vimos","visteis","vieron"],["veré","verás","verá","veremos","veréis","verán"]]},"fr":{"be":[["suis","es","est","sommes","êtes","sont"],["ai été","as été","a été","avons été","avez été","ont été"],["serai","seras","sera","serons","serez","seront"]],"have":[["ai","as","a","avons","avez","ont"],["ai eu","as eu","a eu","avons eu","avez eu","ont eu"],["aurai","auras","aura","aurons","aurez","auront"]],"do":[["fais","fais","fait","faisons","faites","font"],["ai fait","as fait","a fait","avons fait","avez fait","ont fait"],["ferai","feras","fera","ferons","ferez","feront"]],"go":[["vais","vas","va","allons","allez","vont"],["suis allé(e)","es allé(e)","est allé(e)","sommes allé(e)s","êtes allé(e)(s)","sont allé(e)s"],["irai","iras","ira","irons","irez","iront"]],"see":[["vois","vois","voit","voyons","voyez","voient"],["ai vu","as vu","a vu","avons vu","avez vu","ont vu"],["verrai","verras","verra","verrons","verrez","verront"]]},"de":{"be":[["bin","bist","ist","sind","seid","sind"],["war","warst","war","waren","wart","waren"],["werde sein","wirst sein","wird sein","werden sein","werdet sein","werden sein"]],"have":[["habe","hast","hat","haben","habt","haben"],["hatte","hattest","hatte","hatten","hattet","hatten"],["werde haben","wirst haben","wird haben","werden haben","werdet haben","werden haben"]],"do":[["mache","machst","macht","machen","macht","machen"],["machte","machtest","machte","machten","machtet","machten"],["werde machen","wirst machen","wird machen","werden machen","werdet machen","werden machen"]],"go":[["gehe","gehst","geht","gehen","geht","gehen"],["ging","gingst","ging","gingen","gingt","gingen"],["werde gehen","wirst gehen","wird gehen","werden gehen","werdet gehen","werden gehen"]],"see":[["sehe","siehst","sieht","sehen","seht","sehen"],["sah","sahst","sah","sahen","saht","sahen"],["werde sehen","wirst sehen","wird sehen","werden sehen","werdet sehen","werden sehen"]]}},"vlist":{"en":["be","have","do","go","see"],"es":["ser","estar","have","do","go","see"],"fr":["be","have","do","go","see"],"de":["be","have","do","go","see"]},"inf":{"en":{"be":"to be","have":"to have","do":"to do","go":"to go","see":"to see"},"es":{"ser":"ser","estar":"estar","have":"tener","do":"hacer","go":"ir","see":"ver"},"fr":{"be":"être","have":"avoir","do":"faire","go":"aller","see":"voir"},"de":{"be":"sein","have":"haben","do":"machen","go":"gehen","see":"sehen"}},"pers":{"en":["I","you","he / she","we","you (all)","they"],"es":["yo","tú","él / ella","nosotros","vosotros","ellos / ellas"],"fr":["je","tu","il / elle","nous","vous","ils / elles"],"de":["ich","du","er / sie","wir","ihr","sie / Sie"]},"nums":{"en":["zero","one","two","three","four","five","six","seven","eight","nine","ten"],"es":["cero","uno","dos","tres","cuatro","cinco","seis","siete","ocho","nueve","diez"],"fr":["zéro","un","deux","trois","quatre","cinq","six","sept","huit","neuf","dix"],"de":["null","eins","zwei","drei","vier","fünf","sechs","sieben","acht","neun","zehn"]}};
+const Q=new URLSearchParams(location.search);
+const L4=["en","es","fr","de"];
+const UI=L4.includes(Q.get("ui"))?Q.get("ui"):"en", LANG=L4.includes(Q.get("lang"))?Q.get("lang"):"en", NAT=L4.includes(Q.get("nat"))?Q.get("nat"):null;
+const HL=[NAT,UI].find(x=>x&&x!==LANG)||null;        // the language of the meanings and the sound-alike keywords
+const ML=HL||UI;                                        // meanings fall back to the app language
+const TTS={en:"en-US",es:"es-ES",fr:"fr-FR",de:"de-DE"};
+const LNAME={en:{en:"English",es:"inglés",fr:"anglais",de:"Englisch"},es:{en:"Spanish",es:"español",fr:"espagnol",de:"Spanisch"},fr:{en:"French",es:"francés",fr:"français",de:"Französisch"},de:{en:"German",es:"alemán",fr:"allemand",de:"Deutsch"}};
+document.documentElement.lang=UI;
+/* ---------------- text in the four app languages ---------------- */
+const STR={
+title:["Memory Palace","Palacio de la memoria","Palais de mémoire","Gedächtnispalast"],
+home:["← Games","← Juegos","← Jeux","← Spiele"],
+voiceOn:["🔊 Voice on","🔊 Voz activada","🔊 Voix activée","🔊 Stimme an"],voiceOff:["🔇 Voice off","🔇 Voz desactivada","🔇 Voix coupée","🔇 Stimme aus"],
+read:["🔊 Read it to me","🔊 Léemelo","🔊 Lis-le-moi","🔊 Vorlesen"],
+whatL:["What to do","Qué hacer","Ce que tu fais","Was du tust"],howL:["How","Cómo","Comment","Wie"],
+stepN:["Step {n} of {m}","Paso {n} de {m}","Étape {n} sur {m}","Schritt {n} von {m}"],
+next:["Next →","Siguiente →","Suivant →","Weiter →"],back:["← Back","← Atrás","← Retour","← Zurück"],cont:["Continue →","Continuar →","Continuer →","Weiter →"],
+townT:["Welcome to Memory Town","Bienvenido a Ciudad Memoria","Bienvenue à Mémoireville","Willkommen in Gedächtnisstadt"],
+townW:["Choose a building and memorise 10 {lang} words in it.","Elige un edificio y memoriza en él 10 palabras en {lang}.","Choisis un bâtiment et mémorise-y 10 mots en {lang}.","Wähle ein Gebäude und merk dir darin 10 Wörter auf {lang}."],
+townH:["Start with your Home. Each palace you finish opens the next building. Come back on the days marked “Due” to revisit your palaces with a game.","Empieza por tu Casa. Cada palacio que termines abre el siguiente edificio. Vuelve los días marcados como «Toca hoy» para repasar tus palacios con un juego.","Commence par ta Maison. Chaque palais terminé ouvre le bâtiment suivant. Reviens les jours marqués « À revoir » pour revisiter tes palais avec un jeu.","Fang mit deinem Zuhause an. Jeder fertige Palast öffnet das nächste Gebäude. Komm an den Tagen mit „Fällig“ zurück, um deine Paläste mit einem Spiel zu wiederholen."],
+howT:["How it works","Cómo funciona","Comment ça marche","So funktioniert es"],
+how1:["Association: turn each word into a crazy picture with a word that sounds like it in your language.","Asociación: convierte cada palabra en una imagen loca con una palabra que suene parecido en tu idioma.","Association : transforme chaque mot en une image folle, avec un mot de ta langue qui sonne pareil.","Assoziation: Mach aus jedem Wort ein verrücktes Bild mit einem Wort, das in deiner Sprache ähnlich klingt."],
+how2:["Memory palace: put each picture in a different spot of a place you know well.","Palacio de la memoria: pon cada imagen en un sitio distinto de un lugar que conoces bien.","Palais de mémoire : place chaque image à un endroit différent d'un lieu que tu connais bien.","Gedächtnispalast: Leg jedes Bild an eine andere Stelle eines Ortes, den du gut kennst."],
+how3:["Walk the route: go through the spots in order and the words come back to you.","Recorre la ruta: pasa por los sitios en orden y las palabras volverán a ti.","Parcours le chemin : passe par les endroits dans l'ordre et les mots te reviennent.","Geh den Weg ab: Geh die Stellen der Reihe nach durch, und die Wörter fallen dir wieder ein."],
+b_home:["Home","Casa","Maison","Zuhause"],b_market:["Market","Mercado","Marché","Markt"],b_school:["School","Escuela","École","Schule"],b_park:["Park","Parque","Parc","Park"],
+d_home:["10 everyday things, in your own home","10 cosas de cada día, en tu propia casa","10 choses du quotidien, dans ta maison","10 Alltagsdinge, in deinem eigenen Zuhause"],
+d_market:["10 food words","10 palabras de comida","10 mots de la nourriture","10 Wörter rund ums Essen"],d_school:["10 school words","10 palabras de la escuela","10 mots de l'école","10 Wörter aus der Schule"],d_park:["10 nature words","10 palabras de la naturaleza","10 mots de la nature","10 Wörter aus der Natur"],
+b_conj:["Conjugation House","Casa de las conjugaciones","Maison des conjugaisons","Konjugationshaus"],d_conj:["The 5 key verbs: floors are tenses, rooms are persons","Los 5 verbos clave: las plantas son tiempos, las habitaciones personas","Les 5 verbes clés : les étages sont les temps, les pièces les personnes","Die 5 wichtigsten Verben: Stockwerke sind Zeiten, Zimmer sind Personen"],
+b_num:["Number Street","Calle de los números","Rue des nombres","Zahlenstraße"],d_num:["0 to 10 with number-shape pictures","Del 0 al 10 con imágenes en forma de número","De 0 à 10 avec des images en forme de chiffres","0 bis 10 mit Bildern in Zahlenform"],
+locked:["Finish the building before this one to open it.","Termina el edificio anterior para abrirlo.","Termine le bâtiment précédent pour l'ouvrir.","Schließ das Gebäude davor ab, um dieses zu öffnen."],
+lockedS:["Finish your Home palace to open it.","Termina el palacio de tu Casa para abrirlo.","Termine le palais de ta Maison pour l'ouvrir.","Schließ deinen Zuhause-Palast ab, um es zu öffnen."],
+special:["Special buildings","Edificios especiales","Bâtiments spéciaux","Besondere Gebäude"],town:["Town","Ciudad","Ville","Stadt"],
+revT:["Revisit your palaces","Repasa tus palacios","Revisite tes palais","Besuch deine Paläste wieder"],
+revNone:["Finish a palace and it will appear here for review in 1, 3 and 7 days.","Termina un palacio y aparecerá aquí para repasarlo dentro de 1, 3 y 7 días.","Termine un palais et il apparaîtra ici pour être revu dans 1, 3 et 7 jours.","Schließ einen Palast ab, dann erscheint er hier zur Wiederholung in 1, 3 und 7 Tagen."],
+dueNow:["Due now","Toca hoy","À revoir","Fällig"],dueIn:["Next review in {n} days","Próximo repaso en {n} días","Prochaine révision dans {n} jours","Nächste Wiederholung in {n} Tagen"],dueIn1:["Next review tomorrow","Próximo repaso mañana","Prochaine révision demain","Nächste Wiederholung morgen"],mastered:["Mastered","Dominado","Maîtrisé","Gemeistert"],
+pts:["{n} palace points","{n} puntos de palacio","{n} points de palais","{n} Palastpunkte"],
+g_lights:["💡 Lights out","💡 Apagón","💡 Extinction des feux","💡 Licht aus"],g_burglar:["🕵️ The burglar","🕵️ El ladrón","🕵️ Le cambrioleur","🕵️ Der Einbrecher"],g_reverse:["🔁 Reverse tour","🔁 Ruta al revés","🔁 Visite à l'envers","🔁 Rückwärts-Tour"],g_sapi:["🤖 Sapi's tour","🤖 La visita de Sapi","🤖 La visite de Sapi","🤖 Sapis Tour"],
+playAgain:["Play this palace again","Volver a jugar este palacio","Rejouer ce palais","Diesen Palast noch einmal spielen"],
+/* step 1: build */
+s1T:["Build your palace","Construye tu palacio","Construis ton palais","Bau deinen Palast"],
+s1W:["Choose 10 spots along a route you know well, in the order you walk past them.","Elige 10 sitios a lo largo de un recorrido que conozcas bien, en el orden en que pasas por ellos.","Choisis 10 endroits le long d'un trajet que tu connais bien, dans l'ordre où tu passes devant.","Wähle 10 Stellen auf einem Weg, den du gut kennst, in der Reihenfolge, in der du daran vorbeigehst."],
+s1H:["Imagine walking in through the front door. Change any spot so it matches your real home.|Keep them in order: the route is what brings the words back later.|When you're happy, tap “Walk through it” to hear the route once.","Imagina que entras por la puerta principal. Cambia cualquier sitio para que coincida con tu casa real.|Mantén el orden: la ruta es lo que te devolverá las palabras después.|Cuando estés listo, toca «Recorrerlo» para oír la ruta una vez.","Imagine que tu entres par la porte d'entrée. Change un endroit pour qu'il corresponde à ta vraie maison.|Garde l'ordre : c'est le trajet qui te rendra les mots plus tard.|Quand tu es prêt, touche « Le parcourir » pour entendre le trajet une fois.","Stell dir vor, du kommst zur Haustür herein. Ändere eine Stelle, damit sie zu deinem echten Zuhause passt.|Behalte die Reihenfolge: Der Weg bringt dir die Wörter später zurück.|Wenn alles passt, tippe auf „Abgehen“, um den Weg einmal zu hören."],
+s1Ho:["This building already has 10 spots. You can rename any of them.|Keep them in order: the route is what brings the words back later.|Tap “Walk through it” to hear the route once.","Este edificio ya tiene 10 sitios. Puedes cambiar el nombre de cualquiera.|Mantén el orden: la ruta es lo que te devolverá las palabras después.|Toca «Recorrerlo» para oír la ruta una vez.","Ce bâtiment a déjà 10 endroits. Tu peux renommer n'importe lequel.|Garde l'ordre : c'est le trajet qui te rendra les mots plus tard.|Touche « Le parcourir » pour entendre le trajet une fois.","Dieses Gebäude hat schon 10 Stellen. Du kannst jede umbenennen.|Behalte die Reihenfolge: Der Weg bringt dir die Wörter später zurück.|Tippe auf „Abgehen“, um den Weg einmal zu hören."],
+walkIt:["Walk through it","Recorrerlo","Le parcourir","Abgehen"],
+routeSay:["Here is your route:","Este es tu recorrido:","Voici ton trajet :","Das ist dein Weg:"],
+needSpots:["Please give every spot a name.","Ponle nombre a todos los sitios, por favor.","Donne un nom à chaque endroit, s'il te plaît.","Bitte gib jeder Stelle einen Namen."],
+/* step 2: meet */
+s2T:["Meet your 10 words","Conoce tus 10 palabras","Découvre tes 10 mots","Lerne deine 10 Wörter kennen"],
+s2W:["Listen to each word and say it out loud.","Escucha cada palabra y dila en voz alta.","Écoute chaque mot et dis-le à voix haute.","Hör dir jedes Wort an und sprich es laut."],
+s2H:["Tap 🔊 to hear a word, or “Hear all” for the whole list.|Say each one out loud after Sapi.|The colour shows the gender: it will become part of your picture.","Toca 🔊 para oír una palabra, o «Oír todas» para la lista entera.|Repite cada una en voz alta después de Sapi.|El color indica el género: formará parte de tu imagen.","Touche 🔊 pour entendre un mot, ou « Tout écouter » pour toute la liste.|Répète chaque mot à voix haute après Sapi.|La couleur montre le genre : elle fera partie de ton image.","Tippe auf 🔊, um ein Wort zu hören, oder auf „Alle hören“ für die ganze Liste.|Sprich jedes Wort nach Sapi laut nach.|Die Farbe zeigt das Geschlecht: Sie wird Teil deines Bildes."],
+s2Hen:["Tap 🔊 to hear a word, or “Hear all” for the whole list.|Say each one out loud after Sapi.","Toca 🔊 para oír una palabra, o «Oír todas» para la lista entera.|Repite cada una en voz alta después de Sapi.","Touche 🔊 pour entendre un mot, ou « Tout écouter » pour toute la liste.|Répète chaque mot à voix haute après Sapi.","Tippe auf 🔊, um ein Wort zu hören, oder auf „Alle hören“ für die ganze Liste.|Sprich jedes Wort nach Sapi laut nach."],
+hearAll:["🔊 Hear all","🔊 Oír todas","🔊 Tout écouter","🔊 Alle hören"],
+gm:["masculine · icy blue","masculino · azul hielo","masculin · bleu glacé","maskulin · eisblau"],gf:["feminine · fire red","femenino · rojo fuego","féminin · rouge feu","feminin · feuerrot"],gn:["neuter · leaf green","neutro · verde hoja","neutre · vert feuille","neutral · blattgrün"],
+/* step 3: forge */
+s3T:["Make a picture for each word","Crea una imagen para cada palabra","Fais une image pour chaque mot","Mach ein Bild für jedes Wort"],
+s3W:["Find a word in your language that sounds like the new word, then make the picture crazy.","Busca una palabra en tu idioma que suene como la palabra nueva y haz que la imagen sea loca.","Trouve un mot de ta langue qui sonne comme le nouveau mot, puis rends l'image complètement folle.","Such ein Wort in deiner Sprache, das wie das neue Wort klingt, und mach das Bild verrückt."],
+s3H:["Say the word out loud and listen for a sound you know.|Use Sapi's idea, or write your own: your own ideas stick best.|Pick one crazy detail. Silly, huge or smelly pictures are easier to remember.|Close your eyes for a second and really see it.","Di la palabra en voz alta y busca un sonido que conozcas.|Usa la idea de Sapi o escribe la tuya: tus propias ideas se recuerdan mejor.|Elige un detalle loco. Las imágenes absurdas, enormes o malolientes se recuerdan mejor.|Cierra los ojos un segundo y mírala de verdad.","Dis le mot à voix haute et cherche un son que tu connais.|Prends l'idée de Sapi ou écris la tienne : tes propres idées restent mieux.|Choisis un détail fou. Les images absurdes, énormes ou qui puent se retiennent mieux.|Ferme les yeux une seconde et vois-la vraiment.","Sprich das Wort laut und such nach einem Klang, den du kennst.|Nimm Sapis Idee oder schreib deine eigene: Eigene Ideen bleiben am besten hängen.|Wähl ein verrücktes Detail. Alberne, riesige oder stinkende Bilder merkt man sich leichter.|Schließ kurz die Augen und sieh es wirklich vor dir."],
+wordN:["Word {n} of {m}","Palabra {n} de {m}","Mot {n} sur {m}","Wort {n} von {m}"],
+sugL:["Sapi's sound-alike idea","La idea de Sapi que suena parecido","L'idée de Sapi qui sonne pareil","Sapis Idee, die ähnlich klingt"],
+sugGen:["It starts with the sound “{s}…”. Think of a word in your language that starts like that.","Empieza con el sonido «{s}…». Piensa en una palabra de tu idioma que empiece así.","Il commence par le son « {s}… ». Pense à un mot de ta langue qui commence comme ça.","Es beginnt mit dem Klang „{s} …“. Denk an ein Wort in deiner Sprache, das so anfängt."],
+useIt:["Use this idea","Usar esta idea","Prendre cette idée","Diese Idee nehmen"],
+ownL:["Your sound-alike word","Tu palabra que suena parecido","Ton mot qui sonne pareil","Dein ähnlich klingendes Wort"],
+ownPh:["Type a word that sounds similar","Escribe una palabra que suene parecido","Écris un mot qui sonne pareil","Schreib ein ähnlich klingendes Wort"],
+weirdL:["Make it crazy","Hazla loca","Rends-la folle","Mach es verrückt"],
+descL:["Your picture in your own words (optional)","Tu imagen con tus palabras (opcional)","Ton image avec tes mots (facultatif)","Dein Bild in deinen eigenen Worten (freiwillig)"],
+yourImg:["Your picture","Tu imagen","Ton image","Dein Bild"],
+needKey:["Pick a crazy detail first.","Primero elige un detalle loco.","Choisis d'abord un détail fou.","Wähl zuerst ein verrücktes Detail."],
+/* step 4: place */
+s4T:["Put the words in your palace","Pon las palabras en tu palacio","Place les mots dans ton palais","Leg die Wörter in deinen Palast"],
+s4W:["Put one word on each spot of your route.","Pon una palabra en cada sitio de tu recorrido.","Place un mot sur chaque endroit de ton trajet.","Leg auf jede Stelle deines Wegs ein Wort."],
+s4H:["Drag a word onto a spot, or tap a word and then tap a spot.|Tap a filled spot to take its word back.|As you drop each word, imagine its crazy picture right there.|In a hurry? “Place in order” fills the route for you.","Arrastra una palabra a un sitio, o toca una palabra y luego un sitio.|Toca un sitio ocupado para recuperar su palabra.|Al soltar cada palabra, imagina su imagen loca justo ahí.|¿Tienes prisa? «Colocar en orden» llena el recorrido por ti.","Fais glisser un mot sur un endroit, ou touche un mot puis un endroit.|Touche un endroit occupé pour reprendre son mot.|En posant chaque mot, imagine son image folle juste là.|Pressé ? « Placer dans l'ordre » remplit le trajet pour toi.","Zieh ein Wort auf eine Stelle, oder tippe erst auf ein Wort und dann auf eine Stelle.|Tippe auf eine belegte Stelle, um ihr Wort zurückzunehmen.|Stell dir beim Ablegen jedes Wortes sein verrücktes Bild genau dort vor.|Eilig? „Der Reihe nach“ füllt den Weg für dich."],
+inOrder:["Place in order","Colocar en orden","Placer dans l'ordre","Der Reihe nach"],
+/* step 5: walk */
+s5T:["The guided walk","El paseo guiado","La visite guidée","Der geführte Rundgang"],
+s5W:["Walk through your palace with Sapi and see every picture in its spot.","Recorre tu palacio con Sapi y mira cada imagen en su sitio.","Parcours ton palais avec Sapi et vois chaque image à sa place.","Geh mit Sapi durch deinen Palast und sieh jedes Bild an seiner Stelle."],
+s5H:["Follow the highlighted spot and picture the scene Sapi describes.|When the walk ends, walk it again in your head until the timer runs out.|Feeling ready? Tap “I'm ready” to start remembering.","Sigue el sitio resaltado e imagina la escena que describe Sapi.|Cuando acabe el paseo, recórrelo otra vez en tu mente hasta que se acabe el tiempo.|¿Te sientes listo? Toca «Estoy listo» para empezar a recordar.","Suis l'endroit en surbrillance et imagine la scène que décrit Sapi.|Quand la visite est finie, refais-la dans ta tête jusqu'à la fin du temps.|Tu te sens prêt ? Touche « Je suis prêt » pour commencer à te souvenir.","Folg der hervorgehobenen Stelle und stell dir die Szene vor, die Sapi beschreibt.|Wenn der Rundgang vorbei ist, geh ihn im Kopf noch einmal, bis die Zeit abläuft.|Bereit? Tippe auf „Ich bin bereit“, um mit dem Erinnern zu beginnen."],
+walkAgain:["🔁 Walk again","🔁 Recorrer otra vez","🔁 Refaire la visite","🔁 Noch einmal"],ready:["I'm ready →","Estoy listo →","Je suis prêt →","Ich bin bereit →"],
+atSpot:["At {s}:","En {s}:","À l'endroit « {s} » :","Bei {s}:"],
+/* step 6: recall */
+s6T:["Walk the route and remember","Recorre la ruta y recuerda","Parcours le trajet et souviens-toi","Geh den Weg und erinnere dich"],
+s6W:["Go to each spot in order and write the word you left there.","Ve a cada sitio en orden y escribe la palabra que dejaste allí.","Va à chaque endroit dans l'ordre et écris le mot que tu y as laissé.","Geh der Reihe nach zu jeder Stelle und schreib das Wort, das du dort gelassen hast."],
+s6H:["Picture the spot first. What crazy thing is there?|Write the word in {lang}{art}.|If you get stuck, tap “Hint” to see your picture again (it costs half a point).","Imagina primero el sitio. ¿Qué cosa loca hay allí?|Escribe la palabra en {lang}{art}.|Si te atascas, toca «Pista» para volver a ver tu imagen (cuesta medio punto).","Imagine d'abord l'endroit. Quelle chose folle s'y trouve ?|Écris le mot en {lang}{art}.|Si tu bloques, touche « Indice » pour revoir ton image (ça coûte un demi-point).","Stell dir zuerst die Stelle vor. Was Verrücktes ist dort?|Schreib das Wort auf {lang}{art}.|Wenn du nicht weiterkommst, tippe auf „Hinweis“, um dein Bild noch einmal zu sehen (kostet einen halben Punkt)."],
+withArt:[", with its article"," con su artículo",", avec son article"," mit seinem Artikel"],
+whatHere:["What did you leave here?","¿Qué dejaste aquí?","Qu'est-ce que tu as laissé ici ?","Was hast du hier gelassen?"],
+check:["Check","Comprobar","Vérifier","Prüfen"],hint:["💡 Hint","💡 Pista","💡 Indice","💡 Hinweis"],
+right:["Right! +1","¡Correcto! +1","Juste ! +1","Richtig! +1"],
+artOff:["Almost! The word is right, but it's {a}. +½","¡Casi! La palabra está bien, pero es {a}. +½","Presque ! Le mot est juste, mais c'est {a}. +½","Fast! Das Wort stimmt, aber es heißt {a}. +½"],
+accent:["Right! Watch the spelling: {a}. +1","¡Correcto! Cuidado con la ortografía: {a}. +1","Juste ! Attention à l'orthographe : {a}. +1","Richtig! Achte auf die Schreibung: {a}. +1"],
+wrong:["Not this time.","Esta vez no.","Pas cette fois.","Diesmal nicht."],
+fixT:["Fix the picture","Arregla la imagen","Répare l'image","Reparier das Bild"],
+fixW:["This picture wasn't strong enough. Make it crazier, look at it for 15 seconds, then try again.","Esta imagen no era lo bastante fuerte. Hazla más loca, mírala 15 segundos y vuelve a intentarlo.","Cette image n'était pas assez forte. Rends-la plus folle, regarde-la 15 secondes, puis réessaie.","Dieses Bild war nicht stark genug. Mach es verrückter, schau es 15 Sekunden an und versuch es dann noch einmal."],
+tryAgain:["Try again","Intentar otra vez","Réessayer","Noch einmal versuchen"],itWas:["It was: {a}","Era: {a}","C'était : {a}","Es war: {a}"],
+/* results */
+resT:["Your result","Tu resultado","Ton résultat","Dein Ergebnis"],
+resW:["You remembered {s} out of {m}.","Has recordado {s} de {m}.","Tu t'es souvenu de {s} sur {m}.","Du hast dir {s} von {m} gemerkt."],
+res3:["Amazing! Your palace is rock solid.","¡Increíble! Tu palacio es sólido como una roca.","Incroyable ! Ton palais est solide comme un roc.","Großartig! Dein Palast steht felsenfest."],res2:["Great work! A few pictures need a little more colour.","¡Buen trabajo! Algunas imágenes necesitan un poco más de color.","Beau travail ! Quelques images ont besoin d'un peu plus de couleur.","Super Arbeit! Ein paar Bilder brauchen noch etwas mehr Farbe."],
+res1:["Good start! Walk your palace again tomorrow and it will get stronger.","¡Buen comienzo! Recorre tu palacio otra vez mañana y se hará más fuerte.","Bon début ! Refais ton palais demain et il deviendra plus solide.","Guter Anfang! Geh deinen Palast morgen noch einmal ab, dann wird er stärker."],
+resNext:["Come back tomorrow to revisit this palace with a game. It will be marked “Due”.","Vuelve mañana para repasar este palacio con un juego. Aparecerá como «Toca hoy».","Reviens demain pour revisiter ce palais avec un jeu. Il sera marqué « À revoir ».","Komm morgen wieder, um diesen Palast mit einem Spiel zu wiederholen. Er ist dann mit „Fällig“ markiert."],
+unlocked:["New building open: {b}!","¡Nuevo edificio abierto: {b}!","Nouveau bâtiment ouvert : {b} !","Neues Gebäude geöffnet: {b}!"],
+toTown:["Back to town","Volver a la ciudad","Retour à la ville","Zurück in die Stadt"],
+bonus:["+{n} bonus for using your own sound-alike words","+{n} de bonificación por usar tus propias palabras","+{n} de bonus pour avoir utilisé tes propres mots","+{n} Bonus für deine eigenen Klangwörter"],
+/* review games */
+lightsW:["Each spot lights up for 15 seconds. Write its word before the light goes out.","Cada sitio se ilumina durante 15 segundos. Escribe su palabra antes de que se apague la luz.","Chaque endroit s'allume pendant 15 secondes. Écris son mot avant que la lumière s'éteigne.","Jede Stelle leuchtet 15 Sekunden lang. Schreib ihr Wort, bevor das Licht ausgeht."],
+lightsH:["Look at the lit spot and picture what's there.|Type the word and press Enter.|If the light goes out, Sapi moves on to the next spot.","Mira el sitio iluminado e imagina lo que hay allí.|Escribe la palabra y pulsa Intro.|Si se apaga la luz, Sapi pasa al siguiente sitio.","Regarde l'endroit allumé et imagine ce qu'il y a.|Écris le mot et appuie sur Entrée.|Si la lumière s'éteint, Sapi passe à l'endroit suivant.","Schau auf die leuchtende Stelle und stell dir vor, was dort ist.|Tipp das Wort und drück Enter.|Wenn das Licht ausgeht, geht Sapi zur nächsten Stelle."],
+burgW:["A burglar is coming! Study your palace for 15 seconds. Then find what he took and what he moved.","¡Viene un ladrón! Estudia tu palacio durante 15 segundos. Luego descubre qué se llevó y qué cambió de sitio.","Un cambrioleur arrive ! Observe ton palais pendant 15 secondes. Ensuite, trouve ce qu'il a pris et ce qu'il a déplacé.","Ein Einbrecher kommt! Präg dir deinen Palast 15 Sekunden lang ein. Dann finde heraus, was er genommen und was er vertauscht hat."],
+burgH:["First, look at every spot and its word.|Then one spot will be empty: write the word that was stolen.|Two words will have swapped places: tap those two spots.","Primero mira cada sitio y su palabra.|Luego un sitio estará vacío: escribe la palabra robada.|Dos palabras habrán cambiado de sitio: toca esos dos sitios.","D'abord, regarde chaque endroit et son mot.|Ensuite, un endroit sera vide : écris le mot volé.|Deux mots auront changé de place : touche ces deux endroits.","Schau dir zuerst jede Stelle und ihr Wort an.|Dann ist eine Stelle leer: Schreib das gestohlene Wort.|Zwei Wörter haben die Plätze getauscht: Tippe auf diese zwei Stellen."],
+burgCome:["Here he comes…","Ahí viene…","Le voilà…","Da kommt er …"],
+burgQ1:["Which word was stolen from the empty spot?","¿Qué palabra robaron del sitio vacío?","Quel mot a été volé à l'endroit vide ?","Welches Wort wurde von der leeren Stelle gestohlen?"],
+burgQ2:["Now tap the two spots whose words were swapped.","Ahora toca los dos sitios cuyas palabras se cambiaron.","Maintenant, touche les deux endroits dont les mots ont été échangés.","Tippe jetzt auf die zwei Stellen, deren Wörter vertauscht wurden."],
+burgOk:["You caught him!","¡Lo has atrapado!","Tu l'as attrapé !","Du hast ihn erwischt!"],
+revW:["Walk your route backwards, from the last spot to the first.","Recorre tu ruta al revés, del último sitio al primero.","Parcours ton trajet à l'envers, du dernier endroit au premier.","Geh deinen Weg rückwärts, von der letzten Stelle zur ersten."],
+revH:["Start at the end of your route.|Write the word at each spot.|Walking backwards proves your pictures are really fixed in place.","Empieza al final de tu ruta.|Escribe la palabra de cada sitio.|Recorrerla al revés demuestra que tus imágenes están bien fijadas.","Commence à la fin de ton trajet.|Écris le mot de chaque endroit.|Le faire à l'envers prouve que tes images sont bien ancrées.","Fang am Ende deines Wegs an.|Schreib das Wort jeder Stelle.|Rückwärts zu gehen zeigt, dass deine Bilder wirklich fest verankert sind."],
+sapiW:["Sapi asks about 5 random spots. Answer each one.","Sapi pregunta por 5 sitios al azar. Responde a cada uno.","Sapi pose des questions sur 5 endroits au hasard. Réponds à chacune.","Sapi fragt nach 5 zufälligen Stellen. Beantworte jede Frage."],
+sapiH:["Read Sapi's question.|Jump straight to that spot in your mind.|Write the word you left there.","Lee la pregunta de Sapi.|Salta directamente a ese sitio en tu mente.|Escribe la palabra que dejaste allí.","Lis la question de Sapi.|Va directement à cet endroit dans ta tête.|Écris le mot que tu y as laissé.","Lies Sapis Frage.|Spring in Gedanken direkt zu dieser Stelle.|Schreib das Wort, das du dort gelassen hast."],
+sapiQ:["What's at {s}?","¿Qué hay en {s}?","Qu'y a-t-il à l'endroit « {s} » ?","Was ist bei {s}?"],
+revDone:["Review done! You got {s} out of {m}.","¡Repaso hecho! Has acertado {s} de {m}.","Révision terminée ! Tu as {s} sur {m}.","Wiederholung geschafft! Du hast {s} von {m}."],
+/* conjugation house */
+cjT:["Choose a verb","Elige un verbo","Choisis un verbe","Wähl ein Verb"],
+cjW:["Pick one of the five key verbs. You'll store all its forms in the Conjugation House.","Elige uno de los cinco verbos clave. Guardarás todas sus formas en la Casa de las conjugaciones.","Choisis un des cinq verbes clés. Tu vas ranger toutes ses formes dans la Maison des conjugaisons.","Wähl eines der fünf wichtigsten Verben. Du legst alle seine Formen im Konjugationshaus ab."],
+cjH:["The house has three floors: the dusty basement is the past, the living room is the present, and the attic with a telescope is the future.|Each floor has the same six rooms, and each room belongs to a person who lives there.|Tap a verb to begin.","La casa tiene tres plantas: el sótano polvoriento es el pasado, el salón es el presente y el desván con un telescopio es el futuro.|Cada planta tiene las mismas seis habitaciones, y cada una es de una persona que vive allí.|Toca un verbo para empezar.","La maison a trois étages : la cave poussiéreuse, c'est le passé, le salon, le présent, et le grenier avec un télescope, le futur.|Chaque étage a les six mêmes pièces, et chaque pièce appartient à une personne qui y vit.|Touche un verbe pour commencer.","Das Haus hat drei Stockwerke: Der staubige Keller ist die Vergangenheit, das Wohnzimmer die Gegenwart und der Dachboden mit Teleskop die Zukunft.|Jedes Stockwerk hat dieselben sechs Zimmer, und jedes gehört einer Person, die dort wohnt.|Tippe auf ein Verb, um anzufangen."],
+fl0:["Basement · past","Sótano · pasado","Cave · passé","Keller · Vergangenheit"],fl1:["Living room · present","Salón · presente","Salon · présent","Wohnzimmer · Gegenwart"],fl2:["Attic · future","Desván · futuro","Grenier · futur","Dachboden · Zukunft"],
+who:[["you, in the mirror","your best friend","your neighbour","your whole family","your classmates","a group of strangers"],["tú, en el espejo","tu mejor amigo","tu vecino","toda tu familia","tus compañeros de clase","un grupo de desconocidos"],["toi, dans le miroir","ton meilleur ami","ton voisin","toute ta famille","tes camarades de classe","un groupe d'inconnus"],["du, im Spiegel","dein bester Freund","dein Nachbar","deine ganze Familie","deine Mitschüler","eine Gruppe Fremder"]],
+cjMeetW:["Here is the whole house. Each person lives in the same room on every floor.","Esta es toda la casa. Cada persona vive en la misma habitación en todas las plantas.","Voici toute la maison. Chaque personne vit dans la même pièce à chaque étage.","Das ist das ganze Haus. Jede Person wohnt auf jedem Stockwerk im selben Zimmer."],
+cjMeetH:["Read each floor from left to right and listen to the forms.|Notice how the person stays the same while the floor (the time) changes.|Then go on to the guided walk.","Lee cada planta de izquierda a derecha y escucha las formas.|Fíjate en que la persona no cambia mientras cambia la planta (el tiempo).|Luego pasa al paseo guiado.","Lis chaque étage de gauche à droite et écoute les formes.|Remarque que la personne reste la même alors que l'étage (le temps) change.|Ensuite, passe à la visite guidée.","Lies jedes Stockwerk von links nach rechts und hör dir die Formen an.|Achte darauf, dass die Person gleich bleibt, während sich das Stockwerk (die Zeit) ändert.|Dann geht es zum geführten Rundgang."],
+cjScene:["{f}: {w} says “{v}”.","{f}: {w} dice «{v}».","{f} : {w} dit « {v} ».","{f}: {w} sagt „{v}“."],
+cjQ:["{f} · {p}: what does {w} say?","{f} · {p}: ¿qué dice {w}?","{f} · {p} : que dit {w} ?","{f} · {p}: Was sagt {w}?"],
+cjRecH:["Picture the floor and the person in the room.|Write the verb form only, without the pronoun.|For the past and future, write every word of the form.","Imagina la planta y a la persona en la habitación.|Escribe solo la forma verbal, sin el pronombre.|En pasado y futuro, escribe todas las palabras de la forma.","Imagine l'étage et la personne dans la pièce.|Écris seulement la forme du verbe, sans le pronom.|Au passé et au futur, écris tous les mots de la forme.","Stell dir das Stockwerk und die Person im Zimmer vor.|Schreib nur die Verbform, ohne Pronomen.|In Vergangenheit und Zukunft schreib alle Wörter der Form."],
+/* number street */
+nsW:["Each house on Number Street has a picture shaped like its number. Link the number word to that picture.","Cada casa de la calle de los números tiene una imagen con la forma de su número. Une la palabra del número a esa imagen.","Chaque maison de la rue des nombres a une image en forme de son chiffre. Relie le mot du nombre à cette image.","Jedes Haus in der Zahlenstraße hat ein Bild in der Form seiner Zahl. Verbinde das Zahlwort mit diesem Bild."],
+nsH:["0 is an egg, 1 a candle, 2 a swan… the shape looks like the number.|Listen to each number word and say it out loud.|Then imagine the picture doing something crazy with a sound-alike word.","0 es un huevo, 1 una vela, 2 un cisne… la forma se parece al número.|Escucha cada número y dilo en voz alta.|Luego imagina la imagen haciendo algo loco con una palabra que suene parecido.","0 est un œuf, 1 une bougie, 2 un cygne… la forme ressemble au chiffre.|Écoute chaque nombre et dis-le à voix haute.|Ensuite, imagine l'image en train de faire quelque chose de fou avec un mot qui sonne pareil.","0 ist ein Ei, 1 eine Kerze, 2 ein Schwan … die Form sieht aus wie die Zahl.|Hör dir jedes Zahlwort an und sprich es laut.|Stell dir dann das Bild bei etwas Verrücktem vor, mit einem ähnlich klingenden Wort."],
+pegs:[["an egg","a candle","a swan","a heart on its side","a sailing boat","a hook","a cherry","a boomerang","a snowman","a balloon on a string","a bat and a ball"],["un huevo","una vela","un cisne","un corazón tumbado","un velero","un gancho","una cereza","un bumerán","un muñeco de nieve","un globo con su cuerda","un bate y una pelota"],["un œuf","une bougie","un cygne","un cœur couché","un voilier","un crochet","une cerise","un boomerang","un bonhomme de neige","un ballon au bout d'une ficelle","une batte et une balle"],["ein Ei","eine Kerze","ein Schwan","ein liegendes Herz","ein Segelboot","ein Haken","eine Kirsche","ein Bumerang","ein Schneemann","ein Luftballon an einer Schnur","ein Schläger und ein Ball"]],
+nsQ:["House {n}: {p}. Which number is it?","Casa {n}: {p}. ¿Qué número es?","Maison {n} : {p}. Quel nombre est-ce ?","Haus {n}: {p}. Welche Zahl ist das?"],
+nsRecH:["Look at the picture on the house.|Write the number as a word in {lang}.|Spaces and hyphens don't matter.","Mira la imagen de la casa.|Escribe el número con letras en {lang}.|Los espacios y guiones no importan.","Regarde l'image sur la maison.|Écris le nombre en lettres en {lang}.|Les espaces et les traits d'union ne comptent pas.","Schau dir das Bild am Haus an.|Schreib die Zahl als Wort auf {lang}.|Leerzeichen und Bindestriche sind egal."],
+house:["House","Casa","Maison","Haus"],
+};
+/* the crazy details, the gender colours and the picture sentence, in the app language */
+const WEIRD=[["on fire","en llamas","en feu","in Flammen"],["the size of a house","del tamaño de una casa","grand comme une maison","so groß wie ein Haus"],["dancing wildly","bailando como loco","en train de danser comme un fou","wild tanzend"],["singing very loudly","cantando a gritos","en train de chanter très fort","laut singend"],
+ ["with a horrible smell","con un olor horrible","qui sent terriblement mauvais","mit einem schrecklichen Geruch"],["upside down","boca abajo","à l'envers","auf dem Kopf stehend"],["made of chocolate","de chocolate","en chocolat","aus Schokolade"],["with fireworks","con fuegos artificiales","avec des feux d'artifice","mit Feuerwerk"],["covered in glitter","con purpurina por todas partes","avec des paillettes partout","voller Glitzer"],["sticky like glue","pegajoso como el pegamento","collant comme de la colle","klebrig wie Kleber"]];
+const GCOL={m:["glowing ice-blue","brillando en azul hielo","brillant d'un bleu glacé","eisblau leuchtend"],f:["glowing fire-red","brillando en rojo fuego","brillant d'un rouge de feu","feuerrot leuchtend"],n:["glowing leaf-green","brillando en verde hoja","brillant d'un vert feuille","blattgrün leuchtend"],"":["glowing gold","brillando en dorado","brillant d'un éclat doré","golden leuchtend"]};
+const PIC=["Picture {t} {x}, {c}, and someone shouting “{k}!”","Imagina {t} {x}, {c}, y a alguien gritando «¡{k}!»","Imagine {t} {x}, {c}, et quelqu'un qui crie « {k} ! »","Stell dir vor: {t}, {x}, {c}, und jemand ruft „{k}!“"];
+const PEG=["🥚","🕯️","🦢","❤️","⛵","🪝","🍒","🪃","⛄","🎈","🏏"];
+const SPOTS={home:[["front door","hallway","coat hook","sofa","TV","kitchen table","fridge","sink","bed","bathroom mirror"],["puerta de entrada","pasillo","perchero","sofá","tele","mesa de la cocina","nevera","fregadero","cama","espejo del baño"],["porte d'entrée","couloir","portemanteau","canapé","télé","table de la cuisine","frigo","évier","lit","miroir de la salle de bain"],["Haustür","Flur","Garderobe","Sofa","Fernseher","Küchentisch","Kühlschrank","Spüle","Bett","Badezimmerspiegel"]],
+ market:[["entrance","fruit stand","vegetable stand","cheese counter","fish counter","butcher","bakery","spice shelf","checkout","exit"],["entrada","puesto de fruta","puesto de verdura","mostrador del queso","pescadería","carnicería","panadería","estante de especias","caja","salida"],["entrée","étal de fruits","étal de légumes","rayon fromage","poissonnerie","boucherie","boulangerie","rayon des épices","caisse","sortie"],["Eingang","Obststand","Gemüsestand","Käsetheke","Fischtheke","Metzgerei","Bäckerei","Gewürzregal","Kasse","Ausgang"]],
+ school:[["gate","playground","corridor","classroom door","teacher's desk","blackboard","your desk","bookshelf","window","library"],["puerta del colegio","patio","pasillo","puerta del aula","mesa del profesor","pizarra","tu pupitre","estantería","ventana","biblioteca"],["portail","cour","couloir","porte de la classe","bureau du professeur","tableau","ta table","étagère","fenêtre","bibliothèque"],["Schultor","Schulhof","Flur","Klassenzimmertür","Lehrerpult","Tafel","dein Platz","Bücherregal","Fenster","Bibliothek"]],
+ park:[["entrance gate","fountain","big tree","pond","bench","playground","flower bed","café","bridge","hill"],["puerta de entrada","fuente","árbol grande","estanque","banco","columpios","parterre de flores","cafetería","puente","colina"],["grille d'entrée","fontaine","grand arbre","étang","banc","aire de jeux","massif de fleurs","café","pont","colline"],["Eingangstor","Brunnen","großer Baum","Teich","Bank","Spielplatz","Blumenbeet","Café","Brücke","Hügel"]]};
+const UIi=L4.indexOf(UI);
+const t=(k,v)=>{const a=STR[k];let s=a?(a[UIi]||a[0]):k;if(v)s=s.replace(/\{(\w+)\}/g,(_,x)=>v[x]!=null?v[x]:"");return s};
+const lname=l=>LNAME[l][UI];
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const $=s=>document.querySelector(s);
+/* ---------------- saved progress (this browser only) ---------------- */
+const SK="mp-v1-"+LANG;
+let ST=(()=>{try{return JSON.parse(localStorage.getItem(SK)||"null")||{}}catch(e){return {}}})();
+ST.p=ST.p||{};ST.pts=ST.pts||0;
+const save=()=>{try{localStorage.setItem(SK,JSON.stringify(ST))}catch(e){}};
+const voiceOn=()=>ST.voice!==false;
+/* ---------------- voice ---------------- */
+let sayTok=0;
+const pickV=tag=>{try{const vs=speechSynthesis.getVoices();return vs.find(v=>v.lang&&v.lang.replace("_","-").toLowerCase()===tag.toLowerCase())||vs.find(v=>v.lang&&v.lang.toLowerCase().startsWith(tag.slice(0,2)))}catch(e){return null}};
+function stopTalk(){sayTok++;try{speechSynthesis.cancel()}catch(e){}document.querySelectorAll(".guide.talk").forEach(g=>g.classList.remove("talk"))}
+/* speak a list of [text, lang] pieces one after another; then() runs at the end (right away when the voice is off) */
+function talk(parts,then,force){stopTalk();const my=sayTok;const g=$(".guide");
+  if((!voiceOn()&&!force)||!window.speechSynthesis){then&&setTimeout(then,0);return}
+  if(g)g.classList.add("talk");let i=0;
+  const go=()=>{if(my!==sayTok)return;if(i>=parts.length){if(g)g.classList.remove("talk");return then&&then()}
+    const [x,l]=parts[i++];if(!x)return go();const u=new SpeechSynthesisUtterance(String(x).replace(/\s+\/\s+/g,", ").replace(/[|·]/g,", "));u.lang=TTS[l||UI];const v=pickV(u.lang);if(v)u.voice=v;u.rate=l&&l!==UI?.9:1;
+    let done=false;const fin=()=>{if(done)return;done=true;setTimeout(go,120)};u.onend=fin;u.onerror=fin;setTimeout(fin,Math.max(2500,String(x).length*120));
+    try{speechSynthesis.speak(u)}catch(e){fin()}};go()}
+try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>{}}catch(e){}
+const toast=m=>{const d=document.createElement("div");d.className="toast";d.textContent=m;document.body.appendChild(d);setTimeout(()=>d.remove(),2600)};
+/* ---------------- Sapi ---------------- */
+const SAPI=(()=>{try{if(parent&&parent!==window&&parent.SAPI_SVG)return parent.SAPI_SVG("mp")}catch(e){}
+  return `<svg viewBox="0 0 120 140" aria-hidden="true"><ellipse cx="60" cy="132" rx="22" ry="5" fill="#38bdf8" opacity=".5"/><rect x="38" y="52" width="44" height="62" rx="22" fill="#f1f5f9"/><rect x="34" y="14" width="52" height="36" rx="18" fill="#f8fafc"/><rect x="40" y="22" width="40" height="20" rx="10" fill="#1e1b4b"/><rect x="47" y="29" width="9" height="5" rx="2.5" fill="#c084fc"/><rect x="64" y="29" width="9" height="5" rx="2.5" fill="#c084fc"/><rect x="55" y="74" width="10" height="20" rx="5" fill="none" stroke="#a855f7" stroke-width="3"/><line x1="60" y1="14" x2="60" y2="5" stroke="#cbd5e1" stroke-width="2"/><circle cx="60" cy="4" r="3" fill="#c084fc"/><rect x="24" y="64" width="8" height="30" rx="4" fill="#e2e8f0"/><rect x="88" y="64" width="8" height="30" rx="4" fill="#e2e8f0"/></svg>`})();
+/* the instruction panel at the top of every step: what to do, and how (Sapi reads it out) */
+function guide(o){const how=(o.how||"").split("|").filter(Boolean);
+  const h=`<div class="guide" id="guide"><div class="bot">${SAPI}</div><div class="gx">${o.step?`<div class="st">${esc(o.step)}</div>`:""}<h2>${esc(o.title)}</h2>
+    <b class="l">${esc(t("whatL"))}</b><p class="what">${esc(o.what)}</p>${how.length?`<b class="l">${esc(t("howL"))}</b><ul class="how">${how.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}
+    <button class="read" id="readBtn">${esc(t("read"))}</button></div></div>`;
+  const parts=[[o.title],[o.what],...how.map(x=>[x])];
+  return {h,parts,bind:(then)=>{$("#readBtn").onclick=()=>talk(parts,null,true);if(o.auto!==false)talk(parts,then)}}}
+function bar(n,m){return m?`<div class="steps">${Array.from({length:m},(_,i)=>`<i class="${i<n-1?"done":i===n-1?"on":""}"></i>`).join("")}</div>`:""}
+function topbar(title,onBack){return `<div class="top"><h1>${esc(title)}</h1><div class="r"><button class="icon${voiceOn()?"":" off"}" id="vBtn">${esc(voiceOn()?t("voiceOn"):t("voiceOff"))}</button>${onBack?`<button class="icon" id="bBtn">${esc(t("back"))}</button>`:""}</div></div>`}
+function screen(html,onBack){stopTalk();clearTimers();$("#app").innerHTML=html;window.scrollTo(0,0);
+  $("#vBtn").onclick=()=>{ST.voice=!voiceOn();save();if(!voiceOn())stopTalk();$("#vBtn").textContent=voiceOn()?t("voiceOn"):t("voiceOff");$("#vBtn").classList.toggle("off",!voiceOn())};
+  if(onBack&&$("#bBtn"))$("#bBtn").onclick=onBack}
+let TIMERS=[];const later=(f,ms)=>{const id=setTimeout(f,ms);TIMERS.push(id);return id};const every=(f,ms)=>{const id=setInterval(f,ms);TIMERS.push(id);return id};
+function clearTimers(){TIMERS.forEach(i=>{clearTimeout(i);clearInterval(i)});TIMERS=[]}
+/* ---------------- answers ---------------- */
+const nrm=s=>String(s||"").toLowerCase().replace(/œ/g,"oe").replace(/ß/g,"ss").replace(/[’`´]/g,"'").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[.,!?¿¡"“”«»:;()]/g," ").replace(/-/g," ").replace(/\s+/g," ").trim();
+const raw=s=>String(s||"").toLowerCase().replace(/[’`´]/g,"'").replace(/\s+/g," ").trim();
+const ARTS={es:["el","la","los","las"],fr:["le","la","les","l'"],de:["der","die","das"]};
+const splitArt=s=>{const x=raw(s);if(LANG==="fr"&&/^l'/.test(x))return ["l'",x.slice(2).trim()];const m=x.split(" ");if((ARTS[LANG]||[]).includes(m[0])&&m.length>1)return [m[0],m.slice(1).join(" ")];return ["",x]};
+/* 1 = right, .5 = right word with a wrong or missing article, 0 = wrong; acc = spelt without the right accents */
+function grade(input,W){if(LANG==="en"){const ok=nrm(input).replace(/^(the|a|an) /,"")===nrm(W.w);return {s:ok?1:0,acc:ok&&raw(input).replace(/^(the|a|an) /,"")!==raw(W.w)}}
+  const [a,w]=splitArt(input),[A,Wd]=splitArt(W.a);if(nrm(w)!==nrm(Wd))return {s:0};const acc=raw(w)!==raw(Wd);return {s:a===A?1:.5,acc}}
+const formOk=(input,f)=>{const x=nrm(input);const rx=new RegExp("^"+f.split(/(\([^)]*\))/).map(p=>p.startsWith("(")?"(?:"+nrm(p.slice(1,-1))+")?":nrm(p).replace(/[.*+?^${}|[\]\\]/g,"\\$&")).join("")+"$");return rx.test(x)};
+/* ---------------- the town ---------------- */
+const SET=id=>DATA.sets.find(s=>s.id===id);
+const isDone=id=>!!(ST.p[id]&&ST.p[id].done);
+const ORDER=["home","market","school","park"];
+const isOpen=id=>{const i=ORDER.indexOf(id);return i<=0||isDone(ORDER[i-1])};
+const stars=n=>"★".repeat(n)+"☆".repeat(3-n);
+const DAY=86400000,REV=[1,3,7];
+function town(){const lg=lname(LANG);
+  const G=guide({title:t("townT"),what:t("townW",{lang:lg}),how:t("townH")});
+  const bld=id=>{const S=SET(id),o=isOpen(id),P=ST.p[id]||{};return `<button class="bld${o?"":" locked"}" data-b="${id}"><span class="e">${S.icon}</span><b>${esc(t("b_"+id))}</b><small>${esc(t("d_"+id))}</small>${P.best!=null?`<span class="stars">${stars(P.best)}</span>`:""}${o?"":`<span class="lk">🔒</span>`}</button>`};
+  const sp=(id,icon)=>{const o=isDone("home"),P=ST.p[id]||{};return `<button class="bld special${o?"":" locked"}" data-b="${id}"><span class="e">${icon}</span><b>${esc(t("b_"+id))}</b><small>${esc(t("d_"+id))}</small>${P.best!=null?`<span class="stars">${stars(P.best)}</span>`:""}${o?"":`<span class="lk">🔒</span>`}</button>`};
+  const revs=ORDER.filter(isDone).map(id=>{const P=ST.p[id],r=P.rev||{},due=r.step>=REV.length?null:r.next||0,now=Date.now();
+    const lab=r.step>=REV.length?t("mastered"):due<=now?t("dueNow"):Math.ceil((due-now)/DAY)<=1?t("dueIn1"):t("dueIn",{n:Math.ceil((due-now)/DAY)});
+    return `<div class="revrow" style="flex-wrap:wrap"><span style="font-size:1.6rem">${SET(id).icon}</span><div class="t"><b>${esc(t("b_"+id))}</b><div class="due${due!=null&&due<=now?" now":""}">${esc(lab)}</div></div>
+      <div class="games4" style="flex-basis:100%">${["lights","burglar","reverse","sapi"].map(g=>`<button data-r="${id}" data-g="${g}">${esc(t("g_"+g))}</button>`).join("")}</div></div>`}).join("");
+  screen(topbar(t("title"))+G.h+`<div class="card"><div class="sec" style="margin-top:0">${esc(t("howT"))}</div><div class="how3">${["how1","how2","how3"].map((k,i)=>`<div><span class="n">${i+1}</span><span>${esc(t(k))}</span></div>`).join("")}</div></div>
+    <div class="pts">⭐ ${esc(t("pts",{n:Math.round(ST.pts*10)/10}))}</div>
+    <div class="sec">${esc(t("town"))}</div><div class="town">${ORDER.map(bld).join("")}</div>
+    <div class="sec">${esc(t("special"))}</div><div class="town">${sp("conj","🏚️")}${sp("num","🔢")}</div>
+    <div class="sec">${esc(t("revT"))}</div><div class="rev">${revs||`<p class="muted">${esc(t("revNone"))}</p>`}</div>`);
+  G.bind();
+  $("#app").querySelectorAll("[data-b]").forEach(b=>b.onclick=()=>{const id=b.dataset.b;
+    if(b.classList.contains("locked"))return toast(id==="conj"||id==="num"?t("lockedS"):t("locked"));
+    if(id==="conj")return conjPick();if(id==="num")return numStart();palace(id)});
+  $("#app").querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>review(b.dataset.r,b.dataset.g))}
+/* ---------------- one palace: build, meet, picture, place, walk, remember ---------------- */
+let J=null;   // the job in progress
+const word=(S,i)=>S.words[i][LANG];
+const mean=(S,i)=>S.words[i][ML].w;
+const meanA=(S,i)=>{const x=S.words[i][ML];return ML==="en"?"the "+x.w:x.a};
+const keyIdea=(S,i)=>{const K=S.key&&S.key[LANG]&&HL&&S.key[LANG][HL];return K?K[i]:null};
+const soundStart=w=>{const b=w.replace(/^(l'|le |la |el |der |die |das )/i,"");return b.slice(0,Math.min(3,b.length))};
+const picOf=(S,i)=>{const P=J.P,k=(P.keys&&P.keys[i])||keyIdea(S,i)||soundStart(word(S,i).w)+"…",wi=P.weird&&P.weird[i]>=0?P.weird[i]:0;
+  return PIC[UIi].replace("{t}",meanA(S,i)).replace("{x}",WEIRD[wi][UIi]).replace("{c}",GCOL[word(S,i).g][UIi]).replace("{k}",k)};
+function palace(id){const S=SET(id);ST.p[id]=ST.p[id]||{};const P=ST.p[id];
+  P.spots=P.spots&&P.spots.length===10?P.spots:SPOTS[id][UIi].slice();P.keys=P.keys||[];P.weird=P.weird||[];P.own=P.own||[];P.desc=P.desc||[];save();
+  J={id,S,P,score:0,hint:{}};stepBuild()}
+const M=6;
+function stepBuild(){const {id,P}=J;
+  const G=guide({step:t("stepN",{n:1,m:M}),title:t("s1T"),what:t("s1W"),how:id==="home"?t("s1H"):t("s1Ho")});
+  screen(topbar(t("b_"+id),town)+bar(1,M)+G.h+`<div class="card edit">${P.spots.map((s,i)=>`<label><span>${i+1}</span><input type="text" id="sp${i}" value="${esc(s)}" maxlength="40" aria-label="${i+1}"></label>`).join("")}</div>
+    <div class="acts"><button class="btn ghost" id="walkB">🚶 ${esc(t("walkIt"))}</button><button class="btn" id="nx">${esc(t("next"))}</button></div>`,town);
+  G.bind();
+  const read=()=>P.spots.map((_,i)=>$("#sp"+i).value.trim());
+  $("#walkB").onclick=()=>{const s=read();talk([[t("routeSay")],...s.map((x,i)=>[(i+1)+". "+x])],null,true)};
+  $("#nx").onclick=()=>{const s=read();if(s.some(x=>!x))return toast(t("needSpots"));P.spots=s;save();stepMeet()}}
+function legendHTML(){if(LANG==="en")return "";const g=LANG==="de"?["m","f","n"]:["m","f"];return `<div class="legend">${g.map(x=>`<span class="g-${x}">${esc(t("g"+x))}</span>`).join("")}</div>`}
+function stepMeet(){const {S}=J;
+  const G=guide({step:t("stepN",{n:2,m:M}),title:t("s2T"),what:t("s2W"),how:LANG==="en"?t("s2Hen"):t("s2H")});
+  screen(topbar(t("b_"+J.id),stepBuild)+bar(2,M)+G.h+legendHTML()+`<div class="wl">${S.words.map((_,i)=>{const w=word(S,i);return `<div class="wrow g-${w.g}"><button class="spk" data-i="${i}" aria-label="🔊">🔊</button><div><div class="tw" lang="${LANG}">${esc(w.a)}</div><div class="mn">${esc(mean(S,i))}</div></div></div>`}).join("")}</div>
+    <div class="acts"><button class="btn ghost" id="allB">${esc(t("hearAll"))}</button><button class="btn" id="nx">${esc(t("next"))}</button></div>`,stepBuild);
+  G.bind();
+  $("#app").querySelectorAll(".spk").forEach(b=>b.onclick=()=>{const i=+b.dataset.i;talk([[word(S,i).a,LANG],[mean(S,i),ML]],null,true)});
+  $("#allB").onclick=()=>talk(S.words.flatMap((_,i)=>[[word(S,i).a,LANG],[mean(S,i),ML]]),null,true);
+  $("#nx").onclick=()=>stepForge(0)}
+function stepForge(i){const {S,P}=J,w=word(S,i),idea=keyIdea(S,i);
+  const G=guide({step:t("stepN",{n:3,m:M}),title:t("s3T"),what:t("s3W"),how:t("s3H"),auto:i===0});
+  if(P.weird[i]==null)P.weird[i]=-1;
+  screen(topbar(t("b_"+J.id),()=>i?stepForge(i-1):stepMeet())+bar(3,M)+G.h+`<div class="card forge g-${w.g}"><div class="cnt">${esc(t("wordN",{n:i+1,m:10}))}</div>
+    <div class="big"><div class="tw" lang="${LANG}">${esc(w.a)}</div><div class="mn">= ${esc(mean(S,i))}</div><button class="spk" id="sayW">🔊</button></div>
+    <div class="sug"><b class="lab" style="margin-top:0">💡 ${esc(t("sugL"))}</b>${idea?`<b>“${esc(idea)}”</b> <button class="chip" id="useI">${esc(t("useIt"))}</button>`:esc(t("sugGen",{s:soundStart(w.w)}))}</div>
+    <label class="lab" for="own">${esc(t("ownL"))}</label><input type="text" id="own" maxlength="40" placeholder="${esc(t("ownPh"))}" value="${esc(P.keys[i]||"")}">
+    <span class="lab">${esc(t("weirdL"))}</span><div class="chips">${WEIRD.map((x,j)=>`<button class="chip${P.weird[i]===j?" on":""}" data-w="${j}">${esc(x[UIi])}</button>`).join("")}</div>
+    <label class="lab" for="desc">${esc(t("descL"))}</label><textarea id="desc" maxlength="200">${esc(P.desc[i]||"")}</textarea>
+    <span class="lab">${esc(t("yourImg"))}</span><div class="img" id="img"></div></div>
+    <div class="acts"><button class="btn" id="nx">${esc(t("next"))}</button></div>`,()=>i?stepForge(i-1):stepMeet());
+  const upd=()=>{P.keys[i]=$("#own").value.trim();P.desc[i]=$("#desc").value.trim();save();
+    if(P.weird[i]<0){$("#img").innerHTML=`<span class="muted">${esc(t("needKey"))}</span>`;return}
+    $("#img").innerHTML=`${esc(picOf(S,i))}${P.desc[i]?`<br><i>${esc(P.desc[i])}</i>`:""}<span class="to" lang="${LANG}">→ ${esc(w.a)}</span>`};
+  $("#own").oninput=()=>{P.own[i]=!!$("#own").value.trim()&&$("#own").value.trim()!==idea;upd()};$("#desc").oninput=upd;
+  if($("#useI"))$("#useI").onclick=()=>{$("#own").value=idea;P.own[i]=false;upd()};
+  $("#app").querySelectorAll("[data-w]").forEach(b=>b.onclick=()=>{P.weird[i]=+b.dataset.w;$("#app").querySelectorAll("[data-w]").forEach(x=>x.classList.toggle("on",x===b));upd();talk([[picOf(S,i)],[w.a,LANG]],null)});
+  $("#sayW").onclick=()=>talk([[w.a,LANG]],null,true);
+  upd();G.bind(()=>talk([[w.a,LANG]],null));if(i>0)talk([[w.a,LANG],[mean(S,i),ML]],null);
+  $("#nx").onclick=()=>{if(P.weird[i]<0)return toast(t("needKey"));upd();i<9?stepForge(i+1):stepPlace()}}
+/* step 4: drag (or tap) every word onto a spot */
+function stepPlace(){const {S,P}=J;P.place=P.place&&P.place.length===10&&P.place.every(x=>x!=null)?P.place:Array(10).fill(null);
+  const G=guide({step:t("stepN",{n:4,m:M}),title:t("s4T"),what:t("s4W"),how:t("s4H")});
+  let sel=null;
+  const draw=()=>{const used=new Set(P.place.filter(x=>x!=null));
+    $("#tray").innerHTML=S.words.map((_,i)=>used.has(i)?"":`<span class="wc g-${word(S,i).g}${sel===i?" sel":""}" data-i="${i}" lang="${LANG}">${esc(word(S,i).a)}</span>`).join("");
+    $("#spots").innerHTML=P.spots.map((s,j)=>{const wi=P.place[j];return `<div class="spot${wi!=null?" full g-"+word(S,wi).g:""}" data-j="${j}"><span class="no">${j+1}</span><span class="nm">${esc(s)}</span>${wi!=null?`<span class="it" lang="${LANG}" style="color:var(--gc)">${esc(word(S,wi).a)}</span>`:""}</div>`}).join("");
+    $("#nx").disabled=P.place.some(x=>x==null);bindDrag()};
+  const drop=(wi,j)=>{const prev=P.place.indexOf(wi);if(prev>=0)P.place[prev]=null;P.place[j]=wi;sel=null;save();draw();talk([[P.spots[j]],[picOf(S,wi)],[word(S,wi).a,LANG]],null)};
+  const bindDrag=()=>{
+    $("#tray").querySelectorAll(".wc").forEach(c=>{c.onpointerdown=e=>{e.preventDefault();const wi=+c.dataset.i;let moved=false,gh=null;const sx=e.clientX,sy=e.clientY;
+      const mv=ev=>{if(!moved&&Math.hypot(ev.clientX-sx,ev.clientY-sy)>6){moved=true;gh=c.cloneNode(true);gh.classList.add("ghost-drag");document.body.appendChild(gh)}
+        if(gh){gh.style.left=ev.clientX+"px";gh.style.top=ev.clientY+"px";document.querySelectorAll(".spot").forEach(s=>s.classList.remove("hot"));const el=document.elementFromPoint(ev.clientX,ev.clientY),sp=el&&el.closest(".spot");if(sp)sp.classList.add("hot")}};
+      const up=ev=>{window.removeEventListener("pointermove",mv);window.removeEventListener("pointerup",up);
+        if(gh){gh.remove();const el=document.elementFromPoint(ev.clientX,ev.clientY),sp=el&&el.closest(".spot");document.querySelectorAll(".spot").forEach(s=>s.classList.remove("hot"));if(sp)return drop(wi,+sp.dataset.j);return}
+        sel=sel===wi?null:wi;draw()};
+      window.addEventListener("pointermove",mv);window.addEventListener("pointerup",up)}});
+    $("#spots").querySelectorAll(".spot").forEach(s=>s.onclick=()=>{const j=+s.dataset.j;if(sel!=null)return drop(sel,j);if(P.place[j]!=null){P.place[j]=null;save();draw()}})};
+  screen(topbar(t("b_"+J.id),()=>stepForge(9))+bar(4,M)+G.h+`<div class="tray" id="tray"></div><div class="spots" id="spots"></div>
+    <div class="acts"><button class="btn ghost" id="ord">${esc(t("inOrder"))}</button><button class="btn" id="nx">${esc(t("next"))}</button></div>`,()=>stepForge(9));
+  G.bind();draw();
+  $("#ord").onclick=()=>{P.place=S.words.map((_,i)=>i);save();draw()};
+  $("#nx").onclick=()=>stepWalk()}
+/* a ring timer that counts down; done() when it reaches zero */
+function ring(el,ms,done){const t0=Date.now();el.innerHTML=`<svg viewBox="0 0 36 36"><circle class="bg" cx="18" cy="18" r="15.9"/><circle class="fg" cx="18" cy="18" r="15.9" pathLength="100" stroke-dasharray="100 100" stroke-dashoffset="0"/></svg><span></span>`;
+  const fg=el.querySelector(".fg"),sp=el.querySelector("span");const tick=()=>{const u=Date.now()-t0,left=Math.max(0,ms-u),s=Math.ceil(left/1000);fg.setAttribute("stroke-dashoffset",(100*u/ms).toFixed(2));sp.textContent=Math.floor(s/60)+":"+String(s%60).padStart(2,"0");if(left<=0){clearInterval(iv);done&&done()}};const iv=every(tick,250);tick()}
+function stepWalk(){const {S,P}=J;
+  const G=guide({step:t("stepN",{n:5,m:M}),title:t("s5T"),what:t("s5W"),how:t("s5H")});
+  screen(topbar(t("b_"+J.id),stepPlace)+bar(5,M)+G.h+`<div class="ring" id="rg"></div><div class="scene" id="scn"></div><div class="spots" id="spots">${P.spots.map((s,j)=>`<div class="spot full g-${word(S,P.place[j]).g}" data-j="${j}"><span class="no">${j+1}</span><span class="nm">${esc(s)}</span><span class="it" lang="${LANG}" style="color:var(--gc)">${esc(word(S,P.place[j]).a)}</span></div>`).join("")}</div>
+    <div class="acts"><button class="btn ghost" id="again">${esc(t("walkAgain"))}</button><button class="btn" id="nx">${esc(t("ready"))}</button></div>`,stepPlace);
+  ring($("#rg"),window.__mpMs||300000,()=>stepRecall());
+  const walk=j=>{if(j>=10){document.querySelectorAll("#spots .spot").forEach(x=>x.classList.remove("lit"));return}
+    const wi=P.place[j];document.querySelectorAll("#spots .spot").forEach(x=>x.classList.toggle("lit",+x.dataset.j===j));
+    $("#scn").className="scene g-"+word(S,wi).g;$("#scn").innerHTML=`${esc(t("atSpot",{s:P.spots[j]}))} ${esc(picOf(S,wi))}${P.desc[wi]?`<br><i>${esc(P.desc[wi])}</i>`:""}<span class="w" lang="${LANG}">${esc(word(S,wi).a)}</span>`;
+    talk([[t("atSpot",{s:P.spots[j]})],[picOf(S,wi)],[word(S,wi).a,LANG]],()=>later(()=>walk(j+1),voiceOn()?300:3500))};
+  G.bind(()=>walk(0));
+  $("#again").onclick=()=>walk(0);$("#nx").onclick=()=>stepRecall()}
+/* step 6: one spot at a time; a mistake opens "fix the picture", then one more try */
+function stepRecall(){const {S,P}=J;J.res=[];let j=0;
+  const G=guide({step:t("stepN",{n:6,m:M}),title:t("s6T"),what:t("s6W"),how:t("s6H",{lang:lname(LANG),art:LANG==="en"?"":t("withArt")})});
+  screen(topbar(t("b_"+J.id))+bar(6,M)+G.h+`<div class="card room" id="room"></div><div class="spots" id="spots"></div>`);
+  G.bind(()=>{const f=$("#ans");if(f)f.focus()});
+  const map=()=>{$("#spots").innerHTML=P.spots.map((s,k)=>{const r=J.res[k];return `<div class="spot${k===j?" lit":""}${r?r.s>=1?" ok":r.s>0?" pick":" bad":""}"><span class="no">${k+1}</span><span class="nm">${esc(s)}</span>${r?`<span class="it" lang="${LANG}">${esc(word(S,P.place[k]).a)}</span>`:""}</div>`}).join("")};
+  const ask=(second)=>{map();const wi=P.place[j];
+    $("#room").innerHTML=`<div class="cnt">${j+1} / 10</div><div class="where">📍 ${esc(P.spots[j])}</div><div class="q">${esc(t("whatHere"))}</div>
+      <input type="text" id="ans" lang="${LANG}" autocomplete="off" autocapitalize="off" spellcheck="false" style="margin-top:8px"><div class="acts"><button class="btn ghost" id="hintB">${esc(t("hint"))}</button><button class="btn" id="chk">${esc(t("check"))}</button></div><div class="fb" id="fb"></div><div id="fixBox"></div>`;
+    let hinted=false;const f=$("#ans");if(document.activeElement!==f&&j>0)f.focus();
+    $("#hintB").onclick=()=>{hinted=true;$("#fb").className="fb";$("#fb").innerHTML=`<span class="muted">${esc(picOf(S,wi).replace(/“[^”]*”|«[^»]*»|„[^“]*“/g,"“…”"))}</span>`};
+    const go=()=>{const g=grade(f.value,word(S,wi));let s=g.s;if(hinted)s=Math.min(s,.5);if(second)s=Math.min(s,.5);f.disabled=true;$("#chk").disabled=true;$("#hintB").disabled=true;
+      if(s>0){$("#fb").className="fb ok";$("#fb").textContent=g.s<1?t("artOff",{a:word(S,wi).a}):g.acc?t("accent",{a:word(S,wi).a}):t("right");talk([[word(S,wi).a,LANG]],null);J.res[j]={s};return later(nextR,1400)}
+      if(!second)return fix(wi);
+      $("#fb").className="fb bad";$("#fb").textContent=t("itWas",{a:word(S,wi).a});talk([[t("itWas",{a:""})],[word(S,wi).a,LANG]],null);J.res[j]={s:0};later(nextR,2200)};
+    $("#chk").onclick=go;f.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();if(f.value.trim())go()}}};
+  const fix=wi=>{$("#fb").className="fb bad";$("#fb").textContent=t("wrong");
+    $("#fixBox").innerHTML=`<div class="fix g-${word(S,wi).g}"><b>🔧 ${esc(t("fixT"))}</b><p>${esc(t("fixW"))}</p><div class="chips">${WEIRD.map((x,k)=>`<button class="chip${P.weird[wi]===k?" on":""}" data-w="${k}">${esc(x[UIi])}</button>`).join("")}</div>
+      <div class="img" id="fimg"></div><div class="ring" id="frg" style="margin-top:10px"></div><div class="acts"><button class="btn" id="tryB" disabled>${esc(t("tryAgain"))}</button></div></div>`;
+    const up=()=>{$("#fimg").innerHTML=`${esc(picOf(S,wi))}<span class="to" lang="${LANG}">→ ${esc(word(S,wi).a)}</span>`};up();
+    $("#fixBox").querySelectorAll("[data-w]").forEach(b=>b.onclick=()=>{P.weird[wi]=+b.dataset.w;save();$("#fixBox").querySelectorAll("[data-w]").forEach(x=>x.classList.toggle("on",x===b));up();talk([[picOf(S,wi)],[word(S,wi).a,LANG]],null)});
+    talk([[t("fixT")],[t("fixW")],[picOf(S,wi)],[word(S,wi).a,LANG]],null);
+    ring($("#frg"),window.__mpFix||15000,()=>{$("#tryB").disabled=false});$("#tryB").onclick=()=>{clearTimers();ask(true)}};
+  const nextR=()=>{j++;if(j>=10)return results();ask(false)};
+  ask(false)}
+function results(){const {id,S,P}=J;const sc=J.res.reduce((a,r)=>a+(r?r.s:0),0),st=sc>=10?3:sc>=8?2:sc>=5?1:0;
+  const own=P.own.filter(Boolean).length,bonus=own?Math.min(2,Math.round(own/5*10)/10):0;
+  const wasDone=isDone(id);P.done=P.done||Date.now();P.best=Math.max(P.best||0,st);P.runs=[...(P.runs||[]),{d:Date.now(),s:sc}].slice(-20);
+  if(!P.rev)P.rev={step:0,next:Date.now()+DAY};ST.pts+=sc+bonus;save();
+  const nextB=!wasDone?ORDER[ORDER.indexOf(id)+1]:null;
+  screen(topbar(t("b_"+id))+`<div class="card score"><div class="sec" style="margin-top:0">${esc(t("resT"))}</div><div class="big">${sc}/10</div><div class="stars">${stars(st)}</div>
+    <p>${esc(t("resW",{s:sc,m:10}))} ${esc(st===3?t("res3"):st===2?t("res2"):t("res1"))}</p>${bonus?`<p class="pts">${esc(t("bonus",{n:bonus}))}</p>`:""}
+    ${nextB?`<p class="pts">🔓 ${esc(t("unlocked",{b:t("b_"+nextB)}))}</p>`:""}${!wasDone?`<p class="pts">🔓 ${esc(t("unlocked",{b:t("b_conj")+" · "+t("b_num")}))}</p>`.repeat(id==="home"?1:0):""}<p class="muted">${esc(t("resNext"))}</p></div>
+    <div class="card"><table class="tbl">${P.spots.map((s,k)=>{const r=J.res[k]||{s:0};return `<tr><td>${k+1}. ${esc(s)}</td><td lang="${LANG}"><b>${esc(word(S,P.place[k]).a)}</b></td><td class="r">${r.s>=1?"✅":r.s>0?"½":"❌"}</td></tr>`}).join("")}</table></div>
+    <div class="acts"><button class="btn ghost" id="again">${esc(t("playAgain"))}</button><button class="btn gold" id="tw">${esc(t("toTown"))}</button></div>`);
+  talk([[t("resW",{s:sc,m:10})],[st===3?t("res3"):st===2?t("res2"):t("res1")]],null);
+  $("#again").onclick=()=>palace(id);$("#tw").onclick=town}
+/* ---------------- review games for a finished palace ---------------- */
+function reviewDone(id,sc,m){const P=ST.p[id],r=P.rev||{step:0,next:0};ST.pts+=sc;
+  if(Date.now()>=(r.next||0)&&r.step<REV.length){r.step++;r.next=r.step<REV.length?Date.now()+REV[r.step]*DAY:null}P.rev=r;save();
+  screen(topbar(t("b_"+id))+`<div class="card score"><div class="big">${sc}/${m}</div><p>${esc(t("revDone",{s:sc,m}))}</p></div><div class="acts"><button class="btn gold" id="tw">${esc(t("toTown"))}</button></div>`);
+  talk([[t("revDone",{s:sc,m})]],null);$("#tw").onclick=town}
+function review(id,g){const S=SET(id),P=ST.p[id];J={id,S,P};
+  const title=t("g_"+g),back=town;
+  const spotsHTML=(f)=>`<div class="spots" id="spots">${P.spots.map((s,k)=>`<div class="spot" data-j="${k}"><span class="no">${k+1}</span><span class="nm">${esc(s)}</span>${f?f(k):""}</div>`).join("")}</div>`;
+  const wordAt=k=>word(S,P.place[k]);
+  /* a run of typed answers over a list of spots, with an optional time limit per spot */
+  const typedRun=(order,G,perMs,qText)=>{screen(topbar(title,back)+G.h+`<div class="card room" id="room"></div>`+spotsHTML());G.bind(()=>{const f=$("#ans");if(f)f.focus()});let n=0,sc=0;
+    const show=()=>{if(n>=order.length)return reviewDone(id,sc,order.length);const k=order[n];
+      document.querySelectorAll("#spots .spot").forEach(x=>{const j=+x.dataset.j;x.classList.toggle("lit",j===k);if(perMs&&order.indexOf(j)<n)x.classList.add("dark")});
+      $("#room").innerHTML=`<div class="cnt">${n+1} / ${order.length}</div><div class="where">📍 ${esc(P.spots[k])}</div><div class="q">${esc(qText?qText(k):t("whatHere"))}</div>${perMs?`<div class="ring" id="rg"></div>`:""}
+        <input type="text" id="ans" lang="${LANG}" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="acts"><button class="btn" id="chk">${esc(t("check"))}</button></div><div class="fb" id="fb"></div>`;
+      const f=$("#ans");if(n>0)f.focus();let over=false;
+      const fin=(s)=>{if(over)return;over=true;clearTimers();sc+=s;f.disabled=true;$("#chk").disabled=true;$("#fb").className="fb "+(s?"ok":"bad");$("#fb").textContent=s?t("right"):t("itWas",{a:wordAt(k).a});
+        talk([[wordAt(k).a,LANG]],null);setTimeout(()=>{n++;show()},s?900:1800)};
+      const go=()=>{const g=grade(f.value,wordAt(k));fin(g.s)};
+      $("#chk").onclick=go;f.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();if(f.value.trim())go()}};
+      if(perMs)ring($("#rg"),perMs,()=>fin(0));if(qText)talk([[qText(k)]],null)};
+    show()};
+  if(g==="lights")return typedRun([...Array(10).keys()],guide({title,what:t("lightsW"),how:t("lightsH")}),window.__mpLight||15000);
+  if(g==="reverse")return typedRun([...Array(10).keys()].reverse(),guide({title,what:t("revW"),how:t("revH")}));
+  if(g==="sapi"){const o=[...Array(10).keys()].sort(()=>Math.random()-.5).slice(0,5);return typedRun(o,guide({title,what:t("sapiW"),how:t("sapiH")}),0,k=>t("sapiQ",{s:P.spots[k]}))}
+  /* the burglar: study, then one word is gone and two are swapped */
+  const G=guide({title,what:t("burgW"),how:t("burgH")});
+  const idx=[...Array(10).keys()].sort(()=>Math.random()-.5),gone=idx[0],sw=[idx[1],idx[2]];
+  const shown=P.place.slice();[shown[sw[0]],shown[sw[1]]]=[shown[sw[1]],shown[sw[0]]];shown[gone]=null;
+  screen(topbar(title,back)+G.h+`<div class="ring" id="rg"></div><div class="scene" id="scn"></div><div id="sp"></div><div id="q"></div>`);
+  const draw=(arr,cls)=>{$("#sp").innerHTML=spotsHTML(k=>arr[k]!=null?`<span class="it" lang="${LANG}">${esc(word(S,arr[k]).a)}</span>`:`<span class="it muted">—</span>`)};
+  draw(P.place);let sc=0;
+  G.bind();
+  ring($("#rg"),window.__mpStudy||15000,()=>{$("#rg").remove();$("#scn").textContent="🕵️ "+t("burgCome");talk([[t("burgCome")]],null);
+    later(()=>{draw(shown);$("#scn").textContent=t("burgQ1");
+      $("#q").innerHTML=`<div class="card room"><div class="where">📍 ${esc(P.spots[gone])}</div><input type="text" id="ans" lang="${LANG}" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="acts"><button class="btn" id="chk">${esc(t("check"))}</button></div><div class="fb" id="fb"></div></div>`;
+      document.querySelectorAll("#sp .spot").forEach(x=>x.classList.toggle("lit",+x.dataset.j===gone));talk([[t("burgQ1")]],null);$("#ans").focus();
+      const step2=()=>{$("#scn").textContent=t("burgQ2");talk([[t("burgQ2")]],null);const picked=[];
+        document.querySelectorAll("#sp .spot").forEach(x=>{x.classList.remove("lit");x.onclick=()=>{const j=+x.dataset.j;if(j===gone||picked.includes(j)||picked.length>=2)return;picked.push(j);x.classList.add("pick");
+          if(picked.length===2){const ok=sw.includes(picked[0])&&sw.includes(picked[1]);if(ok)sc+=2;sw.forEach(k=>document.querySelector(`#sp .spot[data-j="${k}"]`).classList.add(ok?"ok":"bad"));
+            draw(P.place);sw.forEach(k=>document.querySelector(`#sp .spot[data-j="${k}"]`).classList.add("ok"));$("#scn").textContent=ok?t("burgOk"):t("itWas",{a:sw.map(k=>P.spots[k]).join(" ⇄ ")});if(ok)talk([[t("burgOk")]],null);
+            setTimeout(()=>reviewDone(id,sc,3),2200)}}})};
+      const go=()=>{const g=grade($("#ans").value,word(S,P.place[gone]));sc+=g.s;$("#ans").disabled=true;$("#chk").disabled=true;$("#fb").className="fb "+(g.s?"ok":"bad");$("#fb").textContent=g.s?t("right"):t("itWas",{a:word(S,P.place[gone]).a});talk([[word(S,P.place[gone]).a,LANG]],null);setTimeout(step2,1500)};
+      $("#chk").onclick=go;$("#ans").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();if($("#ans").value.trim())go()}}},1600)})}
+/* ---------------- Conjugation House ---------------- */
+const persLabel=(j,f)=>LANG==="fr"&&j===0&&/^[aeiouéèêh]/i.test(f)?"j'":DATA.pers[LANG][j];
+function conjPick(){const G=guide({title:t("cjT"),what:t("cjW"),how:t("cjH")});
+  screen(topbar(t("b_conj"),town)+G.h+`<div class="town">${DATA.vlist[LANG].map(v=>{const P=ST.p["conj_"+v]||{};return `<button class="bld special" data-v="${v}"><span class="e">🏚️</span><b lang="${LANG}">${esc(DATA.inf[LANG][v])}</b>${P.best!=null?`<span class="stars">${stars(P.best)}</span>`:""}</button>`}).join("")}</div>`,town);
+  G.bind();$("#app").querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>conjHouse(b.dataset.v))}
+function conjHouse(v){const F=DATA.conj[LANG][v],WHO=STR.who[UIi],FL=[t("fl0"),t("fl1"),t("fl2")];   // F[0]=present,1=past,2=future · floors: basement=past
+  const floorOf=fl=>fl===0?1:fl===1?0:2;
+  const houseHTML=(lit,show)=>`<div class="house">${[2,1,0].map(fl=>`<div class="floor"><b>${esc(FL[fl])}</b><div class="rooms">${F[floorOf(fl)].map((f,j)=>`<div class="rm${lit&&lit[0]===fl&&lit[1]===j?" lit":""}"><i>${esc(persLabel(j,f))} · ${esc(WHO[j])}</i>${show?`<em lang="${LANG}">${esc(f)}</em>`:""}</div>`).join("")}</div></div>`).join("")}</div>`;
+  const G=guide({step:t("stepN",{n:1,m:3}),title:DATA.inf[LANG][v],what:t("cjMeetW"),how:t("cjMeetH")});
+  screen(topbar(t("b_conj"),conjPick)+bar(1,3)+G.h+houseHTML(null,true)+`<div class="acts"><button class="btn ghost" id="hear">${esc(t("hearAll"))}</button><button class="btn" id="nx">${esc(t("next"))}</button></div>`,conjPick);
+  G.bind();
+  $("#hear").onclick=()=>talk([0,1,2].flatMap(fl=>[[FL[fl]],...F[floorOf(fl)].map((f,j)=>[(persLabel(j,f)==="j'"?"j'":persLabel(j,f)+" ")+f.replace(/\(e\)\(s\)|\(e\)s|\(e\)/g,""),LANG])]),null,true);
+  $("#nx").onclick=walkC;
+  function walkC(){const G=guide({step:t("stepN",{n:2,m:3}),title:t("s5T"),what:t("s5W"),how:t("s5H")});
+    screen(topbar(t("b_conj"),()=>conjHouse(v))+bar(2,3)+G.h+`<div class="ring" id="rg"></div><div class="scene" id="scn"></div><div id="hs">${houseHTML(null,true)}</div><div class="acts"><button class="btn ghost" id="again">${esc(t("walkAgain"))}</button><button class="btn" id="nx">${esc(t("ready"))}</button></div>`,()=>conjHouse(v));
+    ring($("#rg"),window.__mpMs||360000,recallC);
+    const seq=[];[0,1,2].forEach(fl=>F[floorOf(fl)].forEach((f,j)=>seq.push([fl,j,f])));
+    const walk=n=>{if(n>=seq.length)return;const [fl,j,f]=seq[n];$("#hs").innerHTML=houseHTML([fl,j],true);const line=t("cjScene",{f:FL[fl],w:WHO[j],v:f});$("#scn").textContent=line;
+      talk([[FL[fl]+": "+WHO[j]],[(persLabel(j,f)==="j'"?"j'":persLabel(j,f)+" ")+f.replace(/\(e\)\(s\)|\(e\)s|\(e\)/g,""),LANG]],()=>later(()=>walk(n+1),voiceOn()?200:2500))};
+    G.bind(()=>walk(0));$("#again").onclick=()=>walk(0);$("#nx").onclick=recallC}
+  function recallC(){const G=guide({step:t("stepN",{n:3,m:3}),title:t("s6T"),what:t("s6W"),how:t("cjRecH")});
+    const items=[];[0,1,2].forEach(fl=>F[floorOf(fl)].forEach((f,j)=>items.push([fl,j,f])));const order=items.sort(()=>Math.random()-.5);let n=0,sc=0;
+    screen(topbar(t("b_conj"))+bar(3,3)+G.h+`<div class="card room" id="room"></div><div id="hs"></div>`);G.bind(()=>{const f=$("#ans");if(f)f.focus()});
+    const show=()=>{if(n>=order.length){const st=sc>=18?3:sc>=14?2:sc>=9?1:0,P=ST.p["conj_"+v]=ST.p["conj_"+v]||{};P.best=Math.max(P.best||0,st);ST.pts+=sc;save();
+        screen(topbar(t("b_conj"))+`<div class="card score"><div class="big">${sc}/18</div><div class="stars">${stars(st)}</div><p>${esc(t("resW",{s:sc,m:18}))}</p></div><div class="card">${houseHTML(null,true)}</div><div class="acts"><button class="btn ghost" id="ag">${esc(t("playAgain"))}</button><button class="btn gold" id="tw">${esc(t("toTown"))}</button></div>`);
+        talk([[t("resW",{s:sc,m:18})]],null);$("#ag").onclick=()=>conjHouse(v);$("#tw").onclick=town;return}
+      const [fl,j,f]=order[n];$("#hs").innerHTML=houseHTML([fl,j],false);
+      const q=t("cjQ",{f:FL[fl],p:persLabel(j,f),w:WHO[j]});
+      $("#room").innerHTML=`<div class="cnt">${n+1} / 18</div><div class="where">${esc(q)}</div><input type="text" id="ans" lang="${LANG}" autocomplete="off" autocapitalize="off" spellcheck="false" style="margin-top:8px"><div class="acts"><button class="btn" id="chk">${esc(t("check"))}</button></div><div class="fb" id="fb"></div>`;
+      const inp=$("#ans");if(n>0)inp.focus();
+      const go=()=>{const ok=formOk(inp.value.replace(new RegExp("^\\s*("+DATA.pers[LANG][j].split("/").map(x=>x.trim().replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")\\s+|^\\s*j'","i"),""),f);if(ok)sc++;inp.disabled=true;$("#chk").disabled=true;$("#fb").className="fb "+(ok?"ok":"bad");$("#fb").textContent=ok?t("right"):t("itWas",{a:f});
+        talk([[(persLabel(j,f)==="j'"?"j'":persLabel(j,f)+" ")+f.replace(/\(e\)\(s\)|\(e\)s|\(e\)/g,""),LANG]],null);setTimeout(()=>{n++;show()},ok?900:1900)};
+      $("#chk").onclick=go;inp.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();if(inp.value.trim())go()}}};
+    show()}}
+/* ---------------- Number Street ---------------- */
+function numStart(){const N=DATA.nums[LANG],PG=STR.pegs[UIi];ST.p.num=ST.p.num||{};const P=ST.p.num;P.keys=P.keys||[];P.weird=P.weird||[];save();
+  const streetHTML=(lit,show)=>`<div class="street">${N.map((w,n)=>`<div class="hs${lit===n?" lit":""}"><span class="pg">${PEG[n]}</span><b>${n}</b>${show?`<div lang="${LANG}">${esc(w)}</div>`:""}</div>`).join("")}</div>`;
+  const numPic=n=>{const k=P.keys[n]||soundStart(N[n])+"…",x=WEIRD[P.weird[n]||0][UIi];return PIC[UIi].replace("{t}",PG[n]).replace("{x}",x).replace("{c}",GCOL[""][UIi]).replace("{k}",k)};
+  const G=guide({step:t("stepN",{n:1,m:3}),title:t("b_num"),what:t("nsW"),how:t("nsH")});
+  const rows=N.map((w,n)=>`<div class="card forge g-" style="margin-bottom:8px"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:2rem">${PEG[n]}</span><div style="flex:1"><b style="font:800 1.2rem var(--display)">${n} · <span lang="${LANG}">${esc(w)}</span></b><div class="muted">${esc(PG[n])}</div></div><button class="spk" data-n="${n}">🔊</button></div>
+    <input type="text" data-k="${n}" maxlength="40" placeholder="${esc(t("ownPh"))}" value="${esc(P.keys[n]||"")}" style="margin-top:6px"><div class="chips">${WEIRD.slice(0,5).map((x,j)=>`<button class="chip${(P.weird[n]||0)===j?" on":""}" data-n="${n}" data-w="${j}">${esc(x[UIi])}</button>`).join("")}</div><div class="img" id="ni${n}"></div></div>`).join("");
+  screen(topbar(t("b_num"),town)+bar(1,3)+G.h+rows+`<div class="acts"><button class="btn" id="nx">${esc(t("next"))}</button></div>`,town);G.bind();
+  const up=n=>{$("#ni"+n).innerHTML=`${esc(numPic(n))}<span class="to" lang="${LANG}">→ ${n} · ${esc(N[n])}</span>`};N.forEach((_,n)=>up(n));
+  $("#app").querySelectorAll(".spk").forEach(b=>b.onclick=()=>talk([[N[+b.dataset.n],LANG]],null,true));
+  $("#app").querySelectorAll("[data-k]").forEach(i=>i.oninput=()=>{P.keys[+i.dataset.k]=i.value.trim();save();up(+i.dataset.k)});
+  $("#app").querySelectorAll("[data-w]").forEach(b=>b.onclick=()=>{const n=+b.dataset.n;P.weird[n]=+b.dataset.w;save();$("#app").querySelectorAll(`[data-w][data-n="${n}"]`).forEach(x=>x.classList.toggle("on",x===b));up(n);talk([[numPic(n)],[N[n],LANG]],null)});
+  $("#nx").onclick=walkN;
+  function walkN(){const G=guide({step:t("stepN",{n:2,m:3}),title:t("s5T"),what:t("s5W"),how:t("s5H")});
+    screen(topbar(t("b_num"),numStart)+bar(2,3)+G.h+`<div class="ring" id="rg"></div><div class="scene g-" id="scn"></div><div id="st">${streetHTML(null,true)}</div><div class="acts"><button class="btn ghost" id="again">${esc(t("walkAgain"))}</button><button class="btn" id="nx">${esc(t("ready"))}</button></div>`,numStart);
+    ring($("#rg"),window.__mpMs||240000,recallN);
+    const walk=n=>{if(n>10)return;$("#st").innerHTML=streetHTML(n,true);$("#scn").innerHTML=`${esc(t("house"))} ${n}: ${esc(numPic(n))}<span class="w" lang="${LANG}">${esc(N[n])}</span>`;
+      talk([[t("house")+" "+n],[numPic(n)],[N[n],LANG]],()=>later(()=>walk(n+1),voiceOn()?200:3000))};
+    G.bind(()=>walk(0));$("#again").onclick=()=>walk(0);$("#nx").onclick=recallN}
+  function recallN(){const G=guide({step:t("stepN",{n:3,m:3}),title:t("s6T"),what:t("s6W"),how:t("nsRecH",{lang:lname(LANG)})});
+    const order=[...Array(11).keys()].sort(()=>Math.random()-.5);let n=0,sc=0;
+    screen(topbar(t("b_num"))+bar(3,3)+G.h+`<div class="card room" id="room"></div><div id="st"></div>`);G.bind(()=>{const f=$("#ans");if(f)f.focus()});
+    const show=()=>{if(n>=11){const st=sc>=11?3:sc>=9?2:sc>=6?1:0;P.best=Math.max(P.best||0,st);ST.pts+=sc;save();
+        screen(topbar(t("b_num"))+`<div class="card score"><div class="big">${sc}/11</div><div class="stars">${stars(st)}</div><p>${esc(t("resW",{s:sc,m:11}))}</p></div><div class="card">${streetHTML(null,true)}</div><div class="acts"><button class="btn ghost" id="ag">${esc(t("playAgain"))}</button><button class="btn gold" id="tw">${esc(t("toTown"))}</button></div>`);
+        talk([[t("resW",{s:sc,m:11})]],null);$("#ag").onclick=numStart;$("#tw").onclick=town;return}
+      const k=order[n];$("#st").innerHTML=streetHTML(k,false).replace(`<b>${k}</b>`,"<b>?</b>");
+      const q=t("nsQ",{n:n+1,p:STR.pegs[UIi][k]});
+      $("#room").innerHTML=`<div class="cnt">${n+1} / 11</div><div style="font-size:3rem">${PEG[k]}</div><div class="where">${esc(q)}</div><input type="text" id="ans" lang="${LANG}" autocomplete="off" autocapitalize="off" spellcheck="false" style="margin-top:8px"><div class="acts"><button class="btn" id="chk">${esc(t("check"))}</button></div><div class="fb" id="fb"></div>`;
+      const inp=$("#ans");if(n>0)inp.focus();
+      const go=()=>{const v=nrm(inp.value).replace(/\s/g,""),ok=v===nrm(N[k]).replace(/\s/g,"")||(LANG==="de"&&k===1&&v==="ein")||(LANG==="fr"&&k===1&&v==="une");if(ok)sc++;inp.disabled=true;$("#chk").disabled=true;$("#fb").className="fb "+(ok?"ok":"bad");$("#fb").textContent=(ok?t("right"):t("itWas",{a:N[k]}))+" · "+k;
+        talk([[N[k],LANG]],null);setTimeout(()=>{n++;show()},ok?900:1900)};
+      $("#chk").onclick=go;inp.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();if(inp.value.trim())go()}}};
+    show()}}
+town();
+</script>
+</body>
+</html>
