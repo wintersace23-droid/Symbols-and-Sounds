@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kingdom</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Sora:wght@600;800&display=swap">
+<style>
+:root{--sky:#0b0a1f;--panel:#17143a;--raise:#211c4d;--line:rgba(216,180,254,.22);--ink:#f5f0ff;--muted:#a99cc9;--violet:#c084fc;--gold:#f5c533;--good:#3ee8a8;--bad:#ff5d7a;
+  --display:"Sora",system-ui,sans-serif;--body:"Manrope",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color-scheme:dark}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}
+body{background:radial-gradient(120% 70% at 50% 0%,#1d1545,var(--sky) 65%) fixed,var(--sky);color:var(--ink);font-family:var(--body);font-size:15px;font-weight:600;line-height:1.45;-webkit-tap-highlight-color:transparent}
+button{font-family:inherit;color:inherit}
+.wrap{max-width:620px;margin:0 auto;padding:12px 16px 48px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.top h1{font:800 1.2rem var(--display);margin:0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.icon{background:var(--raise);border:1px solid var(--line);border-radius:10px;padding:7px 10px;cursor:pointer;font-weight:800;font-size:.85rem;white-space:nowrap}
+.tip{display:flex;gap:10px;align-items:flex-start;background:linear-gradient(160deg,rgba(192,132,252,.2),rgba(192,132,252,.06));border:1px solid rgba(216,180,254,.4);border-radius:14px;padding:10px 12px;margin-bottom:12px}
+.tip .bot{flex:0 0 44px;height:52px}.tip .bot svg{width:44px;height:52px}
+.tip .st{font:800 .66rem var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--violet)}
+.tip .tx{font-weight:700}
+.tip.talk .bot svg{animation:bob .45s ease-in-out infinite alternate}@keyframes bob{to{transform:translateY(-3px)}}
+.sec{font:800 .72rem var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--violet);margin:16px 0 8px}
+.pts{font:800 .95rem var(--display);color:var(--gold)}
+.inbox{display:flex;flex-wrap:wrap;gap:6px}
+.chipw{background:var(--raise);border:2px solid var(--gold);border-radius:12px;padding:8px 12px;font:800 .95rem var(--display);cursor:pointer;box-shadow:0 0 12px rgba(245,197,51,.25)}
+.chipw small{display:block;font:600 .74rem var(--body);color:var(--muted)}
+.area{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px;margin-bottom:10px}
+.area>b{display:flex;align-items:center;gap:8px;font:800 1.02rem var(--display);margin-bottom:8px}.area>b span{font-size:1.4rem}
+.rooms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.rm{position:relative;text-align:left;background:var(--raise);border:1px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer;min-height:60px}
+.rm b{display:block;font:800 .9rem var(--display)}.rm small{color:var(--muted);font-size:.76rem}
+.rm .bar{height:4px;border-radius:2px;background:rgba(255,255,255,.1);margin-top:6px;overflow:hidden}.rm .bar i{display:block;height:100%;background:var(--good)}
+.rm.locked{opacity:.45;cursor:default}.rm .lk{position:absolute;right:8px;top:6px}
+.rm .due{position:absolute;right:8px;top:6px;font-size:.95rem}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:14px;padding:13px 18px;font:800 1rem var(--display);cursor:pointer;background:linear-gradient(180deg,#a855f7,#7c3aed);color:#fff;box-shadow:0 6px 18px rgba(124,58,237,.35)}
+.btn:disabled{opacity:.45;cursor:not-allowed}.btn.ghost{background:transparent;border:1px solid var(--line);box-shadow:none}.btn.gold{background:linear-gradient(180deg,#fcd34d,#f59e0b);color:#221500}
+.acts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}
+.stp{display:flex;gap:8px;align-items:center;font:800 .9rem var(--display);margin:4px 0 6px}.stp i{flex:0 0 24px;height:24px;border-radius:50%;background:var(--violet);color:#1a0b2e;font-style:normal;display:grid;place-items:center;font-size:.78rem}
+.stp+p{margin:0 0 8px;color:var(--muted);font-size:.88rem}
+.word{text-align:center}.word .w{font:800 1.8rem var(--display)}.word .m{color:var(--muted)}
+input[type=text],textarea{width:100%;background:rgba(10,6,28,.75);border:1px solid rgba(216,180,254,.45);border-radius:9px;color:#fff;font:700 1rem var(--body);padding:10px 11px;outline:none}
+input[type=text]:focus,textarea:focus{border-color:#fff;box-shadow:0 0 10px rgba(192,132,252,.5)}
+textarea{min-height:66px;resize:vertical;font-weight:600}
+.tabs{display:flex;gap:4px;overflow-x:auto;padding-bottom:4px;margin-bottom:6px}
+.tab{flex:0 0 auto;background:var(--raise);border:1px solid var(--line);border-radius:10px;padding:6px 9px;font-size:1.25rem;cursor:pointer}.tab.on{border-color:var(--violet);background:rgba(192,132,252,.25)}
+.grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px}
+.st{background:none;border:1px solid transparent;border-radius:8px;font-size:1.45rem;padding:4px 0;cursor:pointer}.st.on{border-color:var(--gold);background:rgba(245,197,51,.15)}
+.chosen{display:flex;gap:6px;align-items:center;min-height:40px;font-size:1.8rem;margin:6px 0}.chosen .x{font-size:.8rem;color:var(--muted)}
+.seg{display:flex;gap:4px;background:var(--raise);border:1px solid var(--line);border-radius:12px;padding:3px}.seg button{flex:1;border:0;background:none;border-radius:9px;padding:8px 4px;font-weight:800;font-size:.85rem;cursor:pointer}.seg button.on{background:var(--violet);color:#1a0b2e}
+.pc{border:1px solid var(--gold);border-radius:12px;padding:10px;background:rgba(245,197,51,.08);text-align:center}
+.pc .e{font-size:2.2rem;line-height:1.1}.pc .d{font-weight:700;margin-top:4px}.pc .k{color:var(--gold);font:800 .9rem var(--display);margin-top:4px}.pc .w{font:800 1.1rem var(--display);margin-top:6px}
+/* room scene */
+.scene{position:relative;aspect-ratio:4/3;border-radius:16px;overflow:hidden;border:1px solid var(--line);box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.scene .wall{position:absolute;inset:0 0 38% 0}.scene .floor{position:absolute;inset:62% 0 0 0}
+.spot{position:absolute;transform:translate(-50%,-50%);width:16%;aspect-ratio:1;border-radius:14px;display:grid;place-items:center;cursor:pointer;border:2px dashed rgba(255,255,255,.25);background:rgba(0,0,0,.12);transition:transform .2s,box-shadow .2s,border-color .2s}
+.spot .mk{font-size:clamp(1.2rem,5vw,1.9rem);opacity:.55}
+.spot.full{border-style:solid;border-color:rgba(245,197,51,.75);background:rgba(23,20,58,.86)}
+.spot.full .mk{display:none}
+.spot .it{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2px;text-align:center;line-height:1.05;overflow:hidden;max-height:100%}
+.spot .it .e{font-size:clamp(.9rem,4vw,1.5rem)}.spot .it .d{font-size:clamp(.5rem,2.1vw,.66rem);font-weight:700;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+.spot.can{border-color:#fde68a;box-shadow:0 0 14px rgba(253,230,138,.7);animation:pulse 1s ease-in-out infinite}@keyframes pulse{50%{transform:translate(-50%,-50%) scale(1.07)}}
+.spot.gone{border-color:#fff;border-style:dashed;background:rgba(255,255,255,.06);box-shadow:0 0 18px rgba(255,255,255,.55);animation:pulse 1.2s ease-in-out infinite}.spot.gone .mk{display:block;opacity:.9}
+.spot.gone::after{content:"?";position:absolute;right:-6px;top:-8px;background:#fff;color:#1a0b2e;border-radius:50%;width:22px;height:22px;display:grid;place-items:center;font:800 .8rem var(--display)}
+.spot.pop{animation:popin .5s cubic-bezier(.3,1.6,.5,1)}@keyframes popin{0%{transform:translate(-50%,-50%) scale(.3)}100%{transform:translate(-50%,-50%) scale(1)}}
+.rname{position:absolute;left:10px;top:8px;background:rgba(11,10,31,.7);border-radius:8px;padding:3px 8px;font:800 .78rem var(--display)}
+.fb{text-align:center;font-weight:800;min-height:1.4em;margin-top:8px}.fb.ok{color:var(--good)}.fb.bad{color:var(--bad)}
+.hintb{margin-top:8px;padding:8px;border-radius:10px;background:rgba(245,197,51,.08);border:1px solid rgba(245,197,51,.3);text-align:center}
+.modal{position:fixed;inset:0;background:rgba(3,2,12,.7);display:grid;place-items:center;padding:16px;z-index:40}
+.modal .card{max-width:420px;width:100%}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#2a1f55;border:1px solid var(--violet);border-radius:12px;padding:10px 14px;font-weight:800;z-index:60;max-width:90%;text-align:center}
+.sug{display:flex;flex-direction:column;gap:4px;margin-top:6px}.sug button{text-align:left;background:var(--raise);border:1px solid var(--line);border-radius:9px;padding:8px 10px;cursor:pointer;font-weight:700}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+const Q=new URLSearchParams(location.search),L4=["en","es","fr","de"];
+const UI=L4.includes(Q.get("ui"))?Q.get("ui"):"en",LANG=L4.includes(Q.get("lang"))?Q.get("lang"):"en",NAT=L4.includes(Q.get("nat"))?Q.get("nat"):null;
+const ML=[NAT,UI].find(x=>x&&x!==LANG)||(LANG==="en"?null:"en");   // meanings are shown in this language
+const UIi=L4.indexOf(UI),LI=L4.indexOf(LANG),TTS={en:"en-US",es:"es-ES",fr:"fr-FR",de:"de-DE"};
+const LNAME={en:["English","inglés","anglais","Englisch"],es:["Spanish","español","espagnol","Spanisch"],fr:["French","francés","français","Französisch"],de:["German","alemán","allemand","Deutsch"]};
+document.documentElement.lang=UI;
+const STR={
+title:["My Kingdom","Mi reino","Mon royaume","Mein Königreich"],back:["← Kingdom","← Reino","← Royaume","← Königreich"],
+voiceOn:["🔊 On","🔊 Sí","🔊 Oui","🔊 An"],voiceOff:["🔇 Off","🔇 No","🔇 Non","🔇 Aus"],
+pts:["⭐ {n} kingdom points","⭐ {n} puntos del reino","⭐ {n} points du royaume","⭐ {n} Königreichpunkte"],
+tipT:["How it works","Cómo funciona","Comment ça marche","So funktioniert es"],
+tipEmpty:["Your kingdom is waiting! Words you find difficult in your daily course task come here. Each one gets a picture you make and a spot in a room. You can also add a difficult word yourself below.","¡Tu reino te espera! Aquí llegan las palabras que te cuestan en tu tarea diaria del curso. Cada una recibe una imagen que creas tú y un sitio en una habitación. También puedes añadir tú mismo una palabra difícil abajo.","Ton royaume t'attend ! Les mots qui te semblent difficiles dans ta tâche quotidienne arrivent ici. Chacun reçoit une image que tu crées et une place dans une pièce. Tu peux aussi ajouter toi-même un mot difficile ci-dessous.","Dein Königreich wartet! Wörter, die dir in deiner täglichen Kursaufgabe schwerfallen, kommen hierher. Jedes bekommt ein Bild, das du selbst machst, und einen Platz in einem Zimmer. Unten kannst du auch selbst ein schwieriges Wort hinzufügen."],
+tipInbox:["You have {n} difficult words waiting. Tap one to give it a picture and a home.","Tienes {n} palabras difíciles esperando. Toca una para darle una imagen y un hogar.","Tu as {n} mots difficiles qui attendent. Touche-en un pour lui donner une image et une maison.","{n} schwierige Wörter warten auf dich. Tippe auf eins, um ihm ein Bild und ein Zuhause zu geben."],
+tipGone:["Something has vanished from your kingdom! Tap “Find what vanished” and remember what was there.","¡Algo ha desaparecido de tu reino! Toca «Buscar lo que desapareció» y recuerda qué había allí.","Quelque chose a disparu de ton royaume ! Touche « Retrouver ce qui a disparu » et souviens-toi de ce qu'il y avait.","Etwas ist aus deinem Königreich verschwunden! Tippe auf „Finde, was verschwunden ist“, und erinnere dich, was dort war."],
+tipCalm:["Everything is in its place. Come back in a few hours: some things may vanish, and you'll have to remember them!","Todo está en su sitio. Vuelve dentro de unas horas: algunas cosas pueden desaparecer y tendrás que recordarlas.","Tout est à sa place. Reviens dans quelques heures : certaines choses peuvent disparaître, et tu devras t'en souvenir !","Alles ist an seinem Platz. Komm in ein paar Stunden wieder: Manches kann verschwinden, und du musst dich daran erinnern!"],
+inboxT:["Waiting for a home","Esperando un hogar","En attente d'une maison","Warten auf ein Zuhause"],
+goneB:["🔍 Find what vanished ({n})","🔍 Buscar lo que desapareció ({n})","🔍 Retrouver ce qui a disparu ({n})","🔍 Finde, was verschwunden ist ({n})"],
+addT:["Add a difficult word yourself","Añade tú una palabra difícil","Ajoute toi-même un mot difficile","Füg selbst ein schwieriges Wort hinzu"],
+addPh:["Type a word in {lang}","Escribe una palabra en {lang}","Écris un mot en {lang}","Schreib ein Wort auf {lang}"],
+addNo:["No matching word in the kingdom's topics.","No hay ninguna palabra así en los temas del reino.","Aucun mot correspondant dans les thèmes du royaume.","Kein passendes Wort in den Themen des Königreichs."],
+added:["Added! Tap it above to give it a home.","¡Añadida! Tócala arriba para darle un hogar.","Ajouté ! Touche-le en haut pour lui donner une maison.","Hinzugefügt! Tippe oben darauf, um ihm ein Zuhause zu geben."],
+roomFor:["for {c}","para {c}","pour {c}","für {c}"],
+locked:["Opens when you get a word about {c}.","Se abre cuando tengas una palabra de {c}.","S'ouvre quand tu auras un mot sur le thème {c}.","Öffnet sich, wenn du ein Wort zum Thema {c} bekommst."],
+/* the picture workshop */
+wsT:["Make a picture","Crea una imagen","Fais une image","Mach ein Bild"],
+wsTip:["Follow the 3 steps: listen to the word, find a word that sounds like it in your own language, then build a crazy picture of it.","Sigue los 3 pasos: escucha la palabra, busca una palabra de tu idioma que suene parecido y crea una imagen loca.","Suis les 3 étapes : écoute le mot, trouve un mot de ta langue qui sonne pareil, puis crée une image folle.","Folge den 3 Schritten: Hör dir das Wort an, such ein ähnlich klingendes Wort in deiner Sprache und bau ein verrücktes Bild daraus."],
+s1:["Listen and say it","Escucha y dila","Écoute et dis-le","Hör zu und sag es"],s1d:["Tap 🔊 and say the word out loud two or three times.","Toca 🔊 y di la palabra en voz alta dos o tres veces.","Touche 🔊 et dis le mot à voix haute deux ou trois fois.","Tippe auf 🔊 und sag das Wort zwei- oder dreimal laut."],
+s2:["Find a sound-alike","Busca algo que suene parecido","Trouve un mot qui sonne pareil","Such ein ähnlich klingendes Wort"],
+s2d:["Write a word in YOUR language (any language, any alphabet) that sounds or looks like it. Example: a Hindi speaker might use कान (kan, ear) for “kennel”.","Escribe una palabra de TU idioma (cualquier idioma, cualquier alfabeto) que suene o se parezca. Ejemplo: un hablante de hindi podría usar कान (kan, oreja) para «kennel».","Écris un mot de TA langue (n'importe quelle langue, n'importe quel alphabet) qui sonne ou ressemble au mot. Exemple : un hindiphone pourrait utiliser कान (kan, oreille) pour « kennel ».","Schreib ein Wort aus DEINER Sprache (jede Sprache, jede Schrift), das ähnlich klingt oder aussieht. Beispiel: Wer Hindi spricht, nimmt vielleicht कान (kan, Ohr) für „kennel“."],
+s2ph:["Your sound-alike word","Tu palabra que suena parecido","Ton mot qui sonne pareil","Dein ähnlich klingendes Wort"],
+s3:["Build the picture","Crea la imagen","Construis l'image","Bau das Bild"],
+s3d:["Join the meaning and your sound-alike in one crazy scene. Pick up to 3 stickers, describe it in your own words, or both.","Une el significado y tu palabra parecida en una escena loca. Elige hasta 3 pegatinas, descríbela con tus palabras, o las dos cosas.","Réunis le sens et ton mot qui sonne pareil dans une scène folle. Choisis jusqu'à 3 autocollants, décris-la avec tes mots, ou les deux.","Verbinde die Bedeutung und dein Klangwort in einer verrückten Szene. Wähl bis zu 3 Sticker, beschreib sie in deinen Worten oder beides."],
+dph:["Describe your picture (any language)","Describe tu imagen (en cualquier idioma)","Décris ton image (dans n'importe quelle langue)","Beschreib dein Bild (in jeder Sprache)"],
+showAs:["Show my picture as:","Mostrar mi imagen como:","Afficher mon image comme :","Mein Bild zeigen als:"],
+o_st:["Stickers","Pegatinas","Autocollants","Sticker"],o_d:["Description","Descripción","Description","Beschreibung"],o_b:["Both","Las dos","Les deux","Beides"],
+prev:["Your picture card","Tu tarjeta de imagen","Ta carte image","Deine Bildkarte"],
+needPic:["Pick a sticker or write a description first.","Primero elige una pegatina o escribe una descripción.","Choisis d'abord un autocollant ou écris une description.","Wähl zuerst einen Sticker oder schreib eine Beschreibung."],
+toSpot:["Choose its spot →","Elegir su sitio →","Choisir sa place →","Seinen Platz wählen →"],
+place:["Tap an empty spot in the {r} to put your picture there. Picture it sitting right on that spot!","Toca un sitio vacío de {r} para poner allí tu imagen. ¡Imagínala justo en ese sitio!","Touche un endroit vide de la pièce « {r} » pour y mettre ton image. Imagine-la juste à cet endroit !","Tippe auf eine leere Stelle in {r}, um dein Bild dorthin zu legen. Stell es dir genau an dieser Stelle vor!"],
+placed:["Placed! Come back in a few hours to see if it's still there.","¡Colocada! Vuelve dentro de unas horas para ver si sigue allí.","Placé ! Reviens dans quelques heures pour voir s'il est toujours là.","Abgelegt! Komm in ein paar Stunden wieder und schau, ob es noch da ist."],
+roomTip:["Tap any picture to look at it again. Empty spots are waiting for new difficult words.","Toca cualquier imagen para volver a verla. Los sitios vacíos esperan nuevas palabras difíciles.","Touche une image pour la revoir. Les endroits vides attendent de nouveaux mots difficiles.","Tippe auf ein Bild, um es dir noch einmal anzusehen. Leere Stellen warten auf neue schwierige Wörter."],
+edit:["✏️ Make it stronger","✏️ Hazla más fuerte","✏️ Rends-la plus forte","✏️ Stärker machen"],close:["Close","Cerrar","Fermer","Schließen"],
+/* finding what vanished */
+fT:["Something vanished!","¡Algo ha desaparecido!","Quelque chose a disparu !","Etwas ist verschwunden!"],
+fTip:["Look at the glowing empty spot in the {r}. Remember the picture you put there, then write the word in {lang}.","Mira el sitio vacío que brilla en {r}. Recuerda la imagen que pusiste allí y escribe la palabra en {lang}.","Regarde l'endroit vide qui brille dans la pièce « {r} ». Souviens-toi de l'image que tu y as mise, puis écris le mot en {lang}.","Schau dir die leuchtende leere Stelle in {r} an. Erinnere dich an das Bild, das du dort hingelegt hast, und schreib dann das Wort auf {lang}."],
+fQ:["What was here?","¿Qué había aquí?","Qu'y avait-il ici ?","Was war hier?"],
+check:["Check","Comprobar","Vérifier","Prüfen"],hint:["💡 Hint","💡 Pista","💡 Indice","💡 Hinweis"],
+h1:["Your sound-alike was: {k}","Tu palabra parecida era: {k}","Ton mot qui sonne pareil était : {k}","Dein Klangwort war: {k}"],h2:["Here is your picture:","Esta es tu imagen:","Voici ton image :","Das ist dein Bild:"],h3:["It starts with “{l}”.","Empieza por «{l}».","Il commence par « {l} ».","Es beginnt mit „{l}“."],
+right:["Yes! +{p} points. It's back in its spot.","¡Sí! +{p} puntos. Ha vuelto a su sitio.","Oui ! +{p} points. Il est de retour à sa place.","Ja! +{p} Punkte. Es ist wieder an seinem Platz."],
+artNo:["Right word! Watch the article: {a}. +{p} points.","¡Palabra correcta! Cuidado con el artículo: {a}. +{p} puntos.","Bon mot ! Attention à l'article : {a}. +{p} points.","Richtiges Wort! Achte auf den Artikel: {a}. +{p} Punkte."],
+wrong:["Not quite. It was {a}. Look at your picture again and make it stronger, so it sticks next time.","Casi. Era {a}. Mira otra vez tu imagen y hazla más fuerte para que se quede la próxima vez.","Pas tout à fait. C'était {a}. Regarde encore ton image et rends-la plus forte pour qu'elle reste la prochaine fois.","Nicht ganz. Es war {a}. Schau dir dein Bild noch einmal an und mach es stärker, damit es nächstes Mal hängen bleibt."],
+next:["Next →","Siguiente →","Suivant →","Weiter →"],done:["Done →","Hecho →","Terminé →","Fertig →"],
+allBack:["Everything is back in its place!","¡Todo ha vuelto a su sitio!","Tout est de retour à sa place !","Alles ist wieder an seinem Platz!"],
+};
+/* the kingdom: areas and rooms; each room holds 11 words of one topic */
+const AREAS=[
+ {id:"house",icon:"🏠",n:["House","Casa","Maison","Haus"],rooms:[["bedroom","clothes"],["hall","furniture"],["dining","cuisines"],["kitchen","crockery"],["dressing","cosmetics"],["bathroom","bodyparts"],["library","subjects"],["basement","tools"],["garden","edibles"],["garage","vehicles"],["terrace","weather"]]},
+ {id:"farm",icon:"🚜",n:["Farm","Granja","Ferme","Bauernhof"],rooms:[["farmhouse","family"],["fields","terrains"],["barn","seasons"]]},
+ {id:"zoo",icon:"🦁",n:["Zoo","Zoo","Zoo","Zoo"],rooms:[["enclosures","animals"]]},
+ {id:"museum",icon:"🏛️",n:["Museum","Museo","Musée","Museum"],rooms:[["worldhall","countries"],["langhall","languages"],["faithhall","religions"],["festhall","festivals"],["musichall","instruments"],["gallery","colors"],["science","elements"]]},
+ {id:"town",icon:"🏙️",n:["Town","Ciudad","Ville","Stadt"],rooms:[["office","professions"],["stadium","sports"],["gymroom","gym"],["shop","gadgets"],["hospital","diseases"],["square","buildings"],["crossroads","directions"],["dreamtower","feelings"],["thinktower","abstract"],["clocktower","days"],["calendar","months"],["counting","numbers"]]}];
+const RN={bedroom:["Bedroom","Dormitorio","Chambre","Schlafzimmer"],hall:["Hall","Salón","Salon","Wohnzimmer"],dining:["Dining room","Comedor","Salle à manger","Esszimmer"],kitchen:["Kitchen","Cocina","Cuisine","Küche"],dressing:["Dressing room","Vestidor","Dressing","Ankleidezimmer"],bathroom:["Bathroom","Baño","Salle de bain","Badezimmer"],library:["Library","Biblioteca","Bibliothèque","Bibliothek"],basement:["Basement","Sótano","Cave","Keller"],garden:["Garden","Jardín","Jardin","Garten"],garage:["Garage","Garaje","Garage","Garage"],terrace:["Terrace","Terraza","Terrasse","Terrasse"],
+ farmhouse:["Farmhouse","Casa de campo","Maison de ferme","Bauernhaus"],fields:["Fields","Campos","Champs","Felder"],barn:["Barn","Granero","Grange","Scheune"],enclosures:["Enclosures","Recintos","Enclos","Gehege"],
+ worldhall:["World hall","Sala del mundo","Salle du monde","Weltsaal"],langhall:["Language hall","Sala de idiomas","Salle des langues","Sprachensaal"],faithhall:["Hall of faiths","Sala de religiones","Salle des religions","Saal der Religionen"],festhall:["Festival hall","Sala de fiestas","Salle des fêtes","Festsaal"],musichall:["Music hall","Sala de música","Salle de musique","Musiksaal"],gallery:["Art gallery","Galería de arte","Galerie d'art","Kunstgalerie"],science:["Science hall","Sala de ciencias","Salle des sciences","Wissenschaftssaal"],
+ office:["Office","Oficina","Bureau","Büro"],stadium:["Stadium","Estadio","Stade","Stadion"],gymroom:["Gym","Gimnasio","Salle de sport","Fitnessstudio"],shop:["Gadget shop","Tienda de aparatos","Boutique d'appareils","Technikladen"],hospital:["Hospital","Hospital","Hôpital","Krankenhaus"],square:["Town square","Plaza","Place","Marktplatz"],crossroads:["Crossroads","Cruce","Carrefour","Kreuzung"],dreamtower:["Dream tower","Torre de los sueños","Tour des rêves","Traumturm"],thinktower:["Thinking tower","Torre de las ideas","Tour des idées","Denkturm"],clocktower:["Clock tower","Torre del reloj","Tour de l'horloge","Uhrturm"],calendar:["Calendar hall","Sala del calendario","Salle du calendrier","Kalendersaal"],counting:["Counting house","Casa de los números","Maison des nombres","Zahlenhaus"]};
+/* 11 spots per room, marked by the object that's there */
+const SP={bedroom:"🛏️🪞🚪🪟💡🧸🪴🖼️🧺🪑🕰️",hall:"🛋️🖼️📺🪴🕯️🪟🚪🪑🧸💡🕰️",dining:"🍽️🪑🕯️🍷🖼️🪟💐🧂🕰️🍾🫖",kitchen:"🍳🚰🧊🔪🫙🧺🪟🔥🗄️⏲️🧯",dressing:"🪞💺💡🧴👗👠💍🪮🧳🎀🪟",bathroom:"🛁🚿🚽🪞🧼🪥🧻🧽🪟🧺🚪",library:"📚🪑🛋️🌍🕯️🖋️🪟🗺️🕰️🔭💡",basement:"🧰🪜📦🔦🛢️🚲🧯🪣🕸️🗄️🚪",garden:"🌳🌷🪴⛲🪺🐝🍄🪨🌻🧺🪵",garage:"🚗🛞🛠️🔧⛽🚲🪜📦🧯🔦🚪",terrace:"☂️🪑🌤️🪴🔭🏮🛋️🎐🪁🌡️❄️",
+ farmhouse:"🖼️🪑🛋️🕰️🪴🚪🪟🍞🥛🧺🐕",fields:"🌾🚜🌽🪵🌻🏞️🪨🌳🛤️🐄💧",barn:"🐴🪣🌾🐓🧺🚜🪜🐖🪵🐑🥚",enclosures:"🦁🐘🦒🐒🦓🐧🐊🦜🌴🪨💧",
+ worldhall:"🌍🗺️🏳️🧭🏺🗿🎎🪆🏯🗽🛕",langhall:"📜📖🖋️🗣️🔤🪧📚📝🎙️🧑‍🏫🖼️",faithhall:"🕯️🛕⛪🕌🕍📿🪔🔔🌸🖼️📜",festhall:"🎉🎆🎄🏮🎃🎊🥳🎂🎁🪅🎈",musichall:"🎹🥁🎻🎺🎷🪕🎸🎤🎼🪘🪗",gallery:"🖼️🎨🖌️🗿🏺🪞🪑🛋️💡🧵🖍️",science:"⚗️🔬🧪🧲🔭🧫⚛️🪐🌋💎🔥",
+ office:"💼🖥️🪑📞🗂️☕📎🖨️📋🪴🕰️",stadium:"⚽🏟️🥅🏆📣🎽🏃🚩🪑🥤🎫",gymroom:"🏋️🤸🧘🚴🥊🏓🧗🎯⏱️🧴🪞",shop:"📱💻⌚🎧📷🖨️🔋🖱️📺🕹️🔌",hospital:"🏥🛏️💊🩺🩹🌡️🧑‍⚕️🚑💉🧪🪑",square:"⛲🏛️🏢🏠🏪⛪🏫🏦🚏🌳🗽",crossroads:"🚦🧭⬆️⬇️⬅️➡️🛑🚸🪧🛣️🗺️",dreamtower:"☁️🌙⭐💭🌈🎈🕯️💖😊😢😠",thinktower:"💡🧠📚❓⏳🗝️🧩🔮⚖️🕊️💬",clocktower:"🕰️🔔⏰📅☀️🌙🌅🌇⌛🗓️🪟",calendar:"📅❄️🌸☀️🍂🎂🎄🗓️🌧️🌻🎃",counting:"🔢🧮➕➖✖️➗🎲💯🔟📏🪙"};
+const COL={house:["#3b2f7a","#6b4a2f"],farm:["#2f5d3a","#7a5a2f"],zoo:["#2f6b5d","#6b6b2f"],museum:["#4a3b2f","#5d4a3a"],town:["#2f4a6b","#4a4a5d"]};
+const XY=[[14,27],[38,27],[62,27],[86,27],[14,55],[38,55],[62,55],[86,55],[26,84],[50,84],[74,84]];
+/* stickers, sorted by picture (no reading needed) */
+const STK=[["😀","😀😂😱😍🤢😴🤯😎🥶🥵🤡👻👽🤖💩👶👵🧙🦸🧛🧟👮👸🤠🥷"],["✋","👀👂👃👄👅🦷🦵🦶💪🧠🫀🦴✋👍👎👏🙏🤌👋💋🧔👱💇🦰"],["🐶","🐶🐱🐭🐰🦊🐻🐼🐨🐯🦁🐮🐷🐸🐵🐔🐧🐦🦆🦉🐴🦄🐝🐛🦋🐌🐞🐢🐍🐙🦀🐟🐬🐳🦈🐘🦒🐪🦓"],["🍎","🍎🍌🍇🍓🍉🍒🍑🍍🥥🥝🍅🥕🌽🥔🧅🧄🥦🍄🍞🧀🥚🍳🥓🍗🍔🍕🌭🌮🍝🍜🍣🍦🍩🍪🎂🍫🍬🍿☕🍵🥛🍺🍷"],["🏠","🏠🛏️🛋️🪑🚪🪟🛁🚽🚿🪞🖼️🕯️💡🔦🧸🎁🧺🧹🧽🪣🧴🧼🔑🗝️📦📚✏️✂️📎📌🕰️⏰☎️📺💻📱"],["👕","👕👖👗👔🧥🧦🧤🧣🎩🧢👒👟👠👢🥿👜🎒👓🕶️💍💄👑🩲🩱"],["🌳","🌳🌲🌴🌵🌷🌹🌻🌸🍀🍁🍂🌾🌊🔥💧⛰️🌋🏝️☀️🌙⭐🌈☁️⛈️❄️⚡🌪️☔"],["🚗","🚗🚕🚌🚑🚒🚓🚜🏍️🚲🛴🚂🚀✈️🚁⛵🚢🛸🚦⛽🗺️🧭"],["🔧","🔧🔨🪛🪚⚙️🧲🔩🧰🪜🔪🍴🥄🍽️🫖🥣🎸🎹🥁🎺⚽🏀🎾🏓🎯🎲🧩🎈🪁🎨"],["⭐","⭐✨💥💢💨💫❤️💔💯❗❓➕➖✖️💤🎵🔔🚫✅❌⬆️⬇️⬅️➡️🔴🟠🟡🟢🔵🟣⚫⚪"]].map(([i,s])=>[i,[...new Intl.Segmenter(undefined,{granularity:"grapheme"}).segment(s)].map(x=>x.segment)]);
+const t=(k,v)=>{const a=STR[k];let s=a?(a[UIi]||a[0]):k;if(v)s=s.replace(/\{(\w+)\}/g,(_,x)=>v[x]!=null?v[x]:"");return s};
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const $=s=>document.querySelector(s);
+const lname=()=>LNAME[LANG][UIi];
+/* the app's topic names, when the game runs inside the app */
+const PAPP=(()=>{try{return parent&&parent!==window&&parent.VOCAB?parent:null}catch(e){return null}})();
+const catName=c=>{try{if(PAPP){const r=PAPP.VOCAB.nouns.find(x=>x[0]===c);return r?PAPP.T(r[1]):c}}catch(e){}return c};
+/* shared save: the course puts difficult words in the inbox; the game keeps everything else */
+const SK="kg-v1-"+LANG;
+const load=()=>{try{return JSON.parse(localStorage.getItem(SK)||"{}")||{}}catch(e){return {}}};
+let G=load();const fix=()=>{G.inbox=G.inbox||[];G.items=G.items||{};G.pts=G.pts||0};fix();
+const save=()=>{const cur=load();const ib=(cur.inbox||[]).filter(x=>!G.items[x.id]&&!(G.inbox||[]).some(y=>y.id===x.id)&&!(G.gone||[]).includes(x.id));G.inbox=[...G.inbox,...ib];try{localStorage.setItem(SK,JSON.stringify(G))}catch(e){}};
+const voiceOn=()=>G.voice!==false;
+/* ---------- voice ---------- */
+let tok=0;
+const pickV=tag=>{try{const vs=speechSynthesis.getVoices();return vs.find(v=>v.lang&&v.lang.replace("_","-").toLowerCase()===tag.toLowerCase())||vs.find(v=>v.lang&&v.lang.toLowerCase().startsWith(tag.slice(0,2)))}catch(e){return null}};
+const hush=()=>{tok++;try{speechSynthesis.cancel()}catch(e){}const g=$(".tip");if(g)g.classList.remove("talk")};
+function talk(parts,then,force){hush();const my=tok,g=$(".tip");if((!voiceOn()&&!force)||!window.speechSynthesis){if(then)setTimeout(then,0);return}
+  if(g)g.classList.add("talk");let i=0;
+  const go=()=>{if(my!==tok)return;if(i>=parts.length){if(g)g.classList.remove("talk");return then&&then()}const [x,l]=parts[i++];if(!x)return go();
+    const u=new SpeechSynthesisUtterance(x);u.lang=TTS[l||UI];const v=pickV(u.lang);if(v)u.voice=v;u.rate=l&&l!==UI?.9:1;let d=false;const f=()=>{if(d)return;d=true;setTimeout(go,150)};u.onend=f;u.onerror=f;setTimeout(f,Math.max(2200,x.length*110));
+    try{speechSynthesis.speak(u)}catch(e){f()}};go()}
+try{speechSynthesis.getVoices()}catch(e){}
+let AC=null;const beep=(f,ms,v=.07)=>{try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),gn=AC.createGain();o.frequency.value=f;gn.gain.value=v;o.connect(gn);gn.connect(AC.destination);o.start();gn.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+ms/1000);o.stop(AC.currentTime+ms/1000)}catch(e){}};
+const sfx={pop:()=>{beep(520,110);setTimeout(()=>beep(780,150),90)},ok:()=>{beep(660,110);setTimeout(()=>beep(990,180),100)},no:()=>beep(180,260,.05)};
+const toast=m=>{const d=document.createElement("div");d.className="toast";d.textContent=m;document.body.appendChild(d);setTimeout(()=>d.remove(),2800)};
+const SAPI=(()=>{try{if(parent&&parent!==window&&parent.SAPI_SVG)return parent.SAPI_SVG("kg")}catch(e){}
+  return `<svg viewBox="0 0 120 140" aria-hidden="true"><ellipse cx="60" cy="132" rx="22" ry="5" fill="#38bdf8" opacity=".5"/><rect x="38" y="52" width="44" height="62" rx="22" fill="#f1f5f9"/><rect x="34" y="14" width="52" height="36" rx="18" fill="#f8fafc"/><rect x="40" y="22" width="40" height="20" rx="10" fill="#1e1b4b"/><rect x="47" y="29" width="9" height="5" rx="2.5" fill="#c084fc"/><rect x="64" y="29" width="9" height="5" rx="2.5" fill="#c084fc"/><circle cx="60" cy="4" r="3" fill="#c084fc"/><line x1="60" y1="7" x2="60" y2="14" stroke="#cbd5e1" stroke-width="2"/><rect x="24" y="64" width="8" height="30" rx="4" fill="#e2e8f0"/><rect x="88" y="64" width="8" height="30" rx="4" fill="#e2e8f0"/></svg>`})();
+const tip=(st,tx)=>`<div class="tip"><div class="bot">${SAPI}</div><div><div class="st">${esc(st)}</div><div class="tx">${esc(tx)}</div></div></div>`;
+function frame(title,back,body){hush();$("#app").innerHTML=`<div class="top"><h1>${esc(title)}</h1><div style="display:flex;gap:6px"><button class="icon" id="vB">${esc(voiceOn()?t("voiceOn"):t("voiceOff"))}</button>${back?`<button class="icon" id="bB">${esc(t("back"))}</button>`:""}</div></div>`+body;window.scrollTo(0,0);
+  $("#vB").onclick=()=>{G.voice=!voiceOn();save();if(!voiceOn())hush();$("#vB").textContent=voiceOn()?t("voiceOn"):t("voiceOff")};if(back)$("#bB").onclick=home}
+/* ---------- words ---------- */
+const tw=x=>x.t[LI];                    // the word in the target language (with its article)
+const mw=x=>ML?x.t[L4.indexOf(ML)]:"";  // its meaning
+const nrm=s=>String(s||"").toLowerCase().replace(/œ/g,"oe").replace(/ß/g,"ss").replace(/[’`´]/g,"'").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[.,!?¿¡"“”«»:;()]/g," ").replace(/\s+/g," ").trim();
+const noArt=s=>nrm(s).replace(/^(el|la|los|las|le|les|der|die|das|the|a|an)\s+/,"").replace(/^l'\s*/,"");
+const grade=(v,x)=>{const T=tw(x).split(/\s*\/\s*/);if(T.some(a=>nrm(v)===nrm(a)))return 3;if(T.some(a=>noArt(v)===noArt(a)))return 2;return 0};   // 3 = exact, 2 = right word, wrong/no article
+/* ---------- rooms ---------- */
+const roomsOf=cat=>{const out=[];for(const A of AREAS)for(const [id,c] of A.rooms)if(c===cat)out.push({A,id,cat});return out};
+const ROOMDEF=id=>{for(const A of AREAS)for(const [r,c] of A.rooms)if(r===id)return {A,id:r,cat:c};return null};
+/* a topic's words fill "Room", then "Room 2", "Room 3"… with 11 spots each */
+const itemsIn=(rid,n)=>Object.values(G.items).filter(x=>x.room===rid&&(x.n||1)===n);
+const roomCount=rid=>{const ns=Object.values(G.items).filter(x=>x.room===rid).map(x=>x.n||1);return ns.length?Math.max(...ns):1};
+const roomOpen=cat=>G.inbox.some(x=>x.cat===cat)||Object.values(G.items).some(x=>x.cat===cat);
+const roomLabel=(rid,n)=>RN[rid][UIi]+(n>1?" "+n:"");
+const INT=[4*3600e3,86400e3,3*86400e3,7*86400e3,14*86400e3,30*86400e3];
+const dueList=()=>Object.values(G.items).filter(x=>x.due<=Date.now()).sort((a,b)=>a.due-b.due);
+/* ---------- home: the kingdom map ---------- */
+function home(){fix();G=Object.assign(load(),{voice:G.voice});fix();
+  const due=dueList(),ib=G.inbox;
+  const msg=due.length?t("tipGone"):ib.length?t("tipInbox",{n:ib.length}):Object.keys(G.items).length?t("tipCalm"):t("tipEmpty");
+  const areas=AREAS.map(A=>{const open=A.rooms.some(([r,c])=>roomOpen(c));if(A.id!=="house"&&!open)return "";
+    return `<div class="area"><b><span>${A.icon}</span>${esc(A.n[UIi])}</b><div class="rooms">${A.rooms.map(([r,c])=>{const o=roomOpen(c),n=roomCount(r),k=itemsIn(r,n).length,hasDue=due.some(x=>x.room===r);
+      return `<button class="rm${o?"":" locked"}" data-r="${r}"><b>${esc(roomLabel(r,n))}</b><small>${esc(t("roomFor",{c:catName(c)}))}</small>${o?`<div class="bar"><i style="width:${k/11*100}%"></i></div>`:""}${o?(hasDue?`<span class="due">❓</span>`:""):`<span class="lk">🔒</span>`}</button>`}).join("")}</div></div>`}).join("");
+  frame(t("title"),false,tip(t("tipT"),msg)+`<div class="pts">${esc(t("pts",{n:G.pts}))}</div>
+    ${due.length?`<div class="acts"><button class="btn gold" id="gone">${esc(t("goneB",{n:Math.min(2,due.length)}))}</button></div>`:""}
+    ${ib.length?`<div class="sec">📥 ${esc(t("inboxT"))}</div><div class="inbox">${ib.map((x,i)=>`<button class="chipw" data-i="${i}" lang="${LANG}">${esc(tw(x))}${mw(x)?`<small>${esc(mw(x))}</small>`:""}</button>`).join("")}</div>`:""}
+    <div class="sec">🏰 ${esc(t("title"))}</div>${areas}
+    ${PAPP?`<div class="sec">➕ ${esc(t("addT"))}</div><input type="text" id="add" lang="${LANG}" placeholder="${esc(t("addPh",{lang:lname()}))}" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="sug" id="sug"></div>`:""}`);
+  talk([[msg]]);
+  if($("#gone"))$("#gone").onclick=()=>findGone(due.slice(0,2),0);
+  $("#app").querySelectorAll(".chipw").forEach(b=>b.onclick=()=>workshop(G.inbox[+b.dataset.i]));
+  $("#app").querySelectorAll(".rm").forEach(b=>b.onclick=()=>{const r=ROOMDEF(b.dataset.r);if(!roomOpen(r.cat))return toast(t("locked",{c:catName(r.cat)}));roomView(r.id,roomCount(r.id))});
+  if($("#add"))$("#add").oninput=()=>{const q=nrm($("#add").value),box=$("#sug");box.innerHTML="";if(q.length<2)return;const out=[];
+    for(const A of AREAS)for(const [r,c] of A.rooms){(PAPP.VOCAB.w[c]||[]).forEach(row=>{const w=String(row[LI]||"").replace(/\s*\([^)]*\)/g,"");if(w&&w!=="–"&&(noArt(w).startsWith(q)||nrm(w).startsWith(q))&&out.length<6)out.push({id:c+"|"+row[0],cat:c,t:row.map(x=>String(x).replace(/\s*\([^)]*\)/g,""))})})}
+    if(!out.length){box.innerHTML=`<span class="muted">${esc(t("addNo"))}</span>`;return}
+    box.innerHTML=out.map((x,i)=>`<button data-k="${i}" lang="${LANG}">${esc(tw(x))} <span class="muted">· ${esc(mw(x))} · ${esc(catName(x.cat))}</span></button>`).join("");
+    box.querySelectorAll("button").forEach(b=>b.onclick=()=>{const x=out[+b.dataset.k];if(!G.items[x.id]&&!G.inbox.some(y=>y.id===x.id)){G.inbox.push({...x,d:new Date().toISOString().slice(0,10)});save()}toast(t("added"));home()})}}
+/* ---------- the picture workshop for one word ---------- */
+function picHTML(p,word){const e=(p.st||[]).join(""),show=p.show||"b";return `<div class="pc">${(show!=="d"&&e)?`<div class="e">${e}</div>`:""}${(show!=="s"&&p.desc)?`<div class="d">${esc(p.desc)}</div>`:""}${p.key?`<div class="k">≈ ${esc(p.key)}</div>`:""}${word?`<div class="w" lang="${LANG}">${esc(word)}</div>`:""}</div>`}
+function workshop(x,editing){const p=editing?{...G.items[x.id]}:{st:[],desc:"",key:"",show:"b"};let tab=0;
+  frame(t("wsT"),true,tip(t("wsT"),t("wsTip"))+`
+   <div class="card word"><div class="stp"><i>1</i>${esc(t("s1"))}</div><p>${esc(t("s1d"))}</p><div class="w" lang="${LANG}">${esc(tw(x))}</div>${mw(x)?`<div class="m">= ${esc(mw(x))}</div>`:""}<div class="acts" style="margin-top:6px"><button class="btn ghost" id="say">🔊</button></div></div>
+   <div class="card"><div class="stp"><i>2</i>${esc(t("s2"))}</div><p>${esc(t("s2d"))}</p><input type="text" id="key" maxlength="60" placeholder="${esc(t("s2ph"))}" value="${esc(p.key)}" autocomplete="off"></div>
+   <div class="card"><div class="stp"><i>3</i>${esc(t("s3"))}</div><p>${esc(t("s3d"))}</p>
+     <div class="chosen" id="chosen"></div><div class="tabs" id="tabs">${STK.map(([i],k)=>`<button class="tab${k===0?" on":""}" data-t="${k}">${i}</button>`).join("")}</div><div class="grid" id="grid"></div>
+     <textarea id="desc" maxlength="200" placeholder="${esc(t("dph"))}" style="margin-top:8px">${esc(p.desc)}</textarea>
+     <div style="margin-top:8px;font-weight:800;font-size:.85rem">${esc(t("showAs"))}</div><div class="seg" id="seg">${[["s","o_st"],["d","o_d"],["b","o_b"]].map(([v,k])=>`<button data-v="${v}"${p.show===v?' class="on"':""}>${esc(t(k))}</button>`).join("")}</div></div>
+   <div class="card"><div class="stp">🖼️ ${esc(t("prev"))}</div><div id="prev"></div></div>
+   <div class="acts"><button class="btn gold" id="go">${esc(editing?t("done"):t("toSpot"))}</button></div>`);
+  const upd=()=>{p.key=$("#key").value.trim();p.desc=$("#desc").value.trim();$("#prev").innerHTML=picHTML(p,tw(x));
+    $("#chosen").innerHTML=(p.st||[]).map((e,i)=>`<span data-c="${i}" style="cursor:pointer">${e}</span>`).join("")+((p.st||[]).length?`<span class="x">✕</span>`:"");
+    $("#chosen").querySelectorAll("[data-c]").forEach(s=>s.onclick=()=>{p.st.splice(+s.dataset.c,1);drawGrid();upd()})};
+  const drawGrid=()=>{$("#grid").innerHTML=STK[tab][1].map(e=>`<button class="st${p.st.includes(e)?" on":""}">${e}</button>`).join("");
+    $("#grid").querySelectorAll(".st").forEach(b=>b.onclick=()=>{const e=b.textContent,i=p.st.indexOf(e);if(i>=0)p.st.splice(i,1);else{if(p.st.length>=3)p.st.shift();p.st.push(e)}sfx.pop();drawGrid();upd()})};
+  $("#tabs").querySelectorAll(".tab").forEach(b=>b.onclick=()=>{tab=+b.dataset.t;$("#tabs").querySelectorAll(".tab").forEach(z=>z.classList.toggle("on",z===b));drawGrid()});
+  $("#seg").querySelectorAll("button").forEach(b=>b.onclick=()=>{p.show=b.dataset.v;$("#seg").querySelectorAll("button").forEach(z=>z.classList.toggle("on",z===b));upd()});
+  $("#key").oninput=upd;$("#desc").oninput=upd;drawGrid();upd();
+  $("#say").onclick=()=>talk([[tw(x),LANG],...(mw(x)?[[mw(x),ML]]:[])],null,true);
+  talk([[t("wsTip")],[tw(x),LANG]]);
+  $("#go").onclick=()=>{upd();if(!p.st.length&&!p.desc)return toast(t("needPic"));
+    if(editing){Object.assign(G.items[x.id],{st:p.st,desc:p.desc,key:p.key,show:p.show});save();return roomView(G.items[x.id].room,G.items[x.id].n||1)}
+    const r=roomsOf(x.cat)[0];let n=roomCount(r.id);if(itemsIn(r.id,n).length>=11)n++;placeIt(x,p,r.id,n)}}
+/* ---------- the room scene ---------- */
+function sceneHTML(rid,n,opt={}){const R=ROOMDEF(rid),C=COL[R.A.id],marks=[...new Intl.Segmenter(undefined,{granularity:"grapheme"}).segment(SP[rid])].map(x=>x.segment),its=itemsIn(rid,n);
+  return `<div class="scene" id="scene"><div class="wall" style="background:linear-gradient(180deg,${C[0]},${C[0]}cc)"></div><div class="floor" style="background:linear-gradient(180deg,${C[1]},${C[1]}aa)"></div><span class="rname">${R.A.icon} ${esc(roomLabel(rid,n))}</span>
+    ${XY.map(([x,y],s)=>{const it=its.find(z=>z.spot===s),gone=opt.gone&&it&&it.id===opt.gone,full=it&&!gone;
+      return `<div class="spot${full?" full":""}${gone?" gone":""}${opt.place&&!it?" can":""}" data-s="${s}" style="left:${x}%;top:${y}%"><span class="mk">${marks[s]||"⬜"}</span>${full?`<div class="it">${it.show!=="d"&&(it.st||[]).length?`<span class="e">${it.st.join("")}</span>`:""}${(it.show==="d"||!(it.st||[]).length)&&it.desc?`<span class="d">${esc(it.desc)}</span>`:""}</div>`:""}</div>`}).join("")}</div>`}
+function placeIt(x,p,rid,n){frame(t("wsT"),true,tip(t("s3"),t("place",{r:roomLabel(rid,n)}))+sceneHTML(rid,n,{place:true})+`<div class="card" style="margin-top:12px">${picHTML(p,tw(x))}</div>`);
+  talk([[t("place",{r:roomLabel(rid,n)})]]);
+  $("#scene").querySelectorAll(".spot.can").forEach(s=>s.onclick=()=>{const spot=+s.dataset.s;
+    G.items[x.id]={id:x.id,cat:x.cat,t:x.t,room:rid,n,spot,st:p.st,desc:p.desc,key:p.key,show:p.show,lvl:0,due:Date.now()+(window.__kgMs||INT[0]),added:Date.now()};
+    G.inbox=G.inbox.filter(y=>y.id!==x.id);G.gone=[...(G.gone||[]),x.id];save();sfx.pop();
+    roomView(rid,n,spot);toast(t("placed"))})}
+function roomView(rid,n,popSpot){frame(roomLabel(rid,n),true,tip(roomLabel(rid,n),t("roomTip"))+sceneHTML(rid,n));
+  if(popSpot!=null){const s=$(`.spot[data-s="${popSpot}"]`);if(s)s.classList.add("pop")}
+  $("#scene").querySelectorAll(".spot.full").forEach(s=>s.onclick=()=>{const it=itemsIn(rid,n).find(z=>z.spot===+s.dataset.s);if(!it)return;
+    const m=document.createElement("div");m.className="modal";m.innerHTML=`<div class="card">${picHTML(it,tw(it))}${mw(it)?`<p style="text-align:center" class="muted">= ${esc(mw(it))}</p>`:""}<div class="acts"><button class="btn ghost" id="mS">🔊</button><button class="btn ghost" id="mE">${esc(t("edit"))}</button><button class="btn" id="mC">${esc(t("close"))}</button></div></div>`;
+    document.body.appendChild(m);$("#mS").onclick=()=>talk([[tw(it),LANG]],null,true);$("#mC").onclick=()=>m.remove();$("#mE").onclick=()=>{m.remove();workshop(it,true)};m.onclick=e=>{if(e.target===m)m.remove()}})}
+/* ---------- finding what vanished: one or two items per visit ---------- */
+function findGone(list,i){if(i>=list.length){sfx.ok();toast(t("allBack"));return home()}
+  const it=G.items[list[i].id],rid=it.room,n=it.n||1;let hints=0;
+  const msg=t("fTip",{r:roomLabel(rid,n),lang:lname()});
+  frame(t("fT"),true,tip(t("fT"),msg)+sceneHTML(rid,n,{gone:it.id})+`<div class="card" style="margin-top:12px;text-align:center"><div style="font:800 1.1rem var(--display)">${esc(t("fQ"))}</div>
+    <input type="text" id="ans" lang="${LANG}" autocomplete="off" autocapitalize="off" spellcheck="false" style="margin-top:8px"><div class="acts"><button class="btn ghost" id="hB">${esc(t("hint"))}</button><button class="btn" id="cB">${esc(t("check"))}</button></div><div id="hint"></div><div class="fb" id="fb"></div><div id="after"></div></div>`);
+  talk([[msg]],()=>{const f=$("#ans");if(f)f.focus()});
+  $("#hB").onclick=()=>{hints++;const h=$("#hint");
+    if(hints===1)h.innerHTML=`<div class="hintb">${esc(t("h1",{k:it.key||"—"}))}</div>`;
+    else if(hints===2)h.innerHTML=`<div class="hintb">${esc(t("h2"))}${picHTML(it,"")}</div>`;
+    else{h.innerHTML+=`<div class="hintb">${esc(t("h3",{l:noArt(tw(it)).slice(0,1).toUpperCase()}))}</div>`;$("#hB").disabled=true}};
+  const go=()=>{const v=$("#ans").value;if(!v.trim())return;const g=grade(v,it);$("#ans").disabled=true;$("#cB").disabled=true;$("#hB").disabled=true;
+    if(g){const p=Math.max(1,(g===3?3:2)-hints);G.pts+=p;it.lvl=Math.min(INT.length-1,(it.lvl||0)+1);it.due=Date.now()+INT[it.lvl];save();sfx.ok();
+      $("#scene").outerHTML=sceneHTML(rid,n);
+      const s2=$(`.spot[data-s="${it.spot}"]`);if(s2)s2.classList.add("pop");
+      $("#fb").className="fb ok";$("#fb").textContent=g===3?t("right",{p}):t("artNo",{a:tw(it),p});talk([[tw(it),LANG]]);
+      $("#after").innerHTML=`<div class="acts"><button class="btn" id="nx">${esc(i+1<list.length?t("next"):t("done"))}</button></div>`;$("#nx").onclick=()=>findGone(list,i+1);return}
+    it.lvl=0;it.due=Date.now()+(window.__kgMs||INT[0]);save();sfx.no();
+    $("#fb").className="fb bad";$("#fb").textContent=t("wrong",{a:tw(it)});talk([[t("wrong",{a:""}).split(".")[0]],[tw(it),LANG]]);
+    $("#after").innerHTML=picHTML(it,tw(it))+`<div class="acts"><button class="btn ghost" id="ed">${esc(t("edit"))}</button><button class="btn" id="nx">${esc(i+1<list.length?t("next"):t("done"))}</button></div>`;
+    $("#ed").onclick=()=>workshop(it,true);$("#nx").onclick=()=>findGone(list,i+1)};
+  $("#cB").onclick=go;$("#ans").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();go()}}}
+home();
+</script>
+</body>
+</html>
